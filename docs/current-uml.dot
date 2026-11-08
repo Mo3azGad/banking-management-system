@@ -1,0 +1,17 @@
+digraph Current {
+  graph [rankdir=TB, label="Milestone 1 — implemented classes only", labelloc=t, fontsize=18, bgcolor="white"];
+  node [shape=record, fontname="Helvetica", fontsize=11];
+  edge [fontname="Helvetica", fontsize=10];
+  Bank [label="{Bank|- customers: Map\<String, Customer\>|+ registerCustomer(id, name): Customer\l+ findCustomer(id): Customer\l+ getCustomers(): List\<Customer\>\l}"];
+  Customer [label="{Customer|- id: String\l- name: String\l|+ Customer(id, name)\l+ getId(): String\l+ getName(): String\l~ requireText(value, field): String\l}"];
+  BankingException [label="{BankingException (abstract)|# BankingException(message)}"];
+  InvalidBankingInputException [label="{InvalidBankingInputException|+ InvalidBankingInputException(message)}"];
+  DuplicateCustomerException [label="{DuplicateCustomerException|+ DuplicateCustomerException(message)}"];
+  CustomerNotFoundException [label="{CustomerNotFoundException|+ CustomerNotFoundException(message)}"];
+  RuntimeException [label="RuntimeException (JDK)"];
+  Bank -> Customer [arrowhead=none, arrowtail=odiamond, dir=both, taillabel="1", headlabel="0..*", label="registered customers"];
+  InvalidBankingInputException -> BankingException [arrowhead=empty];
+  DuplicateCustomerException -> BankingException [arrowhead=empty];
+  CustomerNotFoundException -> BankingException [arrowhead=empty];
+  BankingException -> RuntimeException [arrowhead=empty];
+}

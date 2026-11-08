@@ -1,0 +1,50 @@
+classDiagram
+  %% PROPOSED final design. Account-related classes are not implemented in milestone 1.
+  class Bank {
+    +registerCustomer(id, name) Customer
+    +findCustomer(id) Customer
+    +getCustomers() List
+    +openCheckingAccount(...)
+    +openSavingsAccount(...)
+    +transfer(sourceId, targetId, amount, date)
+  }
+  class Customer {
+    -String id
+    -String name
+  }
+  class Account {
+    <<abstract>>
+    -BigDecimal balance
+    -boolean frozen
+    +deposit(amount, date)
+    +withdraw(amount, date)
+    +applyMonthlyInterest(date)
+    +freeze()
+    +getTransactionHistory() List
+    #minimumBalance() BigDecimal
+  }
+  class CheckingAccount
+  class SavingsAccount
+  class Transaction
+  class InterestPolicy {
+    <<interface>>
+    +calculate(balance) BigDecimal
+  }
+  class FixedRateInterestPolicy
+  class BankingException {
+    <<abstract>>
+  }
+  class InvalidBankingInputException
+  class DuplicateCustomerException
+  class CustomerNotFoundException
+  Bank "1" *-- "0..*" Customer : registry
+  Bank "1" *-- "0..*" Account : registry
+  Account "0..*" --> "1" Customer : owner
+  Account "1" *-- "0..*" Transaction : history
+  Account --> InterestPolicy
+  Account <|-- CheckingAccount
+  Account <|-- SavingsAccount
+  InterestPolicy <|.. FixedRateInterestPolicy
+  BankingException <|-- InvalidBankingInputException
+  BankingException <|-- DuplicateCustomerException
+  BankingException <|-- CustomerNotFoundException
