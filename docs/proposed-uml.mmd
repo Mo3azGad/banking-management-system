@@ -1,5 +1,5 @@
 classDiagram
-  %% PROPOSED final design. Account models exist in milestone 2; posting methods/policies are still planned.
+  %% PROPOSED final design. Milestone 3 has deposits/withdrawals/history; transfers, freezing and interest remain planned.
   class Bank {
     +registerCustomer(id, name) Customer
     +findCustomer(id) Customer
@@ -37,6 +37,8 @@ classDiagram
   class InvalidBankingInputException
   class DuplicateCustomerException
   class CustomerNotFoundException
+  class InsufficientFundsException
+  class InvalidPostingDateException
   Bank "1" *-- "0..*" Customer : registry
   Bank "1" *-- "0..*" Account : registry
   Account "0..*" --> "1" Customer : owner
@@ -47,4 +49,6 @@ classDiagram
   InterestPolicy <|.. FixedRateInterestPolicy
   BankingException <|-- InvalidBankingInputException
   BankingException <|-- DuplicateCustomerException
+  BankingException <|-- InsufficientFundsException
+  BankingException <|-- InvalidPostingDateException
   BankingException <|-- CustomerNotFoundException

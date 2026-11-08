@@ -1,10 +1,10 @@
 digraph Current {
- graph [rankdir=TB, label="Milestone 2 — implemented classes only", labelloc=t, fontsize=18, bgcolor="white", nodesep=0.35];
+ graph [rankdir=TB, label="Milestone 3 — implemented classes only", labelloc=t, fontsize=18, bgcolor="white", nodesep=0.35];
  node [shape=record, fontname="Helvetica", fontsize=10];
  edge [fontname="Helvetica", fontsize=9];
  Bank [label="{Bank|- customers: Map|+ registerCustomer(id, name): Customer\l+ findCustomer(id): Customer\l+ getCustomers(): List\l}"];
  Customer [label="{Customer|- id: String\l- name: String\l|+ Customer(id, name)\l+ getId(): String\l+ getName(): String\l}"];
- Account [label="{Account (abstract)|- id: String\l- owner: Customer\l- balance: BigDecimal\l- openedOn: LocalDate\l|# Account(id, owner, openingBalance, openedOn)\l+ getId(): String\l+ getOwner(): Customer\l+ getBalance(): BigDecimal\l+ getOpenedOn(): LocalDate\l+ getAvailableBalance(): BigDecimal\l+ getMinimumBalance(): BigDecimal (abstract)\l+ getMonthlyInterestRate(): BigDecimal (abstract)\l}"];
+ Account [label="{Account (abstract)|- id: String\l- owner: Customer\l- balance: BigDecimal\l- openedOn: LocalDate\l- history: List\<Transaction\>\l|# Account(id, owner, openingBalance, openedOn)\l+ getId(): String\l+ getOwner(): Customer\l+ getBalance(): BigDecimal\l+ getOpenedOn(): LocalDate\l+ getAvailableBalance(): BigDecimal\l+ deposit(amount, date): Transaction\l+ withdraw(amount, date): Transaction\l+ getTransactionHistory(): List\<Transaction\>\l- post(type, amount, date): Transaction\l+ getMinimumBalance(): BigDecimal (abstract)\l+ getMonthlyInterestRate(): BigDecimal (abstract)\l}"];
  CheckingAccount [label="{CheckingAccount|+ CheckingAccount(id, owner, openingBalance, openedOn)\l+ getMinimumBalance(): BigDecimal\l+ getMonthlyInterestRate(): BigDecimal\l}"];
  SavingsAccount [label="{SavingsAccount|+ SavingsAccount(id, owner, openingBalance, openedOn)\l+ getMinimumBalance(): BigDecimal\l+ getMonthlyInterestRate(): BigDecimal\l}"];
  Transaction [label="{Transaction (record)|id: long\laccountId: String\ltype: TransactionType\lamount: BigDecimal\lbalanceAfter: BigDecimal\ldate: LocalDate\ltransferReference: OptionalLong\l|+ Transaction(all components)\l+ component accessors\l}"];
@@ -14,11 +14,14 @@ digraph Current {
  InvalidBankingInputException [label="InvalidBankingInputException"];
  DuplicateCustomerException [label="DuplicateCustomerException"];
  CustomerNotFoundException [label="CustomerNotFoundException"];
+ InsufficientFundsException [label="InsufficientFundsException"];
+ InvalidPostingDateException [label="InvalidPostingDateException"];
  RuntimeException [label="RuntimeException (JDK)"];
  Bank -> Customer [arrowhead=none, arrowtail=odiamond, dir=both, taillabel="1", headlabel="0..*", label="registered"];
  Account -> Customer [arrowhead=vee, taillabel="0..*", headlabel="1", label="owner"];
  CheckingAccount -> Account [arrowhead=empty];
  SavingsAccount -> Account [arrowhead=empty];
+ Account -> Transaction [arrowhead=none, arrowtail=diamond, dir=both, taillabel="1", headlabel="1..*", label="ledger"];
  Transaction -> TransactionType [arrowhead=vee];
  Customer -> BankingInput [style=dashed, label="validates with"];
  Bank -> BankingInput [style=dashed];
@@ -27,6 +30,10 @@ digraph Current {
  InvalidBankingInputException -> BankingException [arrowhead=empty];
  DuplicateCustomerException -> BankingException [arrowhead=empty];
  CustomerNotFoundException -> BankingException [arrowhead=empty];
+ InsufficientFundsException -> BankingException [arrowhead=empty];
+ InvalidPostingDateException -> BankingException [arrowhead=empty];
+ Account -> InsufficientFundsException [style=dashed];
+ Account -> InvalidPostingDateException [style=dashed];
  BankingException -> RuntimeException [arrowhead=empty];
  BankingInput -> InvalidBankingInputException [style=dashed];
 }

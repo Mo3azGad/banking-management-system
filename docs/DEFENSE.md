@@ -1,6 +1,6 @@
 # Oral defense preparation — interim
 
-Milestone 2 adds account and transaction models but cannot yet demonstrate a complete banking system. Do not present planned
+Milestone 3 adds real dated deposits, withdrawals and history; transfers, freezing and monthly interest remain unimplemented. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -30,6 +30,30 @@ Run `mvn -Dtest=AccountTest,TransactionTest test`. Show
 `permitsOpeningExactlyAtTheAccountFloor`, `rejectsOpeningOneCentBelowTheAccountFloor`, and
 `rejectsTransferWithoutLinkReference`. Explain the rule before the expected assertion.
 
+## Explain and demonstrate milestone 3
+
+Run `mvn -Dtest=AccountOperationsTest test`, then `mvn clean verify` for the full suite.
+
+- `deposit` and `withdraw` are final entry points into Account's private posting template.
+  Show validation, date bound, calculation, minimum hook, Transaction construction and commit.
+- `permitsWithdrawalOfExactlyTheAvailableBalance` demonstrates different floors through Account.
+- `withdrawalOneCentOverAvailableBalancePreservesState` proves rejection leaves the ledger intact.
+- `chronologyTracksTheLatestWithdrawalAsWellAsDeposits` shows that either posting advances the bound.
+- `failedLaterDatedWithdrawalDoesNotAdvanceLedgerDateOrSequence` shows rejected operations do not
+  affect the next valid operation.
+- `previouslyRetrievedHistoryRemainsUnchangedAfterPosting` demonstrates snapshot encapsulation.
+
+Why include an opening entry? It establishes a complete starting balance and chronology bound.
+Why account-local IDs? The pair (accountId, transactionId) is unique within a registered bank;
+independent accounts need no static counter or Bank service to post. Transfer pairing will use
+another Bank-coordinated reference. This replaces an earlier plan, not a professor requirement.
+Why is this Template Method? One non-overridable algorithm uses a polymorphic minimum hook;
+subclasses vary the rule without duplicating or bypassing posting validation.
+What does atomic mean here? All domain validation/record preparation happens before state
+changes, under single-threaded in-memory use. This is not a database/concurrency guarantee.
+Why not reject future dates? The professor says dates must be supplied, not read from the clock;
+there is no supplied reference date, so only opening/latest-posting chronology is enforced.
+
 ## Final five-minute outline (planned demo, not available yet)
 
 0:00–0:40: scope and constraints: classes/tests only, in-memory, two account types.
@@ -44,7 +68,7 @@ Run `mvn -Dtest=AccountTest,TransactionTest test`. Show
 Why BigDecimal? Decimal financial values avoid binary floating-point rounding artifacts; create
 from strings and make rounding explicit for interest, not silent for invalid user input.
 Why no main? The professor requires JUnit to be the only way domain code executes.
-Why unchecked exceptions? This in-memory API has invalid operations, not recoverable checked I/O;
+Why unchecked exceptions? This in-memory API has rejected operations, not checked I/O;
 callers may handle BankingException while retaining precise subtype information.
 Why immutable snapshots? Encapsulation includes collections; an unmodifiable live view still
 changes when the bank changes, while a snapshot preserves the retrieval result.

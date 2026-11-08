@@ -45,3 +45,13 @@ create dated activity on those future days. Bank opening/history integration is 
 Use future sessions for remaining operations, testing, design review and defense preparation.
 The at-least-two-week history requirement remains unfinished; no automatic sessions or pushes
 have been scheduled. Keep this table as a proposal rather than a record of completed dates.
+
+## Actual milestone 3 progress — 8 November 2026
+
+Dated deposits/withdrawals, opening/posting history, custom funds/date failures, shared account
+operation tests and the Template Method posting path are now implemented. This advances the
+proposed operation sessions early at the user's request. Chronology and per-account sequences
+are tested immediately. The previous immutable opening-only account model now has controlled
+balance mutation. Bank account integration, atomic transfers, freezing and interest remain.
+All three milestones use their actual dates; this does not create activity on future dates or
+satisfy the at-least-two-week span yet. No unattended development or pushes are scheduled.

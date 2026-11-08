@@ -6,16 +6,16 @@ project uses the user's explicitly stated assignment; it does not infer identity
 
 ## Mandatory PDF requirements
 
-| Source | Requirement | Milestone 2 status |
+| Source | Requirement | Milestone 3 status |
 |---|---|---|
 | Cover | Individual Java classes and JUnit tests; no running application, main, menu, UI, Scanner or System.out | Foundation follows this restriction |
 | Cover | Meaningful Git/GitHub commits spread over at least two weeks | First commit pushed to verified private GitHub repository; two-week history still outstanding |
-| Cover | Own base and specialized exceptions; clear messages; no null/error printing on failure | Customer exceptions implemented and tested |
+| Cover | Own base and specialized exceptions; clear messages; no null/error printing on failure | Customer, input, insufficient-funds and posting-date exceptions implemented and tested |
 | Cover | Every nontrivial public method tested for success and failure; every exception thrown in a test | Covered for implemented operations; see test matrix |
-| Cover | Learned patterns and SOLID | Inheritance and polymorphic rules implemented; posting patterns still planned |
-| Cover | Dates passed as parameters; never read system clock | Model dates supplied explicitly; date-dependent postings still planned |
+| Cover | Learned patterns and SOLID | Template Method and polymorphic rules implemented; InterestPolicy Strategy still planned |
+| Cover | Dates passed as parameters; never read system clock | Model and posting dates supplied explicitly; chronology validated without reading clock |
 | Banking (2), p.1 | Bank, customer, checking/savings accounts, transaction | Bank/customer management, account models and transaction records implemented; Bank/account integration planned |
-| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | Planned |
+| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | Standalone construction, deposits, withdrawals and history implemented; Bank opening, transfers, interest and freeze remain |
 | Banking (2), p.1 | Different rules and monthly rates for checking and savings | Different opening floors and rate metadata implemented; interest posting planned |
 | Oral defense, p.1 | Individual five-minute defense with laptop, tests and code walkthrough; absence means failure | Interim preparation included; attend in weeks 11/12 |
 | Final report, p.2 | DOC/DOCX: UML/class overview, patterns, exceptions/checked choice, all five SOLID, testing/limitations/redesign | Interim DOCX only; final follows completed code |
@@ -51,8 +51,10 @@ Do not delay testing to days 11/12; test each implementation step.
 - Transfer must involve distinct accounts registered at the same bank, validates both sides
   before mutation, and records linked out/in entries. Failure must leave both accounts unchanged.
 - Customer/account IDs are caller-supplied and unique in their respective registries. Transaction
-  sequence IDs are deterministic, allocated by Bank; failed operations consume no sequence.
+  sequence IDs are deterministic and local to each Account; opening is 1. A ledger identity
+  is (accountId, transactionId). This revises the earlier Bank-global proposal, not a PDF rule.
+  Failed operations consume no sequence; future Bank transfer references will correlate two legs.
 - In-memory, single-threaded operation. No database, authentication, persistent audit, concurrency
   or production banking claims. Frozen status applies to account operations, not customer lookup.
 
-These choices are explicit project decisions. Account floors/rates and record-local validation are now implemented; posting, chronology and integration rules remain future work.
+These are explicit project decisions. Floors/rate metadata, deposits/withdrawals, opening/posting history and chronology are implemented. Bank integration, transfers, freezing and monthly interest remain future work.

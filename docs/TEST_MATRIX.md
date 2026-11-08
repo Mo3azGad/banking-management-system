@@ -1,46 +1,41 @@
-# Test evidence and obligations
-
-## Implemented through milestone 2
+# Test evidence and obligations — milestone 3
 
 | Public operation | Successful behavior | Failure / boundary behavior |
 |---|---|---|
-| Customer constructor | Preserves valid identity; strips surrounding whitespace | Null, empty, spaces, control whitespace, Unicode whitespace for ID/name |
-| Bank constructor | Empty registry | No inputs or meaningful domain failure |
-| registerCustomer | Registers retrievable customer; allows repeated names | Invalid ID/name; normalized duplicate ID preserves original registry |
-| findCustomer | Returns same registered instance; strips lookup ID | Missing ID, invalid ID, case-sensitive mismatch |
-| getCustomers | Empty/nonempty snapshot; registration order | Mutation rejected; later registration cannot mutate old snapshot |
-| Exception constructors | Messages checked through actual operation failures | No operation-specific invalid message contract; no artificial constructor failures |
+| Customer constructor | Valid identity; whitespace stripping | Null, empty and whitespace ID/name |
+| Bank constructor | Empty registry | No input/domain failure condition |
+| registerCustomer | Retrieval; same names allowed | Invalid identity/name; normalized duplicate preserves original |
+| findCustomer | Registered instance; normalized lookup | Missing, invalid and case-mismatched ID |
+| getCustomers | Immutable, ordered, isolated snapshots | External mutation rejected |
+| Account constructors | Ownership, dates, floors, rates, exact money; opening history | Missing values, negative/sub-cent amounts, below savings floor |
+| getAvailableBalance | Polymorphic floor before/after postings | Valid models have no failure inputs |
+| Transaction constructor | All six types, normalized money, zero opening/interest, paired references | Invalid IDs/fields/money; opening mismatch; impossible credit balance; invalid transfer links |
+| deposit | Balance and returned/stored ledger entry; one cent; trailing zeros; large amounts | Null/zero/negative/sub-cent amount; null, pre-opening and backdated dates |
+| withdraw | Balance and returned/stored ledger entry; exact floor; replenishment | Invalid inputs/dates; one cent over available; at floor; insufficient funds |
+| getTransactionHistory | Opening, posting order, running balances, IDs and immutable snapshots | Mutation rejected; previous snapshots unchanged after later postings |
 
-| CheckingAccount / SavingsAccount constructors | Valid owner, explicit leap date, normalized balance, exact minimum allowed | Missing identity/owner/balance/date; negative balance; one cent below floor; sub-cent precision |
-| Account polymorphic rules | Different floors/rates; shared Account reference gives correct available balance | Valid models cannot produce a negative available balance; methods have no failure input |
-| Transaction constructor | All six types, normalized money, zero opening/interest, linked transfer facts | Missing fields; invalid IDs, amounts/balances, mismatched opening amount, credit exceeding balance, invalid/missing/unexpected transfer references |
+Shared account-operation tests run for both concrete types through Account references.
+Posting tests verify same-day/opening-day acceptance, leap dates, chronology after both deposits
+and withdrawals, and a supplied far-future date without a system-clock rule. Failure checks
+assert unchanged balance/history and no consumed sequence or advanced ledger date. Two
+accounts have independent sequences/state. Large deposit/withdrawal round trips preserve cents.
 
-Simple getters are exempt in the PDF, but customer values are checked in constructor tests.
-Every concrete custom exception is thrown by an operation test. Because BankingException is
-abstract, the same tests exercise its constructor through subclasses; an abstract base has no
-independent instance to throw. UnsupportedOperationException comes from the JDK collection
-contract and is not a custom banking exception.
+Every concrete custom exception is thrown by an operation test. The abstract BankingException
+base is exercised through its subclasses. Getter/derived values on valid state have no meaningful
+failure input; do not invent failures. UnsupportedOperationException is the JDK immutable-list
+contract, not a custom banking exception. Generated record accessors are checked through facts.
 
-## Required as accounts arrive
+## Remaining test obligations
 
-- Bank opening integration: registered owner, duplicate account ID, opening transaction/sequence allocation. Model-level owner/date/balance/precision/floor validation is already tested.
-- Deposits: positive, null/zero/negative, sub-cent precision, frozen, pre-opening/backdated date.
-- Withdrawals: exact floor allowed, one cent below rejected, checking insufficient funds,
-  invalid amount/date/frozen status; rejection preserves balance and history.
-- Transfer: valid paired entries, same-account/missing-account, either side frozen, date/amount
-  invalid, insufficient funds, conservation of total money, neither side changes on rejection.
-- History: opening and posting order, immutable contents/snapshot, transfer correlation.
-- Interest: two rates, rounding ties, zero credit, duplicate month, month-end validation,
-  frozen/backdated date, injected policy delegation/failure preserves state.
-- Freeze: first succeeds, repeated attempt fails, read access remains available.
-- Polymorphism: shared account contracts for both concrete subtypes.
+- Bank account registration: registered owner and unique ID; retrieve/open accounts.
+- Transfers: paired entries/references, conservation, both-side prevalidation, no partial state
+  on missing/same account, insufficient funds, invalid date/amount or frozen status.
+- Freezing: first/repeated attempt and every blocked operation; history remains readable.
+- Interest: two policies/rates, HALF_EVEN ties, zero result, month-end/chronology, duplicate month,
+  frozen status, injected-policy validation and failure-state preservation.
 
-Coverage numbers are evidence for the current code only, not proof of final behavior coverage.
-No database, GitHub network calls, concurrency or scheduler is claimed as tested. Git/GitHub
-activity is verified separately; application code must never contact GitHub to satisfy tests.
-
-Milestone 2 has 119 test invocations: 34 existing customer/bank cases plus 33 account-model
-and 52 transaction-record cases. All custom exception types remain exercised through operations.
-The single uncovered branch is the compiler-emitted default branch of Transaction's enum switch;
-all six legal enum values are covered, and null is rejected before the switch. No production
-checks or enum values were removed or fabricated merely to increase coverage.
+Current totals/coverage are in VERIFICATION.md. History for transfer and interest types is only
+record-level tested until those posting operations exist. No persistence, concurrency, UI,
+GitHub network integration or unattended scheduler is part of the Java test suite. Git pushes
+are verified independently. One compiler-generated switch default remains uncovered; every legal
+TransactionType and null rejection is tested. No fake enum values or removed checks chase coverage.

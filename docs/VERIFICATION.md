@@ -1,32 +1,35 @@
-# Milestone 2 verification
+# Milestone 3 verification
 
-Verified 8 November 2026. Maven `clean verify`: BUILD SUCCESS.
-JDK: Eclipse Temurin 21.0.13+9; Maven 3.9.11; compiler release 17.
-JUnit 5.11.4; Surefire 3.5.2; JaCoCo 0.8.12.
+Verified 8 November 2026. Full Maven `clean verify`: BUILD SUCCESS.
+JDK Eclipse Temurin 21.0.13+9; compiler release 17; Maven 3.9.11; JUnit 5.11.4;
+Surefire 3.5.2; JaCoCo 0.8.12.
 
-JUnit: 119 invocations, 0 failures, 0 errors, 0 skipped.
+JUnit: 205 invocations, 0 failures, 0 errors, 0 skipped.
 
-- Instruction: 415/415 (100.00%).
-- Branch: 36/37 (97.30%).
-- Line: 95/95 (100.00%).
-- Method: 32/32 (100.00%).
-- Class: 12/12 (100.00%).
+- Instruction: 559/559 (100.00%).
+- Branch: 44/45 (97.78%).
+- Line: 121/121 (100.00%).
+- Method: 38/38 (100.00%).
+- Class: 14/14 (100.00%).
 
-The one missed branch is the compiler-emitted default path of Transaction's exhaustive enum
-switch. All six current enum values are exercised; null is separately rejected before it.
-Coverage is limited to current classes. It does not imply completed posting/transfer/history
-or monthly-interest behavior. Earlier evidence remains in MILESTONE_1_VERIFICATION.md.
+All Account posting branches are covered. The one missed branch is Transaction's compiler-
+emitted enum-switch default; all six legal types and null rejection are exercised. No failure
+paths were removed to improve coverage. Current coverage does not imply completion of transfers,
+freezing, monthly interest or Bank account registration.
 
-A workspace-local JDK/Maven and external Maven proxy settings were used; the existing system
-Java CA trust store was preserved. No machine credentials or downloaded tools are committed.
-On a normal JDK/Maven setup, run `mvn clean verify`. Tests are the only application entry point.
+Earlier results remain in MILESTONE_1_VERIFICATION.md and MILESTONE_2_VERIFICATION.md.
+The workspace-local JDK/Maven, external proxy settings and existing Java CA trust store were
+used; no tools, credentials or machine settings are committed. On a normal JDK/Maven setup run
+`mvn clean verify`. Test methods are the only application entry point.
 
-## First push verification
+## Repository history
 
-Repository: https://github.com/Mo3azGad/banking-management-system
-GitHub API returned private=true, visibility=private. The remote main commit matched local
-HEAD exactly: dba37153be8867b854a1aade7f5b891c45ad27aa. This was checked before milestone 2
-implementation. The original local history was kept, with no replacement project or amended commit.
+Private repository: https://github.com/Mo3azGad/banking-management-system
+Milestone-1 commit dba37153be8867b854a1aade7f5b891c45ad27aa and milestone-2 commit
+244a7b6ed03ddd42f6c262a583f04b9d146aa3d9 are preserved; the latest prior commit was verified
+against GitHub before milestone 3. New work is committed/pushed only after verification.
+All milestones so far occurred on their real date, 8 November 2026; the two-week span remains
+outstanding. Nothing is automatically scheduled.
 
-The source restrictions, UML, DOCX structure and diff are reviewed separately. No claim is
-made of a rendered Word/LibreOffice pagination check or unattended future work.
+UML rendering/inspection, DOCX structural checks, source restrictions and diff review are
+performed separately. No full Word/LibreOffice pagination-render check is claimed.
