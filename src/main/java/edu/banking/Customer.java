@@ -6,8 +6,8 @@ public final class Customer {
     private final String name;
 
     public Customer(String id, String name) {
-        this.id = requireText(id, "Customer identifier");
-        this.name = requireText(name, "Customer name");
+        this.id = BankingInput.text(id, "Customer identifier");
+        this.name = BankingInput.text(name, "Customer name");
     }
 
     public String getId() {
@@ -18,11 +18,4 @@ public final class Customer {
         return name;
     }
 
-    // Package-private so shared input validation does not become a public service API.
-    static String requireText(String value, String field) {
-        if (value == null || value.isBlank()) {
-            throw new InvalidBankingInputException(field + " must not be blank.");
-        }
-        return value.strip();
-    }
 }

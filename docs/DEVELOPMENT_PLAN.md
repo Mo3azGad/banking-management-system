@@ -35,3 +35,13 @@ ship broken or unfinished methods to preserve this schedule. No empty placeholde
 
 Immediate next prompt: "Review the proposed account rules and implement Transaction with
 JUnit success and failure tests; run Maven verify and update the UML for the implemented model."
+
+## Actual progress as of 8 November 2026
+
+Milestone 1 was genuinely completed and its existing commit pushed to the private repository.
+Milestone 2 account models and validated transactions were implemented early at the user's
+request, on the same real date. This advances part of the proposed days 3–4 work; it does not
+create dated activity on those future days. Bank opening/history integration is still outstanding.
+Use future sessions for remaining operations, testing, design review and defense preparation.
+The at-least-two-week history requirement remains unfinished; no automatic sessions or pushes
+have been scheduled. Keep this table as a proposal rather than a record of completed dates.

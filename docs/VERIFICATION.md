@@ -1,25 +1,32 @@
-# Milestone 1 verification
+# Milestone 2 verification
 
 Verified 8 November 2026. Maven `clean verify`: BUILD SUCCESS.
 JDK: Eclipse Temurin 21.0.13+9; Maven 3.9.11; compiler release 17.
 JUnit 5.11.4; Surefire 3.5.2; JaCoCo 0.8.12.
 
-JUnit results: 34 test invocations, 0 failures, 0 errors, 0 skipped.
+JUnit: 119 invocations, 0 failures, 0 errors, 0 skipped.
 
-- Instruction: 110/110 (100%).
-- Branch: 8/8 (100%).
-- Line: 30/30 (100%).
-- Method: 12/12 (100%).
+- Instruction: 415/415 (100.00%).
+- Branch: 36/37 (97.30%).
+- Line: 95/95 (100.00%).
+- Method: 32/32 (100.00%).
+- Class: 12/12 (100.00%).
 
-These coverage values concern only the six implemented classes. No coverage of future account
-operations is implied. Parameterized cases are counted separately from test methods.
+The one missed branch is the compiler-emitted default path of Transaction's exhaustive enum
+switch. All six current enum values are exercised; null is separately rejected before it.
+Coverage is limited to current classes. It does not imply completed posting/transfer/history
+or monthly-interest behavior. Earlier evidence remains in MILESTONE_1_VERIFICATION.md.
 
-Environment setup used a workspace-local JDK and Maven because the environment initially
-provided a JRE without javac and no Maven. The local JDK uses the environment's existing Java
-CA trust store; Maven uses inherited proxy settings via an external settings file. None of
-these machine-specific settings or downloads are committed. On a normal JDK/Maven installation,
-run `mvn clean verify` as documented in README.
+A workspace-local JDK/Maven and external Maven proxy settings were used; the existing system
+Java CA trust store was preserved. No machine credentials or downloaded tools are committed.
+On a normal JDK/Maven setup, run `mvn clean verify`. Tests are the only application entry point.
 
-Source inspection confirms no main method, Scanner, System output or clock reads. Current UML
-was rendered with Graphviz and visually inspected. The interim DOCX is structurally checked;
-no claim of full Word/LibreOffice layout rendering is made.
+## First push verification
+
+Repository: https://github.com/Mo3azGad/banking-management-system
+GitHub API returned private=true, visibility=private. The remote main commit matched local
+HEAD exactly: dba37153be8867b854a1aade7f5b891c45ad27aa. This was checked before milestone 2
+implementation. The original local history was kept, with no replacement project or amended commit.
+
+The source restrictions, UML, DOCX structure and diff are reviewed separately. No claim is
+made of a rendered Word/LibreOffice pagination check or unattended future work.

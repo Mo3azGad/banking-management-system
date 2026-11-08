@@ -1,11 +1,29 @@
 # Architecture: current implementation and proposed final design
 
-## Implemented now
+## Implemented now (milestone 2)
 
-`Bank` owns a private insertion-ordered customer map. `Customer` is immutable and validates
-its own identity. Three final exceptions extend abstract unchecked `BankingException`.
-The customer snapshot is a defensive immutable copy, not a mutable view. No repository
-interface or dependency injection framework is justified for this small in-memory milestone.
+Bank retains the customer registry. Customer is immutable. BankingInput is a package-private
+validation helper shared by Customer, Account, Bank and Transaction; it prevents these domain
+objects depending on a customer-specific validator. The existing unchecked exception hierarchy
+is sufficient for rejected model inputs.
+
+Abstract Account holds validated ID, Customer owner, nonnegative two-decimal opening balance,
+and an explicit opening date. Final state getters preserve encapsulation. CheckingAccount and
+SavingsAccount override minimum balance and monthly rate; getAvailableBalance uses the base
+reference's overridden floor. Savings construction additionally rejects balances below 100.00.
+No overridable method is called from the base constructor. Both types satisfy the shared
+contract: valid accounts have balance at least their documented floor.
+
+Transaction is a Java record with ID, account ID, type, amount, balance-after, explicit LocalDate,
+and OptionalLong transfer reference. All its components are immutable. Its compact constructor
+normalizes money and identity. OPENING amount equals its balance; OPENING/INTEREST allow zero;
+other types require positive amounts; credits cannot exceed the resulting balance. A positive
+reference is required exactly for transfer types. These are local record invariants, not proof
+that a real posting occurred. It cannot validate an account's chronology or a counterpart leg.
+
+Account models currently hold only opening state. Constructing an account does not register it
+with Bank or create history. Constructing a Transaction does not mutate an account. The Bank
+integration will establish those relations. There are no placeholder operation methods.
 
 ## Planned final classes
 
@@ -44,7 +62,7 @@ A factory is unnecessary with only two clearly named Bank opening methods.
 
 ## SOLID defense mapping (planned unless stated otherwise)
 
-- SRP: Customer handles identity now. Later, Bank coordinates, Account enforces invariants,
+- SRP: Customer handles identity now; BankingInput handles shared validation and Transaction validates ledger facts. Later, Bank coordinates, Account enforces invariants,
   Transaction holds history facts, and InterestPolicy handles interest calculation.
 - OCP: a new InterestPolicy can be added without rewriting Account's posting workflow.
 - LSP: each account respects the documented base contract: an account-specific available amount
@@ -68,4 +86,5 @@ single-threaded assumptions. Do not implement transfer as withdraw followed by p
 the second operation might fail after the first changed state.
 
 No broad claim of full SOLID compliance, banking completeness, or final coverage is made for
-this first milestone. The final diagram and report must be regenerated after implementation.
+this second milestone. Inheritance, polymorphic rules and encapsulation are now demonstrated;
+Template Method posting and InterestPolicy strategy are still planned. The final diagram and report must be regenerated after implementation.

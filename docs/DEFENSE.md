@@ -1,11 +1,11 @@
 # Oral defense preparation — interim
 
-This milestone cannot yet demonstrate a complete banking system. Do not present planned
+Milestone 2 adds account and transaction models but cannot yet demonstrate a complete banking system. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
 
-- Customer constructor establishes valid immutable identity; requireText rejects missing data.
+- Customer constructor establishes valid immutable identity; BankingInput.text rejects missing data.
 - registerCustomer validates first, checks uniqueness, and changes the map only on success.
 - findCustomer normalizes input and throws a clear typed exception when the identity is absent.
 - getCustomers copies the map values, preventing callers changing bank state or old snapshots.
@@ -13,6 +13,22 @@ classes as implemented. The final defense carries 30 points and attendance is co
 Run `mvn -Dtest=CustomerTest,BankTest test`. Walk through duplicateRegistrationKeepsOriginalCustomer
 and customerSnapshotDoesNotChangeAfterLaterRegistration. Assertions on unchanged state are part
 of a single rejection/isolation behavior, rather than unrelated checks.
+
+## Explain milestone 2
+
+- Account validates shared opening state once. Checking and savings override the floor and rate;
+  getAvailableBalance uses polymorphism through an Account reference.
+- Savings rejects 99.99 and accepts 100.00; checking accepts zero without an overdraft.
+- BankingInput rejects fractions of a cent with UNNECESSARY rather than silently rounding.
+- Transaction is immutable: type determines direction, amounts remain unsigned, and optional
+  transfer references distinguish ordinary entries from transfer legs.
+- Transaction creation is validation only; Bank integration will later execute actual postings.
+- All dates are supplied. Record validation cannot determine account chronology without account
+  state; that validation belongs in the posting workflow.
+
+Run `mvn -Dtest=AccountTest,TransactionTest test`. Show
+`permitsOpeningExactlyAtTheAccountFloor`, `rejectsOpeningOneCentBelowTheAccountFloor`, and
+`rejectsTransferWithoutLinkReference`. Explain the rule before the expected assertion.
 
 ## Final five-minute outline (planned demo, not available yet)
 

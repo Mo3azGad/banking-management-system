@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** In-memory bank facade. This first milestone implements customer management only.
+/** In-memory bank facade. Currently implements customer management; account integration arrives later.
  * Instances are intended for single-threaded use.
  */
 public final class Bank {
@@ -22,7 +22,7 @@ public final class Bank {
 
     /** Looks up a customer, rejecting missing identities instead of returning null. */
     public Customer findCustomer(String id) {
-        String normalizedId = Customer.requireText(id, "Customer identifier");
+        String normalizedId = BankingInput.text(id, "Customer identifier");
         Customer customer = customers.get(normalizedId);
         if (customer == null) {
             throw new CustomerNotFoundException("Customer not found: " + normalizedId);
