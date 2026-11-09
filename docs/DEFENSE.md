@@ -1,6 +1,6 @@
 # Oral defense preparation — interim
 
-Milestone 3 adds real dated deposits, withdrawals and history; transfers, freezing and monthly interest remain unimplemented. Do not present planned
+Milestone 4 adds Bank account opening/retrieval with registered ownership and unique IDs; transfers, freezing and monthly interest remain unimplemented. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -22,7 +22,7 @@ of a single rejection/isolation behavior, rather than unrelated checks.
 - BankingInput rejects fractions of a cent with UNNECESSARY rather than silently rounding.
 - Transaction is immutable: type determines direction, amounts remain unsigned, and optional
   transfer references distinguish ordinary entries from transfer legs.
-- Transaction creation is validation only; Bank integration will later execute actual postings.
+- Transaction creation is validation only; Account executes dated deposits/withdrawals, while Bank transfer coordination remains future work.
 - All dates are supplied. Record validation cannot determine account chronology without account
   state; that validation belongs in the posting workflow.
 
@@ -53,6 +53,31 @@ What does atomic mean here? All domain validation/record preparation happens bef
 changes, under single-threaded in-memory use. This is not a database/concurrency guarantee.
 Why not reject future dates? The professor says dates must be supplied, not read from the clock;
 there is no supplied reference date, so only opening/latest-posting chronology is enforced.
+
+## Explain milestone 4 (9 November)
+
+Run `mvn -Dtest=BankAccountTest test` for this scope, then `mvn clean verify` for everything.
+
+- Bank.openCheckingAccount/openSavingsAccount validate a free ID, find the canonical Customer,
+  construct the complete account and only then publish it in the account map.
+- Show `constructorRejectionPreservesRegistriesAndLeavesIdReusable` and explain why putting
+  an incomplete account in the map before validation would break this contract.
+- `accountIdentifiersAreUniqueAcrossCheckingAndSavings` demonstrates one Bank-wide account
+  namespace. The PDF leaves ID rules open; these are documented implementation decisions.
+- `openingPublishesTheReturnedAccountWithTheCanonicalRegisteredOwner` and
+  `registrationAtAnotherBankDoesNotAuthorizeOpeningHere` demonstrate registered ownership.
+- `lookupRetainsTheRegisteredPostingStateAndSequence` connects earlier deposit/withdraw work
+  to Bank retrieval. No copying of accounts or ledger IDs is done by lookup.
+- `priorAccountSnapshotDoesNotGainLaterAccounts` protects registry membership. A snapshot's
+  account objects still mutate via their validated APIs; this is intentionally not a balance snapshot.
+
+Why named opening methods? Only two concrete types exist, so named creation/registration
+operations are clear without a separate factory framework. They return concrete types and
+use shared uniqueness validation plus the existing Customer lookup/Account constructors.
+Why not register an arbitrary Account? This scope does not need importing external histories;
+Bank creates accounts using its own registered owner and validated opening state.
+Why new exception types? DuplicateAccountException identifies a conflicting account ID,
+AccountNotFoundException identifies failed lookup; existing input/customer exceptions are reused.
 
 ## Final five-minute outline (planned demo, not available yet)
 

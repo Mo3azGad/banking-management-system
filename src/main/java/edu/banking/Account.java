@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.OptionalLong;
 
 /** Shared account invariants and dated posting workflows. Single-threaded, in-memory use.
- * Constructors create a model with an opening ledger entry; Bank registration arrives later.
+ * Direct construction creates an opening ledger entry; Bank opening methods also register the model.
  */
 public abstract class Account {
     private final String id;

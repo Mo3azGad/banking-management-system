@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 3
+# Test evidence and obligations — milestone 4
 
 | Public operation | Successful behavior | Failure / boundary behavior |
 |---|---|---|
@@ -7,6 +7,9 @@
 | registerCustomer | Retrieval; same names allowed | Invalid identity/name; normalized duplicate preserves original |
 | findCustomer | Registered instance; normalized lookup | Missing, invalid and case-mismatched ID |
 | getCustomers | Immutable, ordered, isolated snapshots | External mutation rejected |
+| openCheckingAccount / openSavingsAccount | Canonical owner, explicit date, floor boundaries, one opening entry and registered instance | Blank account/customer IDs; missing/foreign-bank owner; duplicate IDs across types/owners; invalid balance/date; retry after rejection |
+| findAccount | Normalized ID lookup, registered identity and posting state | Missing/invalid/case-mismatched ID; no implicit registration from direct construction |
+| getAccounts | Empty/ordered immutable membership snapshots; actual account instances | Membership mutation rejected; later openings do not change earlier snapshots |
 | Account constructors | Ownership, dates, floors, rates, exact money; opening history | Missing values, negative/sub-cent amounts, below savings floor |
 | getAvailableBalance | Polymorphic floor before/after postings | Valid models have no failure inputs |
 | Transaction constructor | All six types, normalized money, zero opening/interest, paired references | Invalid IDs/fields/money; opening mismatch; impossible credit balance; invalid transfer links |
@@ -27,7 +30,6 @@ contract, not a custom banking exception. Generated record accessors are checked
 
 ## Remaining test obligations
 
-- Bank account registration: registered owner and unique ID; retrieve/open accounts.
 - Transfers: paired entries/references, conservation, both-side prevalidation, no partial state
   on missing/same account, insufficient funds, invalid date/amount or frozen status.
 - Freezing: first/repeated attempt and every blocked operation; history remains readable.
@@ -39,3 +41,9 @@ record-level tested until those posting operations exist. No persistence, concur
 GitHub network integration or unattended scheduler is part of the Java test suite. Git pushes
 are verified independently. One compiler-generated switch default remains uncovered; every legal
 TransactionType and null rejection is tested. No fake enum values or removed checks chase coverage.
+
+Milestone 4 adds 68 Bank account test invocations. Failure checks preserve both registries,
+existing account balance/history and reusability of failed IDs. Cross-type duplicate IDs,
+canonical customer identity, multiple accounts per customer, separate namespaces/Banks and
+posting through retrieved instances are verified. New DuplicateAccountException and
+AccountNotFoundException are each thrown and their messages checked in operation tests.

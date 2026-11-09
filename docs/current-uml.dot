@@ -1,8 +1,8 @@
 digraph Current {
- graph [rankdir=TB, label="Milestone 3 — implemented classes only", labelloc=t, fontsize=18, bgcolor="white", nodesep=0.35];
+ graph [rankdir=TB, label="Milestone 4 — implemented classes only", labelloc=t, fontsize=18, bgcolor="white", nodesep=0.35];
  node [shape=record, fontname="Helvetica", fontsize=10];
  edge [fontname="Helvetica", fontsize=9];
- Bank [label="{Bank|- customers: Map|+ registerCustomer(id, name): Customer\l+ findCustomer(id): Customer\l+ getCustomers(): List\l}"];
+ Bank [label="{Bank|- customers: Map\l- accounts: Map\l|+ registerCustomer(id, name): Customer\l+ findCustomer(id): Customer\l+ getCustomers(): List\l+ openCheckingAccount(id, customerId, balance, date): CheckingAccount\l+ openSavingsAccount(id, customerId, balance, date): SavingsAccount\l+ findAccount(id): Account\l+ getAccounts(): List\l- availableAccountId(id): String\l}"];
  Customer [label="{Customer|- id: String\l- name: String\l|+ Customer(id, name)\l+ getId(): String\l+ getName(): String\l}"];
  Account [label="{Account (abstract)|- id: String\l- owner: Customer\l- balance: BigDecimal\l- openedOn: LocalDate\l- history: List\<Transaction\>\l|# Account(id, owner, openingBalance, openedOn)\l+ getId(): String\l+ getOwner(): Customer\l+ getBalance(): BigDecimal\l+ getOpenedOn(): LocalDate\l+ getAvailableBalance(): BigDecimal\l+ deposit(amount, date): Transaction\l+ withdraw(amount, date): Transaction\l+ getTransactionHistory(): List\<Transaction\>\l- post(type, amount, date): Transaction\l+ getMinimumBalance(): BigDecimal (abstract)\l+ getMonthlyInterestRate(): BigDecimal (abstract)\l}"];
  CheckingAccount [label="{CheckingAccount|+ CheckingAccount(id, owner, openingBalance, openedOn)\l+ getMinimumBalance(): BigDecimal\l+ getMonthlyInterestRate(): BigDecimal\l}"];
@@ -16,8 +16,11 @@ digraph Current {
  CustomerNotFoundException [label="CustomerNotFoundException"];
  InsufficientFundsException [label="InsufficientFundsException"];
  InvalidPostingDateException [label="InvalidPostingDateException"];
+ DuplicateAccountException [label="DuplicateAccountException"];
+ AccountNotFoundException [label="AccountNotFoundException"];
  RuntimeException [label="RuntimeException (JDK)"];
  Bank -> Customer [arrowhead=none, arrowtail=odiamond, dir=both, taillabel="1", headlabel="0..*", label="registered"];
+ Bank -> Account [arrowhead=none, arrowtail=odiamond, dir=both, taillabel="1", headlabel="0..*", label="registered"];
  Account -> Customer [arrowhead=vee, taillabel="0..*", headlabel="1", label="owner"];
  CheckingAccount -> Account [arrowhead=empty];
  SavingsAccount -> Account [arrowhead=empty];
@@ -34,6 +37,10 @@ digraph Current {
  InvalidPostingDateException -> BankingException [arrowhead=empty];
  Account -> InsufficientFundsException [style=dashed];
  Account -> InvalidPostingDateException [style=dashed];
+ DuplicateAccountException -> BankingException [arrowhead=empty];
+ AccountNotFoundException -> BankingException [arrowhead=empty];
+ Bank -> DuplicateAccountException [style=dashed];
+ Bank -> AccountNotFoundException [style=dashed];
  BankingException -> RuntimeException [arrowhead=empty];
  BankingInput -> InvalidBankingInputException [style=dashed];
 }

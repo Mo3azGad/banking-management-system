@@ -1,11 +1,13 @@
 classDiagram
-  %% PROPOSED final design. Milestone 3 has deposits/withdrawals/history; transfers, freezing and interest remain planned.
+  %% PROPOSED final design. Milestone 4 has Bank opening/retrieval and deposits/withdrawals/history; transfers, freezing and interest remain planned.
   class Bank {
     +registerCustomer(id, name) Customer
     +findCustomer(id) Customer
     +getCustomers() List
     +openCheckingAccount(...)
     +openSavingsAccount(...)
+    +findAccount(id) Account
+    +getAccounts() List
     +transfer(sourceId, targetId, amount, date)
   }
   class Customer {
@@ -38,6 +40,8 @@ classDiagram
   class DuplicateCustomerException
   class CustomerNotFoundException
   class InsufficientFundsException
+  class DuplicateAccountException
+  class AccountNotFoundException
   class InvalidPostingDateException
   Bank "1" *-- "0..*" Customer : registry
   Bank "1" *-- "0..*" Account : registry
@@ -49,6 +53,8 @@ classDiagram
   InterestPolicy <|.. FixedRateInterestPolicy
   BankingException <|-- InvalidBankingInputException
   BankingException <|-- DuplicateCustomerException
+  BankingException <|-- DuplicateAccountException
+  BankingException <|-- AccountNotFoundException
   BankingException <|-- InsufficientFundsException
   BankingException <|-- InvalidPostingDateException
   BankingException <|-- CustomerNotFoundException

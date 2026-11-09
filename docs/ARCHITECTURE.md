@@ -1,8 +1,19 @@
-# Architecture — current milestone 3 and final target
+# Architecture — current milestone 4 and final target
 
 ## Implemented responsibilities
 
-Bank manages customer registration/lookup in a private map. Customer is immutable. BankingInput
+Bank manages customer and account registration/lookup in private insertion-ordered maps.
+Its named opening methods take a customer ID, not an arbitrary Customer or prebuilt Account.
+They validate/normalize account ID and uniqueness, resolve the canonical registered Customer,
+fully construct the concrete account (including balance/date validation and opening history),
+and only then put it in the map. Any domain rejection leaves both maps unchanged and the
+attempted ID reusable. DuplicateAccountException applies across both account types/owners.
+There is no generic external-account import, repository framework or separate factory class.
+
+findAccount returns the exact registered instance, so its balance/history updates remain visible.
+getAccounts returns an immutable membership snapshot in opening order, not a deep snapshot of
+mutable account balances. Bank ID namespaces are case-sensitive and normalize surrounding
+whitespace; customer/account namespaces are distinct and each Bank is independent. Customer is immutable. BankingInput
 is package-private and shares text, required-value and exact-cent validation across entities.
 Account validates identity, owner, opening balance/date and creates an OPENING Transaction.
 CheckingAccount permits a zero floor; SavingsAccount enforces 100.00. Both expose monthly
@@ -10,8 +21,8 @@ rate metadata. No overridable method is called from the base constructor.
 
 Account now owns mutable private balance and an append-only private ArrayList of immutable
 Transaction records. External callers receive List.copyOf snapshots. There is no public balance
-setter, mutable collection view or transaction-posting helper. Constructors do not register
-accounts at Bank. Customer/account registration remains separate from a standalone model.
+setter, mutable collection view or transaction-posting helper. Direct constructors do not register
+accounts at Bank; the Bank opening methods perform that registration for known owners.
 
 ## Posting contracts and Template Method
 
@@ -57,14 +68,15 @@ transaction sequence to support standalone accounts and deterministic tests with
 
 Abstract BankingException extends RuntimeException. InvalidBankingInputException covers missing,
 nonpositive and imprecise inputs; DuplicateCustomerException and CustomerNotFoundException
-cover current registry failures. New InsufficientFundsException reports a withdrawal that breaches
+cover customer registry failures. DuplicateAccountException and AccountNotFoundException now
+cover duplicate opening IDs and absent account lookups. New InsufficientFundsException reports a withdrawal that breaches
 the type-specific floor, and InvalidPostingDateException reports chronology violations. A null
 date is invalid input, not a chronological value. Every concrete subtype is thrown by tests.
 Unchecked domain failures fit the in-memory API; no checked I/O is hidden or printed.
 
 ## SOLID mapping
 
-- SRP, implemented: Bank coordinates customers, Customer owns identity, Account enforces posting
+- SRP, implemented: Bank coordinates customer/account registration, Customer owns identity, Account enforces posting
   invariants, Transaction validates ledger facts, BankingInput handles common input rules.
 - OCP, partly implemented: the inherited posting template uses the account-specific balance-floor
   hook. Final checking/savings types require no duplicated algorithms. InterestPolicy extension
@@ -77,8 +89,8 @@ Unchecked domain failures fit the in-memory API; no checked I/O is hidden or pri
 
 ## Remaining design
 
-Bank must register accounts against known owners, enforce unique account IDs and coordinate
-transfers. A future transfer must validate and prepare both legs before mutation; do not compose
+Bank now registers accounts against known owners and enforces unique account IDs. It still
+must coordinate transfers. A future transfer must validate and prepare both legs before mutation; do not compose
 public withdraw and deposit calls, since the second can reject after the first changes state.
 Transfer coordination will need a prepared posting/commit boundary preserving both accounts.
 
