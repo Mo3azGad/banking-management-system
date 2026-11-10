@@ -6,16 +6,16 @@ project uses the user's explicitly stated assignment; it does not infer identity
 
 ## Mandatory PDF requirements
 
-| Source | Requirement | Milestone 4 status |
+| Source | Requirement | Milestone 5 status |
 |---|---|---|
 | Cover | Individual Java classes and JUnit tests; no running application, main, menu, UI, Scanner or System.out | Foundation follows this restriction |
 | Cover | Meaningful Git/GitHub commits spread over at least two weeks | First commit pushed to verified private GitHub repository; two-week history still outstanding |
-| Cover | Own base and specialized exceptions; clear messages; no null/error printing on failure | Customer/account registry, input, insufficient-funds and posting-date exceptions implemented and tested |
+| Cover | Own base and specialized exceptions; clear messages; no null/error printing on failure | Customer/account registry, input, frozen-account, insufficient-funds and posting-date exceptions implemented and tested |
 | Cover | Every nontrivial public method tested for success and failure; every exception thrown in a test | Covered for implemented operations; see test matrix |
 | Cover | Learned patterns and SOLID | Template Method and polymorphic rules implemented; InterestPolicy Strategy still planned |
 | Cover | Dates passed as parameters; never read system clock | Model and posting dates supplied explicitly; chronology validated without reading clock |
 | Banking (2), p.1 | Bank, customer, checking/savings accounts, transaction | Bank customer/account registries, concrete models and transaction records implemented |
-| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | Bank opening/retrieval, deposits, withdrawals and history implemented; transfers, interest and freeze remain |
+| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | Bank opening/retrieval, deposits, withdrawals, history and freezing implemented; transfers and interest remain |
 | Banking (2), p.1 | Different rules and monthly rates for checking and savings | Different opening floors and rate metadata implemented; interest posting planned |
 | Oral defense, p.1 | Individual five-minute defense with laptop, tests and code walkthrough; absence means failure | Interim preparation included; attend in weeks 11/12 |
 | Final report, p.2 | DOC/DOCX: UML/class overview, patterns, exceptions/checked choice, all five SOLID, testing/limitations/redesign | Interim DOCX only; final follows completed code |
@@ -57,7 +57,7 @@ Do not delay testing to days 11/12; test each implementation step.
 - In-memory, single-threaded operation. No database, authentication, persistent audit, concurrency
   or production banking claims. Frozen status applies to account operations, not customer lookup.
 
-These are explicit project decisions. Floors/rate metadata, deposits/withdrawals, opening/posting history and chronology are implemented. Bank ownership/ID validation is now implemented; transfers, freezing and monthly interest remain future work.
+These are explicit project decisions. Floors/rate metadata, deposits/withdrawals, opening/posting history and chronology are implemented. Bank ownership/ID validation is now implemented; freezing of current postings is implemented; transfers and monthly interest remain future work.
 
 ## Bank opening and lookup decisions implemented on 9 November
 
@@ -67,3 +67,12 @@ share an account ID namespace. IDs are stripped and case-sensitive; customer IDs
 namespace. Validation/construction completes before registry publication. Direct account model
 construction remains usable but is not registration; no external-account import is required by
 the PDF. Account list snapshots protect membership, not immutable copies of balance/state.
+
+## Freezing decisions implemented on 10 November
+
+`freeze()` is irreversible and repeat calls fail with AccountFrozenException. Current deposits
+and withdrawals check frozen state before validating amount/date/funds; history and all read
+access remain available. Freezing itself makes no financial entry, consumes no ID and stores no
+timestamp, so no date parameter or clock read is required. Available-balance metadata remains
+balance minus floor, not permission to post. Future transfer/interest operations must respect the
+frozen rule when they are implemented. The PDF requires freezing but leaves these details open.

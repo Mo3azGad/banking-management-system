@@ -11,7 +11,12 @@ history replacement, prepared future commits, empty commits or activity-only edi
 - 9 November: milestone 4 implements Bank account opening/retrieval, canonical registered
   ownership, account ID uniqueness and immediate success/failure tests. The existing repository
   was clean and matched origin/main before work; GitHub authentication/private visibility and
-  the three original ancestors were checked. No other feature milestone was implemented today.
+  the three original ancestors were checked. No other feature milestone was implemented in that session.
+
+- 10 November: milestone 5 adds irreversible account freezing, typed repeated-freeze/blocked
+  posting errors, readable unchanged history and shared success/failure tests. The clean existing
+  repository and private remote matched 53ee477 before work; authentication and original ancestry
+  were checked. Transfers/interest and their preparation were not implemented in this session.
 
 A work automation was saved/enabled on 8 November for evening sessions on 9–23 November.
 That recorded configuration does not prove future runs, credentials or pushes will succeed.
@@ -21,8 +26,8 @@ The roadmap below is a plan, not a statement that later work has already happene
 
 | Intended session | Scoped work | Verification |
 |---|---|---|
-| Nov 9 | Bank account opening/registration and retrieval, ownership/unique IDs | Completed code/tests today; see VERIFICATION.md |
-| Nov 10 | Account freezing, typed errors, repeated-freeze and blocked-posting/readable-history tests | Full suite and failure-state preservation |
+| Nov 9 | Bank account opening/registration and retrieval, ownership/unique IDs | Completed Nov 9; see MILESTONE_4_VERIFICATION.md |
+| Nov 10 | Account freezing, typed errors, repeated-freeze and blocked-posting/readable-history tests | Completed today; see VERIFICATION.md |
 | Nov 11 | Prepared posting/commit boundary for coordinated two-account operations | Preserve existing deposit/withdraw contracts |
 | Nov 12 | Atomic Bank transfers with paired references/history | Conservation, both-side validation and no partial state |
 | Nov 13 | InterestPolicy and FixedRateInterestPolicy strategy | BigDecimal calculation/rounding tests immediately |
@@ -46,5 +51,6 @@ The first commit was 8 November 2026 at 19:23:30 Istanbul time. The two-week spa
 outstanding. The Nov 23 final session is beyond 14 elapsed days; only real work/history can
 establish the professor's requirement. A saved schedule is not proof of future completion.
 
-Next session: implement freezing and typed failures for repeated freezing/blocked postings,
-verify readable history and unchanged balances on rejection, update docs, then verify a real push.
+Next session: prepare a validated posting/commit boundary for two-account coordination, preserving
+all active/frozen deposit/withdraw contracts. Do not implement transfers early merely to prepare
+future commits; add focused rejection-state tests and verify the full suite before a real push.

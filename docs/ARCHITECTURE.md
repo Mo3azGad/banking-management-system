@@ -1,4 +1,4 @@
-# Architecture — current milestone 4 and final target
+# Architecture — current milestone 5 and final target
 
 ## Implemented responsibilities
 
@@ -19,7 +19,7 @@ Account validates identity, owner, opening balance/date and creates an OPENING T
 CheckingAccount permits a zero floor; SavingsAccount enforces 100.00. Both expose monthly
 rate metadata. No overridable method is called from the base constructor.
 
-Account now owns mutable private balance and an append-only private ArrayList of immutable
+Account owns a private frozen flag, mutable private balance and an append-only private ArrayList of immutable
 Transaction records. External callers receive List.copyOf snapshots. There is no public balance
 setter, mutable collection view or transaction-posting helper. Direct constructors do not register
 accounts at Bank; the Bank opening methods perform that registration for known owners.
@@ -29,6 +29,7 @@ accounts at Bank; the Bank opening methods perform that registration for known o
 `deposit(amount, date)` and `withdraw(amount, date)` are final public operations delegating to
 one private posting template:
 
+0. Require an active account; AccountFrozenException takes precedence over invalid posting inputs.
 1. Validate a nonnull, strictly positive exact-cent amount and nonnull LocalDate.
 2. Reject a date before the latest ledger entry (the opening entry establishes the initial bound).
 3. Calculate the resulting balance using BigDecimal, consulting the polymorphic minimum floor.
@@ -47,6 +48,25 @@ balance, history, next sequence ID and latest posting date. This is not a databa
 or concurrency guarantee. Dates can equal the opening/latest date; no implicit current-date
 comparison or future-date rejection is introduced. Immutable history is in posting order,
 which is chronological with sequence order breaking same-day ties.
+
+## Freezing contract implemented in milestone 5
+
+New accounts are active. Final `freeze()` checks active state and sets the private frozen flag;
+repeat calls throw AccountFrozenException. Both current posting operations enter the same
+private `requireActive()` guard before amount/date/funds validation. There is no unfreeze method,
+setter or need for a State-pattern framework for this irreversible two-state lifecycle.
+
+Freezing is a state change, not a financial posting: it consumes no transaction ID, adds no
+ledger entry and changes no date or balance. It reads no clock and stores no freeze timestamp,
+so `freeze()` has no date argument. History, identity/owner/opening date and rate/minimum getters
+remain readable. `getAvailableBalance()` continues to report balance above the floor; posting
+permission is separately controlled by frozen status. Bank lookup/list references reflect the
+same frozen Account, while other accounts of the same customer remain independent.
+
+Frozen attempts reject before any mutation, even when amount/date/funds are also invalid. This
+is an explicit error-precedence decision, not a rule specified by the PDF. Existing active
+account input/date/funds behavior is preserved. Future transfer/interest posting paths must
+also enforce this rule when implemented; they are not preimplemented in this milestone.
 
 ## Transaction facts and revised ID ownership
 
@@ -71,7 +91,8 @@ nonpositive and imprecise inputs; DuplicateCustomerException and CustomerNotFoun
 cover customer registry failures. DuplicateAccountException and AccountNotFoundException now
 cover duplicate opening IDs and absent account lookups. New InsufficientFundsException reports a withdrawal that breaches
 the type-specific floor, and InvalidPostingDateException reports chronology violations. A null
-date is invalid input, not a chronological value. Every concrete subtype is thrown by tests.
+date is invalid input, not a chronological value for active accounts. New AccountFrozenException
+rejects repeated freezing and postings on frozen accounts before other input/funds/date failures. Every concrete subtype is thrown by tests.
 Unchecked domain failures fit the in-memory API; no checked I/O is hidden or printed.
 
 ## SOLID mapping
@@ -94,7 +115,8 @@ must coordinate transfers. A future transfer must validate and prepare both legs
 public withdraw and deposit calls, since the second can reject after the first changes state.
 Transfer coordination will need a prepared posting/commit boundary preserving both accounts.
 
-Frozen accounts will reject postings; InterestPolicy/FixedRateInterestPolicy will supply the
+Frozen accounts now reject deposits/withdrawals. Future transfer/interest paths must also
+respect frozen status. InterestPolicy/FixedRateInterestPolicy will supply the
 Strategy pattern. Monthly interest must receive dates, validate month-end/chronology, round
 HALF_EVEN once, and reject a duplicate YearMonth independently of last posting date. Rate
 metadata already differs, but interest is not calculated or posted yet. No database, UI,

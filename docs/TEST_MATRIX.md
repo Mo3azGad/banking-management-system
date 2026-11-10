@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 4
+# Test evidence and obligations — milestone 5
 
 | Public operation | Successful behavior | Failure / boundary behavior |
 |---|---|---|
@@ -11,10 +11,11 @@
 | findAccount | Normalized ID lookup, registered identity and posting state | Missing/invalid/case-mismatched ID; no implicit registration from direct construction |
 | getAccounts | Empty/ordered immutable membership snapshots; actual account instances | Membership mutation rejected; later openings do not change earlier snapshots |
 | Account constructors | Ownership, dates, floors, rates, exact money; opening history | Missing values, negative/sub-cent amounts, below savings floor |
-| getAvailableBalance | Polymorphic floor before/after postings | Valid models have no failure inputs |
+| freeze / isFrozen | Initially active; first transition; unchanged financial metadata/history; independent accounts | Repeat freeze rejects with AccountFrozenException and preserves state |
+| getAvailableBalance | Polymorphic floor before/after postings; remains readable when frozen | Valid models have no failure inputs |
 | Transaction constructor | All six types, normalized money, zero opening/interest, paired references | Invalid IDs/fields/money; opening mismatch; impossible credit balance; invalid transfer links |
-| deposit | Balance and returned/stored ledger entry; one cent; trailing zeros; large amounts | Null/zero/negative/sub-cent amount; null, pre-opening and backdated dates |
-| withdraw | Balance and returned/stored ledger entry; exact floor; replenishment | Invalid inputs/dates; one cent over available; at floor; insufficient funds |
+| deposit | Balance and returned/stored ledger entry; one cent; trailing zeros; large amounts | Null/zero/negative/sub-cent amount; null, pre-opening and backdated dates; frozen status takes precedence |
+| withdraw | Balance and returned/stored ledger entry; exact floor; replenishment | Invalid inputs/dates; one cent over available; at floor; insufficient funds; frozen status takes precedence |
 | getTransactionHistory | Opening, posting order, running balances, IDs and immutable snapshots | Mutation rejected; previous snapshots unchanged after later postings |
 
 Shared account-operation tests run for both concrete types through Account references.
@@ -32,7 +33,6 @@ contract, not a custom banking exception. Generated record accessors are checked
 
 - Transfers: paired entries/references, conservation, both-side prevalidation, no partial state
   on missing/same account, insufficient funds, invalid date/amount or frozen status.
-- Freezing: first/repeated attempt and every blocked operation; history remains readable.
 - Interest: two policies/rates, HALF_EVEN ties, zero result, month-end/chronology, duplicate month,
   frozen status, injected-policy validation and failure-state preservation.
 
@@ -47,3 +47,10 @@ existing account balance/history and reusability of failed IDs. Cross-type dupli
 canonical customer identity, multiple accounts per customer, separate namespaces/Banks and
 posting through retrieved instances are verified. New DuplicateAccountException and
 AccountNotFoundException are each thrown and their messages checked in operation tests.
+
+Milestone 5 adds 50 AccountFreezeTest invocations shared across checking/savings and both current
+posting operations. They exercise first/repeated freeze, valid/invalid blocked postings, state
+preservation, readable immutable history, Bank lookup/snapshot visibility and isolation between
+accounts owned by the same customer. An active account remains active after an insufficient-funds
+failure. No unfreeze operation exists; tests do not bypass private state merely to observe a
+hypothetical subsequent posting. Future transfers/interest still need frozen-state operation tests.

@@ -13,6 +13,7 @@ public abstract class Account {
     private final String id;
     private final Customer owner;
     private BigDecimal balance;
+    private boolean frozen;
     private final LocalDate openedOn;
     private final List<Transaction> history = new ArrayList<>();
 
@@ -30,25 +31,36 @@ public abstract class Account {
     public final BigDecimal getBalance() { return balance; }
     public final LocalDate getOpenedOn() { return openedOn; }
 
+    /** Whether postings are permanently blocked for this account. */
+    public final boolean isFrozen() { return frozen; }
+
+    /** Freezes this account without changing financial history or posting chronology.
+     * Repeated freezing throws AccountFrozenException. There is no unfreeze operation.
+     */
+    public final void freeze() {
+        requireActive();
+        frozen = true;
+    }
+
     /** The balance floor that withdrawals and transfers must preserve. */
     public abstract BigDecimal getMinimumBalance();
 
     /** Monthly decimal rate, not a percentage: 0.001 means 0.1%. */
     public abstract BigDecimal getMonthlyInterestRate();
 
-    /** Nonnegative spendable balance under this account type's rules. */
+    /** Balance above the type-specific floor; frozen status separately controls posting permission. */
     public final BigDecimal getAvailableBalance() {
         return balance.subtract(getMinimumBalance());
     }
 
-    /** Posts a strictly positive deposit on or after the latest ledger date.
+    /** Posts a strictly positive deposit to an active account on or after the latest ledger date.
      * Returns the recorded entry. Rejection preserves balance, history and sequence.
      */
     public final Transaction deposit(BigDecimal amount, LocalDate date) {
         return post(TransactionType.DEPOSIT, amount, date);
     }
 
-    /** Posts a strictly positive withdrawal while preserving this account type's floor.
+    /** Posts a strictly positive withdrawal from an active account, preserving the type-specific floor.
      * Returns the recorded entry. Rejection preserves balance, history and sequence.
      */
     public final Transaction withdraw(BigDecimal amount, LocalDate date) {
@@ -63,6 +75,7 @@ public abstract class Account {
     // Common template: validate, calculate, prepare the immutable entry, then commit.
     // No domain validation or arithmetic can fail after the history append.
     private Transaction post(TransactionType type, BigDecimal amount, LocalDate date) {
+        requireActive();
         BigDecimal normalized = BankingInput.nonNegativeMoney(amount, "Posting amount");
         if (normalized.signum() == 0) {
             throw new InvalidBankingInputException("Posting amount must be positive.");
@@ -85,5 +98,11 @@ public abstract class Account {
         history.add(entry);
         balance = nextBalance;
         return entry;
+    }
+
+    private void requireActive() {
+        if (frozen) {
+            throw new AccountFrozenException("Account " + id + " is frozen.");
+        }
     }
 }

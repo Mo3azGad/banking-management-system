@@ -1,7 +1,7 @@
 # Banking Management System
 
-Advanced OOP, Project 2. **Milestone 4: Bank account opening, ownership validation and retrieval.**
-Incremental university project; transfers, freezing and monthly interest posting remain
+Advanced OOP, Project 2. **Milestone 5: account freezing and frozen-posting protection.**
+Incremental university project; transfers and monthly interest posting remain
 later milestones. This is not yet the final submission.
 
 ## Run the tests
@@ -31,12 +31,18 @@ console output or system-clock access. JUnit 5 and JaCoCo results appear under
 - Savings: minimum 100.00 on opening and withdrawals, monthly rate metadata 0.003 (0.3%).
 - Final `deposit(BigDecimal, LocalDate)` and `withdraw(BigDecimal, LocalDate)` return the posted
   Transaction. Balance/history change only after all domain validation succeeds.
+- Final `freeze()` permanently blocks postings; `isFrozen()` exposes status. Repeated freezing
+  and all deposit/withdraw attempts on frozen accounts throw `AccountFrozenException` before
+  input validation. Access through Bank lookup or an existing account reference behaves alike.
+- Freezing does not add a financial transaction, consume a sequence ID or alter balance/chronology.
+  No date is needed because it records no timestamp. History and all read-only metadata remain
+  available; balance above the minimum floor stays readable but grants no posting permission.
 - Opening ledger entry plus dated postings; `getTransactionHistory()` returns an immutable snapshot.
 - Posting dates cannot precede the latest entry; same-day postings and opening-day postings work.
 - Amounts must be positive and exactly representable in cents. Trailing zeros are accepted;
   nonzero fractions of a cent are rejected instead of silently rounded.
 - Custom exception hierarchy: invalid input, duplicate/missing customer or account, insufficient
-  funds, and invalid posting chronology. Tests exercise every concrete custom exception.
+  funds, frozen-account state, and invalid posting chronology. Tests exercise every concrete custom exception.
 - Transaction is an immutable record; its construction alone never executes an operation.
 
 Transaction IDs start at 1 for opening and increase within each account. The identifier is the
@@ -60,7 +66,7 @@ not numerical requirements specified by the professor. Single-threaded, in-memor
 - `docs/DEVELOPMENT_PLAN.md`: remaining work roadmap and actual progress; schedule versus execution distinguished.
 - `docs/current-uml.svg` / `.dot`: implemented model; `docs/proposed-uml.mmd`: final target design.
 - `docs/TEST_MATRIX.md` and `docs/VERIFICATION.md`: current test/coverage evidence and limitations.
-- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_3_VERIFICATION.md`: earlier evidence.
+- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_4_VERIFICATION.md`: earlier evidence.
 - `docs/milestone-report.docx`: updated five-section interim Word report, not the final report.
 - `docs/DEFENSE.md`: current walkthrough, demonstration commands and eventual defense outline.
 
@@ -75,13 +81,14 @@ machine-specific tooling stay outside tracked source. On another computer use `g
 and `gh auth setup-git` before pushing.
 
 Milestones 1–3 were genuinely developed on 8 November 2026; milestone 4 was developed on
-9 November. The professor's at-least-two-week history requirement is still outstanding.
+9 November; milestone 5 freezing was developed on 10 November. The professor's at-least-two-week
+history requirement is still outstanding.
 Never change author/committer dates or invent activity. A work automation was saved and enabled
 on 8 November for 9–23 November evenings in Europe/Istanbul. Saved scheduling is not proof of
 future execution or pushes; verify each actual session and its result separately.
 
 ## Next milestone
 
-Add account freezing with typed failures and tests for blocked postings and readable history.
-Then prepare/implement atomic transfers, InterestPolicy/monthly interest, the final report and
-defense rehearsal. Keep UML and documentation synchronized with each tested increment.
+Prepare the posting/commit boundary for coordinated two-account operations, preserving active
+and frozen posting contracts. Then implement atomic transfers, InterestPolicy/monthly interest,
+the final report and defense rehearsal. Keep UML and documentation synchronized with each tested increment.

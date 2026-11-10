@@ -1,6 +1,6 @@
 # Oral defense preparation — interim
 
-Milestone 4 adds Bank account opening/retrieval with registered ownership and unique IDs; transfers, freezing and monthly interest remain unimplemented. Do not present planned
+Milestone 5 adds account freezing, repeated-freeze errors and frozen-posting protection; transfers and monthly interest remain unimplemented. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -78,6 +78,27 @@ Why not register an arbitrary Account? This scope does not need importing extern
 Bank creates accounts using its own registered owner and validated opening state.
 Why new exception types? DuplicateAccountException identifies a conflicting account ID,
 AccountNotFoundException identifies failed lookup; existing input/customer exceptions are reused.
+
+## Explain milestone 5 (10 November)
+
+Run `mvn -Dtest=AccountFreezeTest test`, then `mvn clean verify` for the whole project.
+
+- `freeze()` and `isFrozen()` live in Account; final methods and a private flag prevent subtype
+  overrides/setters bypassing the lifecycle. `requireActive()` is shared by freeze and posting.
+- Show `frozenAccountRejectsValidPostingsWithoutChangingLedger` and
+  `frozenFailureTakesPrecedenceOverInvalidPostingInput`: frozen state is rejected before input checks.
+- Show `freezingPreservesFinancialStateAndExistingHistory` and
+  `frozenHistoryRemainsReadableAndRejectsExternalMutation`: freezing is not a financial posting.
+- `repeatedFreezeThrowsTypedFailureAndPreservesState` demonstrates the new unchecked subtype.
+- `freezingOneAccountDoesNotBlockAnotherAccountOfTheSameOwner` demonstrates account-level scope.
+
+Why no date parameter on freeze? It neither compares dates nor records a timestamp; explicit
+dates remain required for financial postings and no system clock is read. Why no freeze ledger
+entry? The existing Transaction model holds financial facts; freezing only controls permission.
+Why not a State pattern? A private boolean and shared guard fit this two-state irreversible scope.
+Why does available balance remain visible? It is balance minus floor metadata; frozen permission
+is independent. Future transfers and interest must check frozen status, but those operations
+are not implemented yet and cannot honestly be claimed as tested.
 
 ## Final five-minute outline (planned demo, not available yet)
 
