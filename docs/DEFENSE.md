@@ -1,6 +1,6 @@
 # Oral defense preparation — interim
 
-Milestone 5 adds account freezing, repeated-freeze errors and frozen-posting protection; transfers and monthly interest remain unimplemented. Do not present planned
+Milestone 6 adds validated internal posting plans and guarded ledger publication; transfers and monthly interest remain unimplemented. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -34,8 +34,8 @@ Run `mvn -Dtest=AccountTest,TransactionTest test`. Show
 
 Run `mvn -Dtest=AccountOperationsTest test`, then `mvn clean verify` for the full suite.
 
-- `deposit` and `withdraw` are final entry points into Account's private posting template.
-  Show validation, date bound, calculation, minimum hook, Transaction construction and commit.
+- `deposit` and `withdraw` are final entry points into Account's shared posting preparation template.
+  Show validation, date bound, calculation, minimum hook, immutable replacement ledger and guarded publication.
 - `permitsWithdrawalOfExactlyTheAvailableBalance` demonstrates different floors through Account.
 - `withdrawalOneCentOverAvailableBalancePreservesState` proves rejection leaves the ledger intact.
 - `chronologyTracksTheLatestWithdrawalAsWellAsDeposits` shows that either posting advances the bound.
@@ -99,6 +99,29 @@ Why not a State pattern? A private boolean and shared guard fit this two-state i
 Why does available balance remain visible? It is balance minus floor metadata; frozen permission
 is independent. Future transfers and interest must check frozen status, but those operations
 are not implemented yet and cannot honestly be claimed as tested.
+
+## Explain milestone 6 (11 November)
+
+Run `mvn -Dtest=PreparedPostingTest test`, then `mvn clean verify` for all tests.
+
+- Public deposit/withdraw still execute fully; they prepare a plan and immediately commit it.
+  Package-private preparers expose a reusable validation/allocation boundary for later coordination.
+- `preparingAndValidatingDoesNotPublishFinancialState` shows a preview is not a ledger entry yet.
+- `committedPlanCannotBeValidatedOrCommittedAgain` shows the new StalePostingException.
+- `returningToTheSameBalanceDoesNotReviveAnOldPlan` explains why ledger identity matters rather
+  than comparing balances alone: sequence/history may differ while balance is numerically equal.
+- `freezingAfterPreparationPreventsValidationAndCommit` preserves frozen-state protection.
+- `failedSecondPreparationLeavesTheFirstAccountUncommitted` illustrates prevalidation before
+  publication; it is not an implemented Bank transfer.
+
+Why a private LedgerState record? Balance and immutable history publish together through one
+reference assignment. All arithmetic/list allocation happens before the commit guard succeeds.
+Why an inner opaque plan? Its private fields/constructor and originating-account binding prevent
+forged/cross-account application. Why revalidate at commit? The account may have changed or frozen
+after preparation. Why no new public API? Clients still need only deposit/withdraw; coordination
+is an internal domain concern. What is the cost? O(n) ledger copy per preparation and retained
+history per plan, acceptable here. This is neither concurrency control nor distributed two-phase
+commit. Future transfers must enforce distinct accounts and validate both plans before publication.
 
 ## Final five-minute outline (planned demo, not available yet)
 

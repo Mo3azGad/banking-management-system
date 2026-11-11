@@ -1,39 +1,39 @@
-# Milestone 5 verification — account freezing
+# Milestone 6 verification — prepared posting and guarded publication
 
-Verified 10 November 2026 (Europe/Istanbul), full Maven `clean verify`: BUILD SUCCESS.
+Verified 11 November 2026 (Europe/Istanbul), full Maven `clean verify`: BUILD SUCCESS.
 Eclipse Temurin 21.0.13+9, Java 17 compiler target; Maven 3.9.11; JUnit 5.11.4;
 Surefire 3.5.2; JaCoCo 0.8.12.
 
-JUnit: 323 invocations, 0 failures, 0 errors, 0 skipped.
-All existing 273 cases remain; AccountFreezeTest adds 50 cases.
+JUnit: 402 invocations, 0 failures, 0 errors, 0 skipped.
+All 323 existing cases remain; PreparedPostingTest adds 79 cases.
 
-- Instruction: 688/688 (100.00%).
-- Branch: 50/51 (98.04%).
-- Line: 156/156 (100.00%).
-- Method: 49/49 (100.00%).
-- Class: 17/17 (100.00%).
+- Instruction: 775/775 (100.00%).
+- Branch: 52/53 (98.11%).
+- Line: 177/177 (100.00%).
+- Method: 57/57 (100.00%).
+- Class: 20/20 (100.00%).
 
-All Bank and Account branches are covered. Transaction's compiler-emitted exhaustive-enum
-fallback is the single missed branch; all legal enum values and null rejection are tested.
-Coverage applies to currently implemented operations, not future transfers/interest. All eight
-concrete custom exceptions are thrown by operation tests, including AccountFrozenException.
-No fake enum values, clock access or test-only unfreezing API is used to inflate coverage.
+All Bank, Account and PreparedPosting branches are covered. The one missed branch is the
+compiler-emitted default of Transaction's exhaustive enum switch; all legal types/null rejection
+are tested. All nine concrete custom exceptions are thrown by operation tests. No reflection,
+forged enum values, clock reads or test-only mutators are used. Current coverage includes internal
+preparation but does not imply implemented Bank transfers or monthly interest.
 
-The existing workspace-local JDK/Maven, external proxy settings and Java CA trust store were
-reused; no downloaded tooling or credentials are committed. A normal setup uses `mvn clean verify`.
-Source restrictions and UML/DOCX checks are separate from functional coverage. The current UML
-is rendered/visually inspected and Word sections/embedded diagram structurally checked; no full
-Word/LibreOffice pagination rendering is claimed.
+Private LedgerState/PreparedPosting keep allocation and validation before publication. Public
+API regression tests cover both account types and active/frozen behavior; new tests cover
+non-mutating preparation, immutable snapshots, guarded one-time commitment, invalid/stale/frozen
+plans and independent-account prevalidation. These are boundary tests, not completed transfer tests.
 
-## Pre-session checks
+Existing workspace-local JDK/Maven/proxy settings and system Java CA trust store were reused.
+No credentials or tooling are committed. Normal installations run `mvn clean verify`.
+UML is regenerated/visually inspected and the interim Word report structurally checked; no full
+Word/LibreOffice pagination render is claimed. Earlier evidence is retained in numbered files.
 
-Existing main was clean. Fetch confirmed exact HEAD/origin agreement at
-53ee47776024fc80c7a416204d43ec3a08aeaa72. GitHub confirmed the existing repository remains
-private and authentication has push permission. The original three commits were verified as
-ancestors; no new project, history rewrite or replacement authentication was needed. The current
-commit/push is made after review, then its SHA/private visibility/ancestry are checked remotely
-and reported in the session result. Previous milestone evidence remains in the numbered files.
+## Repository preflight
 
-This is genuine 10 November work. The two-week history span is not complete; a saved automation
-is not proof of future runs, pushes or the professor's acceptance. This session implements no
-future transfer preparation, transfer operation or monthly interest feature.
+The existing repository was clean on main. Fetch found HEAD and origin/main identical at
+10541dbcb6f7dacba14da7e579f8b7a6d499b6b4. GitHub confirmed private visibility and push permission.
+Original commits were verified as ancestors. A new real-date commit/push follows successful
+verification/review, with its exact SHA and remote checks reported in the session result.
+No history rewrite, replacement project or fabricated future activity was performed. The two-week
+span remains unfinished; no future run or push is claimed successful from a saved schedule.

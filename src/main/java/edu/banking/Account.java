@@ -12,23 +12,26 @@ import java.util.OptionalLong;
 public abstract class Account {
     private final String id;
     private final Customer owner;
-    private BigDecimal balance;
+    private LedgerState ledger;
     private boolean frozen;
     private final LocalDate openedOn;
-    private final List<Transaction> history = new ArrayList<>();
+
+    // The history is immutable. Publishing this one reference updates balance and history together.
+    private record LedgerState(BigDecimal balance, List<Transaction> history) { }
 
     protected Account(String id, Customer owner, BigDecimal openingBalance, LocalDate openedOn) {
         this.id = BankingInput.text(id, "Account identifier");
         this.owner = BankingInput.required(owner, "Account owner");
-        this.balance = BankingInput.nonNegativeMoney(openingBalance, "Opening balance");
+        BigDecimal balance = BankingInput.nonNegativeMoney(openingBalance, "Opening balance");
         this.openedOn = BankingInput.required(openedOn, "Opening date");
-        history.add(new Transaction(1, this.id, TransactionType.OPENING, balance, balance,
-                this.openedOn, OptionalLong.empty()));
+        Transaction opening = new Transaction(1, this.id, TransactionType.OPENING, balance, balance,
+                this.openedOn, OptionalLong.empty());
+        ledger = new LedgerState(balance, List.of(opening));
     }
 
     public final String getId() { return id; }
     public final Customer getOwner() { return owner; }
-    public final BigDecimal getBalance() { return balance; }
+    public final BigDecimal getBalance() { return ledger.balance(); }
     public final LocalDate getOpenedOn() { return openedOn; }
 
     /** Whether postings are permanently blocked for this account. */
@@ -50,37 +53,47 @@ public abstract class Account {
 
     /** Balance above the type-specific floor; frozen status separately controls posting permission. */
     public final BigDecimal getAvailableBalance() {
-        return balance.subtract(getMinimumBalance());
+        return ledger.balance().subtract(getMinimumBalance());
     }
 
     /** Posts a strictly positive deposit to an active account on or after the latest ledger date.
      * Returns the recorded entry. Rejection preserves balance, history and sequence.
      */
     public final Transaction deposit(BigDecimal amount, LocalDate date) {
-        return post(TransactionType.DEPOSIT, amount, date);
+        return prepareDeposit(amount, date).commit();
     }
 
     /** Posts a strictly positive withdrawal from an active account, preserving the type-specific floor.
      * Returns the recorded entry. Rejection preserves balance, history and sequence.
      */
     public final Transaction withdraw(BigDecimal amount, LocalDate date) {
-        return post(TransactionType.WITHDRAWAL, amount, date);
+        return prepareWithdrawal(amount, date).commit();
     }
 
     /** Immutable snapshot in posting order, including opening. IDs are local to this account. */
     public final List<Transaction> getTransactionHistory() {
-        return List.copyOf(history);
+        return ledger.history();
     }
 
-    // Common template: validate, calculate, prepare the immutable entry, then commit.
-    // No domain validation or arithmetic can fail after the history append.
-    private Transaction post(TransactionType type, BigDecimal amount, LocalDate date) {
+    // Internal boundary for coordination. No new public posting or transfer API is exposed.
+    final PreparedPosting prepareDeposit(BigDecimal amount, LocalDate date) {
+        return preparePosting(TransactionType.DEPOSIT, amount, date);
+    }
+
+    final PreparedPosting prepareWithdrawal(BigDecimal amount, LocalDate date) {
+        return preparePosting(TransactionType.WITHDRAWAL, amount, date);
+    }
+
+    // Common template: validate and allocate everything before any ledger change.
+    private PreparedPosting preparePosting(TransactionType type, BigDecimal amount, LocalDate date) {
         requireActive();
         BigDecimal normalized = BankingInput.nonNegativeMoney(amount, "Posting amount");
         if (normalized.signum() == 0) {
             throw new InvalidBankingInputException("Posting amount must be positive.");
         }
         BankingInput.required(date, "Posting date");
+        LedgerState expected = ledger;
+        List<Transaction> history = expected.history();
         LocalDate latestDate = history.get(history.size() - 1).date();
         if (date.isBefore(latestDate)) {
             throw new InvalidPostingDateException("Posting date " + date
@@ -88,16 +101,49 @@ public abstract class Account {
         }
 
         BigDecimal nextBalance = type == TransactionType.DEPOSIT
-                ? balance.add(normalized) : balance.subtract(normalized);
+                ? expected.balance().add(normalized) : expected.balance().subtract(normalized);
         if (nextBalance.compareTo(getMinimumBalance()) < 0) {
             throw new InsufficientFundsException("Account " + id + " has " + getAvailableBalance()
                     + " available; cannot withdraw " + normalized + ".");
         }
         Transaction entry = new Transaction(history.size() + 1L, id, type, normalized,
                 nextBalance, date, OptionalLong.empty());
-        history.add(entry);
-        balance = nextBalance;
-        return entry;
+        List<Transaction> nextHistory = new ArrayList<>(history);
+        nextHistory.add(entry);
+        LedgerState next = new LedgerState(nextBalance, List.copyOf(nextHistory));
+        return new PreparedPosting(expected, next, entry);
+    }
+
+    /** Opaque account-bound plan. Only Account can construct it; callers cannot alter its facts.
+     * Validate every participating plan before committing any in future coordination. Distinct
+     * accounts and no intervening mutations are required; this is not a concurrency mechanism.
+     */
+    final class PreparedPosting {
+        private final LedgerState expected;
+        private final LedgerState next;
+        private final Transaction entry;
+
+        private PreparedPosting(LedgerState expected, LedgerState next, Transaction entry) {
+            this.expected = expected;
+            this.next = next;
+            this.entry = entry;
+        }
+
+        Transaction transaction() { return entry; }
+
+        void validate() {
+            requireActive();
+            if (ledger != expected) {
+                throw new StalePostingException("Prepared posting for account " + id
+                        + " no longer matches its ledger.");
+            }
+        }
+
+        Transaction commit() {
+            validate();
+            ledger = next;
+            return entry;
+        }
     }
 
     private void requireActive() {

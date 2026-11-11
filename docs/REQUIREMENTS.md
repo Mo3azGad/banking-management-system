@@ -6,11 +6,11 @@ project uses the user's explicitly stated assignment; it does not infer identity
 
 ## Mandatory PDF requirements
 
-| Source | Requirement | Milestone 5 status |
+| Source | Requirement | Milestone 6 status |
 |---|---|---|
 | Cover | Individual Java classes and JUnit tests; no running application, main, menu, UI, Scanner or System.out | Foundation follows this restriction |
 | Cover | Meaningful Git/GitHub commits spread over at least two weeks | First commit pushed to verified private GitHub repository; two-week history still outstanding |
-| Cover | Own base and specialized exceptions; clear messages; no null/error printing on failure | Customer/account registry, input, frozen-account, insufficient-funds and posting-date exceptions implemented and tested |
+| Cover | Own base and specialized exceptions; clear messages; no null/error printing on failure | Customer/account registry, input, frozen-account, stale-plan, insufficient-funds and posting-date exceptions implemented and tested |
 | Cover | Every nontrivial public method tested for success and failure; every exception thrown in a test | Covered for implemented operations; see test matrix |
 | Cover | Learned patterns and SOLID | Template Method and polymorphic rules implemented; InterestPolicy Strategy still planned |
 | Cover | Dates passed as parameters; never read system clock | Model and posting dates supplied explicitly; chronology validated without reading clock |
@@ -76,3 +76,12 @@ access remain available. Freezing itself makes no financial entry, consumes no I
 timestamp, so no date parameter or clock read is required. Available-balance metadata remains
 balance minus floor, not permission to post. Future transfer/interest operations must respect the
 frozen rule when they are implemented. The PDF requires freezing but leaves these details open.
+
+## Posting preparation decisions implemented on 11 November
+
+Existing public deposits/withdrawals use an internal prepared-plan boundary: validation and full
+ledger allocation precede publication. Plans do not reserve IDs, advance dates or alter balances.
+They are bound to the originating object/state, reject repeated/stale commits and respect frozen
+status at preparation and commitment. No public prepare/commit API or Bank transfer exists yet.
+Private immutable ledger snapshots replace a mutable history/balance pair. These are architecture
+choices supporting the PDF's banking rules, not additional professor-mandated features.

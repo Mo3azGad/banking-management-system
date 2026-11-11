@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 5
+# Test evidence and obligations — milestone 6
 
 | Public operation | Successful behavior | Failure / boundary behavior |
 |---|---|---|
@@ -16,6 +16,8 @@
 | Transaction constructor | All six types, normalized money, zero opening/interest, paired references | Invalid IDs/fields/money; opening mismatch; impossible credit balance; invalid transfer links |
 | deposit | Balance and returned/stored ledger entry; one cent; trailing zeros; large amounts | Null/zero/negative/sub-cent amount; null, pre-opening and backdated dates; frozen status takes precedence |
 | withdraw | Balance and returned/stored ledger entry; exact floor; replenishment | Invalid inputs/dates; one cent over available; at floor; insufficient funds; frozen status takes precedence |
+| Internal prepareDeposit / prepareWithdrawal | Validated preview; no publication, reservation or date advance; exact floor | Invalid amount/date/funds/frozen state preserves ledger and prior valid plans |
+| PreparedPosting.validate / commit | Origin-bound publication; old snapshots preserved; distinct prevalidated plans remain independent | Reuse/intervening posting/same-balance round trip rejects as stale; freeze-after-prepare blocks; frozen takes precedence over stale |
 | getTransactionHistory | Opening, posting order, running balances, IDs and immutable snapshots | Mutation rejected; previous snapshots unchanged after later postings |
 
 Shared account-operation tests run for both concrete types through Account references.
@@ -54,3 +56,11 @@ preservation, readable immutable history, Bank lookup/snapshot visibility and is
 accounts owned by the same customer. An active account remains active after an insufficient-funds
 failure. No unfreeze operation exists; tests do not bypass private state merely to observe a
 hypothetical subsequent posting. Future transfers/interest still need frozen-state operation tests.
+
+Milestone 6 adds 79 PreparedPostingTest invocations. They test the internal domain boundary
+rather than reflection or private field manipulation. Preparation/validation leaves state intact;
+rejection does not consume IDs. Commit publishes the exact prepared facts. Changed ledgers,
+reused plans, competing same-account plans and same-balance round trips cannot overwrite state.
+Plans stay bound to their original object even when another standalone object has the same ID.
+Frozen state beats both invalid inputs and staleness. Separate-account preflight tests demonstrate
+that validation can precede publication; they do not test a Bank transfer or paired transfer history.

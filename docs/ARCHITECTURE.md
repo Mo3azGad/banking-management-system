@@ -1,4 +1,4 @@
-# Architecture — current milestone 5 and final target
+# Architecture — current milestone 6 and final target
 
 ## Implemented responsibilities
 
@@ -19,41 +19,59 @@ Account validates identity, owner, opening balance/date and creates an OPENING T
 CheckingAccount permits a zero floor; SavingsAccount enforces 100.00. Both expose monthly
 rate metadata. No overridable method is called from the base constructor.
 
-Account owns a private frozen flag, mutable private balance and an append-only private ArrayList of immutable
-Transaction records. External callers receive List.copyOf snapshots. There is no public balance
-setter, mutable collection view or transaction-posting helper. Direct constructors do not register
-accounts at Bank; the Bank opening methods perform that registration for known owners.
+Account owns a private frozen flag and one reference to a private immutable LedgerState record
+(balance plus immutable Transaction list). Direct constructors create an opening entry; Bank
+opening methods also register the account for a known customer. Existing public signatures and
+success/failure contracts remain unchanged.
 
-## Posting contracts and Template Method
+## Posting preparation, validation and publication
 
-`deposit(amount, date)` and `withdraw(amount, date)` are final public operations delegating to
-one private posting template:
+Final public deposit/withdraw now call the corresponding package-private prepareDeposit or
+prepareWithdrawal and immediately commit the returned PreparedPosting. One private template:
 
-0. Require an active account; AccountFrozenException takes precedence over invalid posting inputs.
-1. Validate a nonnull, strictly positive exact-cent amount and nonnull LocalDate.
-2. Reject a date before the latest ledger entry (the opening entry establishes the initial bound).
-3. Calculate the resulting balance using BigDecimal, consulting the polymorphic minimum floor.
-4. Reject a withdrawal below that floor with InsufficientFundsException.
-5. Construct the complete immutable Transaction before touching account state.
-6. Append the prepared entry, then assign the new balance; no domain validation occurs afterwards.
+1. Requires active state, then validates positive exact-cent amount, explicit date and chronology.
+2. Computes the prospective balance and enforces the polymorphic minimum floor.
+3. Builds a complete Transaction with the next account-local sequence ID.
+4. Copies immutable history with that entry and allocates the full replacement LedgerState.
+5. Returns a plan bound to this Account, expected ledger reference, replacement state and entry.
 
-The template fixes the algorithm while `getMinimumBalance()` varies by concrete account.
-This is the implemented Template Method pattern; it avoids duplicate validation and recording
-in checking/savings subclasses. Final public methods prevent those subclasses bypassing it.
-Savings is substitutable under the documented Account contract: withdrawals are limited by
-each type's available balance, not by a promise that the entire raw balance may be withdrawn.
+Preparing and validating are side-effect free: no balance/history/date change or ID reservation.
+The package-private, final, non-static inner PreparedPosting has a private constructor and private
+final fields, so it can only operate on its originating Account. Its transaction() exposes an
+immutable preview, not proof of publication. validate() checks active state then expected-ledger
+identity; mismatch throws StalePostingException. commit() revalidates, assigns the prepared state
+reference once and returns the prepared entry. No allocation, arithmetic, subclass hook or other
+fallible domain operation occurs after successful validation and before publication.
 
-Under the documented single-threaded in-memory model, rejected domain operations preserve
-balance, history, next sequence ID and latest posting date. This is not a database transaction
-or concurrency guarantee. Dates can equal the opening/latest date; no implicit current-date
-comparison or future-date rejection is introduced. Immutable history is in posting order,
-which is chronological with sequence order breaking same-day ties.
+This rejects consumed plans and plans superseded by another posting, even if the balance returns
+to the same numeric value. Freeze does not change ledger state, but the active guard blocks any
+prepared plan afterwards and takes precedence over stale state. Failed preparation/public
+posting does not invalidate a previously valid plan. Two plans prepared against one version may
+both validate initially, but committing either invalidates the other; plans are not reservations.
+
+Template Method remains the shared preparation workflow with the account-specific minimum hook.
+Subclasses cannot override the final public or package-private preparation entry points. Existing
+323 test cases preserve active/frozen posting contracts; new boundary tests exercise the split.
+Immutable state publication replaces the earlier separate history append and balance assignment.
+History retrieval returns its immutable list directly; old snapshots remain stable.
+
+Preparation now costs O(n) copying per ledger, and retained plans retain their histories. The
+small in-memory scope favors predictable publication over throughput optimization. This is not a
+concurrency mechanism: ledger validation/assignment is not synchronized and frozen state is separate.
+No database rollback, persistence or distributed two-phase commit pattern is implemented.
+
+For future two-account coordination, first prepare and validate every participating plan. Accounts
+must be distinct, with no intervening mutations. Each commit then rechecks only that Account's
+state; committing the other distinct Account cannot invalidate it, and no callbacks/allocations
+run on the successful publication path. The future Bank coordinator must enforce these assumptions.
+There is no paired commit API or transfer operation yet, and transfer types/references are not
+preimplemented here. Never treat a sequential public withdraw/deposit as atomic transfer.
 
 ## Freezing contract implemented in milestone 5
 
 New accounts are active. Final `freeze()` checks active state and sets the private frozen flag;
 repeat calls throw AccountFrozenException. Both current posting operations enter the same
-private `requireActive()` guard before amount/date/funds validation. There is no unfreeze method,
+private `requireActive()` guard during preparation and again on plan validation/commit. There is no unfreeze method,
 setter or need for a State-pattern framework for this irreversible two-state lifecycle.
 
 Freezing is a state change, not a financial posting: it consumes no transaction ID, adds no
@@ -91,7 +109,8 @@ nonpositive and imprecise inputs; DuplicateCustomerException and CustomerNotFoun
 cover customer registry failures. DuplicateAccountException and AccountNotFoundException now
 cover duplicate opening IDs and absent account lookups. New InsufficientFundsException reports a withdrawal that breaches
 the type-specific floor, and InvalidPostingDateException reports chronology violations. A null
-date is invalid input, not a chronological value for active accounts. New AccountFrozenException
+date is invalid input, not a chronological value for active accounts. StalePostingException
+rejects reused/superseded plans before they can overwrite a newer ledger. New AccountFrozenException
 rejects repeated freezing and postings on frozen accounts before other input/funds/date failures. Every concrete subtype is thrown by tests.
 Unchecked domain failures fit the in-memory API; no checked I/O is hidden or printed.
 
@@ -113,7 +132,8 @@ Unchecked domain failures fit the in-memory API; no checked I/O is hidden or pri
 Bank now registers accounts against known owners and enforces unique account IDs. It still
 must coordinate transfers. A future transfer must validate and prepare both legs before mutation; do not compose
 public withdraw and deposit calls, since the second can reject after the first changes state.
-Transfer coordination will need a prepared posting/commit boundary preserving both accounts.
+The prepared boundary now exists for deposit/withdraw facts. Transfer coordination must add
+validated transfer facts/references and both-side orchestration while preserving its guards.
 
 Frozen accounts now reject deposits/withdrawals. Future transfer/interest paths must also
 respect frozen status. InterestPolicy/FixedRateInterestPolicy will supply the

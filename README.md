@@ -1,6 +1,6 @@
 # Banking Management System
 
-Advanced OOP, Project 2. **Milestone 5: account freezing and frozen-posting protection.**
+Advanced OOP, Project 2. **Milestone 6: validated posting preparation and guarded ledger publication.**
 Incremental university project; transfers and monthly interest posting remain
 later milestones. This is not yet the final submission.
 
@@ -30,7 +30,12 @@ console output or system-clock access. JUnit 5 and JaCoCo results appear under
 - Checking: minimum 0.00, no overdraft, monthly rate metadata 0.001 (0.1%).
 - Savings: minimum 100.00 on opening and withdrawals, monthly rate metadata 0.003 (0.3%).
 - Final `deposit(BigDecimal, LocalDate)` and `withdraw(BigDecimal, LocalDate)` return the posted
-  Transaction. Balance/history change only after all domain validation succeeds.
+  Transaction. They now prepare an immutable replacement ledger and publish its reference only
+  after validation. Balance and history change together; old snapshots remain immutable.
+- Package-private preparation returns an account-bound `PreparedPosting` with immutable facts,
+  `validate()` and guarded `commit()`. Preparing/validating does not reserve an ID or advance dates.
+  Intervening postings and repeated commits raise `StalePostingException`; freezing after
+  preparation raises `AccountFrozenException`. No new public preparation/commit API is exposed.
 - Final `freeze()` permanently blocks postings; `isFrozen()` exposes status. Repeated freezing
   and all deposit/withdraw attempts on frozen accounts throw `AccountFrozenException` before
   input validation. Access through Bank lookup or an existing account reference behaves alike.
@@ -42,7 +47,7 @@ console output or system-clock access. JUnit 5 and JaCoCo results appear under
 - Amounts must be positive and exactly representable in cents. Trailing zeros are accepted;
   nonzero fractions of a cent are rejected instead of silently rounded.
 - Custom exception hierarchy: invalid input, duplicate/missing customer or account, insufficient
-  funds, frozen-account state, and invalid posting chronology. Tests exercise every concrete custom exception.
+  funds, frozen-account state, stale posting plans, and invalid posting chronology. Tests exercise every concrete custom exception.
 - Transaction is an immutable record; its construction alone never executes an operation.
 
 Transaction IDs start at 1 for opening and increase within each account. The identifier is the
@@ -66,7 +71,7 @@ not numerical requirements specified by the professor. Single-threaded, in-memor
 - `docs/DEVELOPMENT_PLAN.md`: remaining work roadmap and actual progress; schedule versus execution distinguished.
 - `docs/current-uml.svg` / `.dot`: implemented model; `docs/proposed-uml.mmd`: final target design.
 - `docs/TEST_MATRIX.md` and `docs/VERIFICATION.md`: current test/coverage evidence and limitations.
-- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_4_VERIFICATION.md`: earlier evidence.
+- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_5_VERIFICATION.md`: earlier evidence.
 - `docs/milestone-report.docx`: updated five-section interim Word report, not the final report.
 - `docs/DEFENSE.md`: current walkthrough, demonstration commands and eventual defense outline.
 
@@ -81,7 +86,7 @@ machine-specific tooling stay outside tracked source. On another computer use `g
 and `gh auth setup-git` before pushing.
 
 Milestones 1–3 were genuinely developed on 8 November 2026; milestone 4 was developed on
-9 November; milestone 5 freezing was developed on 10 November. The professor's at-least-two-week
+9 November; milestone 5 freezing on 10 November; milestone 6 posting preparation on 11 November. The professor's at-least-two-week
 history requirement is still outstanding.
 Never change author/committer dates or invent activity. A work automation was saved and enabled
 on 8 November for 9–23 November evenings in Europe/Istanbul. Saved scheduling is not proof of
@@ -89,6 +94,21 @@ future execution or pushes; verify each actual session and its result separately
 
 ## Next milestone
 
-Prepare the posting/commit boundary for coordinated two-account operations, preserving active
-and frozen posting contracts. Then implement atomic transfers, InterestPolicy/monthly interest,
-the final report and defense rehearsal. Keep UML and documentation synchronized with each tested increment.
+Implement Bank transfer coordination with paired transfer records/references and both-side
+validation before publication. Current preparation supports only deposits/withdrawals; there is
+no Bank.transfer, transfer-type preparation or paired transfer operation yet. InterestPolicy/monthly
+interest, the final report and defense rehearsal also remain. Keep UML and documentation synchronized with each tested increment.
+
+## Internal preparation contract
+
+Each plan is bound to its originating Account object and exact ledger version. Its constructor
+and state are private; callers cannot forge a plan or commit it onto another Account. Plans are
+not reservations or queued transactions. Same-balance round trips still invalidate old plans
+because the ledger version/history changed. Frozen state is checked before stale state.
+
+LedgerState is a private record containing balance and immutable history. Preparing a posting
+copies history and allocates its result before publication: O(n) preparation cost and storage
+for a retained plan, versus O(1) immutable history retrieval. This tradeoff is acceptable for the
+small in-memory project. No concurrency, database transaction or distributed two-phase commit
+is claimed. A future coordinator must use distinct accounts, prevalidate all plans before any
+commit and allow no intervening mutations. Tests of this boundary are not completed transfer tests.

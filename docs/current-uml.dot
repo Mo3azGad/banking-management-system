@@ -1,10 +1,10 @@
 digraph Current {
- graph [rankdir=TB, label="Milestone 5 — implemented classes only", labelloc=t, fontsize=18, bgcolor="white", nodesep=0.35];
+ graph [rankdir=TB, label="Milestone 6 — implemented classes only", labelloc=t, fontsize=18, bgcolor="white", nodesep=0.35];
  node [shape=record, fontname="Helvetica", fontsize=10];
  edge [fontname="Helvetica", fontsize=9];
  Bank [label="{Bank|- customers: Map\l- accounts: Map\l|+ registerCustomer(id, name): Customer\l+ findCustomer(id): Customer\l+ getCustomers(): List\l+ openCheckingAccount(id, customerId, balance, date): CheckingAccount\l+ openSavingsAccount(id, customerId, balance, date): SavingsAccount\l+ findAccount(id): Account\l+ getAccounts(): List\l- availableAccountId(id): String\l}"];
  Customer [label="{Customer|- id: String\l- name: String\l|+ Customer(id, name)\l+ getId(): String\l+ getName(): String\l}"];
- Account [label="{Account (abstract)|- id: String\l- owner: Customer\l- balance: BigDecimal\l- frozen: boolean\l- openedOn: LocalDate\l- history: List\<Transaction\>\l|# Account(id, owner, openingBalance, openedOn)\l+ getId(): String\l+ getOwner(): Customer\l+ getBalance(): BigDecimal\l+ getOpenedOn(): LocalDate\l+ isFrozen(): boolean\l+ freeze(): void\l+ getAvailableBalance(): BigDecimal\l+ deposit(amount, date): Transaction\l+ withdraw(amount, date): Transaction\l+ getTransactionHistory(): List\<Transaction\>\l- post(type, amount, date): Transaction\l- requireActive(): void\l+ getMinimumBalance(): BigDecimal (abstract)\l+ getMonthlyInterestRate(): BigDecimal (abstract)\l}"];
+ Account [label="{Account (abstract)|- id: String\l- owner: Customer\l- ledger: LedgerState\l- frozen: boolean\l- openedOn: LocalDate\l|# Account(id, owner, openingBalance, openedOn)\l+ getId(): String\l+ getOwner(): Customer\l+ getBalance(): BigDecimal\l+ getOpenedOn(): LocalDate\l+ isFrozen(): boolean\l+ freeze(): void\l+ getAvailableBalance(): BigDecimal\l+ deposit(amount, date): Transaction\l+ withdraw(amount, date): Transaction\l+ getTransactionHistory(): List\<Transaction\>\l~ prepareDeposit(amount, date): PreparedPosting\l~ prepareWithdrawal(amount, date): PreparedPosting\l- preparePosting(type, amount, date): PreparedPosting\l- requireActive(): void\l+ getMinimumBalance(): BigDecimal (abstract)\l+ getMonthlyInterestRate(): BigDecimal (abstract)\l}"];
  CheckingAccount [label="{CheckingAccount|+ CheckingAccount(id, owner, openingBalance, openedOn)\l+ getMinimumBalance(): BigDecimal\l+ getMonthlyInterestRate(): BigDecimal\l}"];
  SavingsAccount [label="{SavingsAccount|+ SavingsAccount(id, owner, openingBalance, openedOn)\l+ getMinimumBalance(): BigDecimal\l+ getMonthlyInterestRate(): BigDecimal\l}"];
  Transaction [label="{Transaction (record)|id: long\laccountId: String\ltype: TransactionType\lamount: BigDecimal\lbalanceAfter: BigDecimal\ldate: LocalDate\ltransferReference: OptionalLong\l|+ Transaction(all components)\l+ component accessors\l}"];
@@ -19,13 +19,21 @@ digraph Current {
  DuplicateAccountException [label="DuplicateAccountException"];
  AccountNotFoundException [label="AccountNotFoundException"];
  AccountFrozenException [label="AccountFrozenException"];
+ LedgerState [label="{Account.LedgerState (private record)|balance: BigDecimal\l history: List\<Transaction\>\l}"];
+ PreparedPosting [label="{Account.PreparedPosting (package-private inner)|- expected: LedgerState\l- next: LedgerState\l- entry: Transaction\l|- PreparedPosting(expected, next, entry)\l~ transaction(): Transaction\l~ validate(): void\l~ commit(): Transaction\l}"];
+ StalePostingException [label="StalePostingException"];
  RuntimeException [label="RuntimeException (JDK)"];
  Bank -> Customer [arrowhead=none, arrowtail=odiamond, dir=both, taillabel="1", headlabel="0..*", label="registered"];
  Bank -> Account [arrowhead=none, arrowtail=odiamond, dir=both, taillabel="1", headlabel="0..*", label="registered"];
  Account -> Customer [arrowhead=vee, taillabel="0..*", headlabel="1", label="owner"];
  CheckingAccount -> Account [arrowhead=empty];
  SavingsAccount -> Account [arrowhead=empty];
- Account -> Transaction [arrowhead=none, arrowtail=diamond, dir=both, taillabel="1", headlabel="1..*", label="ledger"];
+ Account -> LedgerState [arrowhead=vee, headlabel="1", label="current ledger"];
+ LedgerState -> Transaction [arrowhead=vee, headlabel="1..*", label="immutable history"];
+ PreparedPosting -> Account [arrowhead=vee, headlabel="1", label="originating object"];
+ PreparedPosting -> LedgerState [arrowhead=vee, headlabel="2", label="expected / next"];
+ PreparedPosting -> Transaction [arrowhead=vee, headlabel="1", label="entry"];
+ PreparedPosting -> StalePostingException [style=dashed];
  Transaction -> TransactionType [arrowhead=vee];
  Customer -> BankingInput [style=dashed, label="validates with"];
  Bank -> BankingInput [style=dashed];
@@ -44,6 +52,7 @@ digraph Current {
  Bank -> AccountNotFoundException [style=dashed];
  AccountFrozenException -> BankingException [arrowhead=empty];
  Account -> AccountFrozenException [style=dashed];
+ StalePostingException -> BankingException [arrowhead=empty];
  BankingException -> RuntimeException [arrowhead=empty];
  BankingInput -> InvalidBankingInputException [style=dashed];
 }
