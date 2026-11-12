@@ -1,4 +1,4 @@
-# Architecture — current milestone 6 and final target
+# Architecture — current milestone 7 and final target
 
 ## Implemented responsibilities
 
@@ -50,8 +50,7 @@ posting does not invalidate a previously valid plan. Two plans prepared against 
 both validate initially, but committing either invalidates the other; plans are not reservations.
 
 Template Method remains the shared preparation workflow with the account-specific minimum hook.
-Subclasses cannot override the final public or package-private preparation entry points. Existing
-323 test cases preserve active/frozen posting contracts; new boundary tests exercise the split.
+Subclasses cannot override the final public or package-private preparation entry points. Regression tests preserve active/frozen posting contracts; boundary tests exercise the split.
 Immutable state publication replaces the earlier separate history append and balance assignment.
 History retrieval returns its immutable list directly; old snapshots remain stable.
 
@@ -63,9 +62,8 @@ No database rollback, persistence or distributed two-phase commit pattern is imp
 For future two-account coordination, first prepare and validate every participating plan. Accounts
 must be distinct, with no intervening mutations. Each commit then rechecks only that Account's
 state; committing the other distinct Account cannot invalidate it, and no callbacks/allocations
-run on the successful publication path. The future Bank coordinator must enforce these assumptions.
-There is no paired commit API or transfer operation yet, and transfer types/references are not
-preimplemented here. Never treat a sequential public withdraw/deposit as atomic transfer.
+run on the successful publication path. Bank.transfer now enforces these assumptions using both internal transfer preparers.
+It prevalidates both plans before either guarded commit and allocates the receipt first. Never treat a sequential public withdraw/deposit as atomic transfer.
 
 ## Freezing contract implemented in milestone 5
 
@@ -83,8 +81,8 @@ same frozen Account, while other accounts of the same customer remain independen
 
 Frozen attempts reject before any mutation, even when amount/date/funds are also invalid. This
 is an explicit error-precedence decision, not a rule specified by the PDF. Existing active
-account input/date/funds behavior is preserved. Future transfer/interest posting paths must
-also enforce this rule when implemented; they are not preimplemented in this milestone.
+account input/date/funds behavior is preserved. Transfer preparers now enforce the same per-account rule; future interest posting must also
+respect it when implemented.
 
 ## Transaction facts and revised ID ownership
 
@@ -98,9 +96,40 @@ validate account chronology or prove a transfer counterpart exists; posting coor
 opening, then `history.size() + 1L`. No external allocator, global static state or caller-supplied
 posting ID is needed. A ledger entry is identified by `(accountId, transactionId)`. The long
 addition avoids int arithmetic overflow; history storage still has normal collection limits.
-Later Bank transfer references will identify pairs across accounts independently of local IDs.
+Bank-local transfer references now identify pairs across accounts independently of local IDs.
 The PDF does not prescribe an ID strategy. This replaces the earlier proposed Bank-global
 transaction sequence to support standalone accounts and deterministic tests with less coupling.
+
+## Atomic transfer coordination implemented in milestone 7
+
+Bank.transfer(sourceId, targetId, amount, date) resolves canonical accounts from this Bank and
+rejects the same instance (including whitespace-normalized duplicate IDs). Accounts with different
+owners or concrete types may transfer. Separate Banks have independent ID/reference namespaces.
+Bank then generates a candidate reference, prepares TRANSFER_OUT followed by TRANSFER_IN using
+Account's shared template, allocates an immutable [outgoing, incoming] receipt, validates both
+plans, commits both, and only then records the reference as used.
+
+Account's package-private transfer preparers carry OptionalLong.of(reference). The shared template
+adds for DEPOSIT/TRANSFER_IN and subtracts for WITHDRAWAL/TRANSFER_OUT, preserving type-specific
+floors, explicit dates, exact-cent validation and frozen/stale guards. There are no public
+single-leg transfer mutators. Transaction independently validates the positive transfer link.
+
+All allocation, arithmetic, subclass hooks and receipt creation occur before final prevalidation.
+Successful guarded commits check only the owning account's active/expected-ledger state and
+publish a reference. For distinct registered accounts, with no callbacks/interleaving, committing
+one cannot invalidate the other. No rollback path is needed for ordinary rejected domain operations
+because neither is published until all preconditions pass. This is not concurrent/database atomicity.
+
+Both balances/histories, local sequence IDs/latest dates and Bank reference count are preserved
+on rejection. References start at 1 per Bank and advance only after success, independently of
+local ledger sequence numbers. The signed long candidate is validated as a positive reference
+by Transaction before any publication; no invalid reference is accepted into a ledger. References
+are not globally unique or persistent. Receipt/history values are immutable snapshots.
+
+Lookup/distinctness precedes preparation. Outgoing validation precedes incoming validation. Each
+leg's frozen check wins over its other invalid inputs, but there is no global ordering of errors
+spread across two accounts. A valid source plan followed by a recipient date/frozen failure is
+still uncommitted, so a rejected transfer cannot partially debit the sender.
 
 ## Exception hierarchy
 
@@ -129,14 +158,12 @@ Unchecked domain failures fit the in-memory API; no checked I/O is hidden or pri
 
 ## Remaining design
 
-Bank now registers accounts against known owners and enforces unique account IDs. It still
-must coordinate transfers. A future transfer must validate and prepare both legs before mutation; do not compose
-public withdraw and deposit calls, since the second can reject after the first changes state.
-The prepared boundary now exists for deposit/withdraw facts. Transfer coordination must add
-validated transfer facts/references and both-side orchestration while preserving its guards.
+Bank registration and transfer coordination are now implemented. The transfer code deliberately
+does not compose public withdraw/deposit, which could leave a partial result on recipient failure.
+Interest policy calculation and monthly posting remain the next functionality.
 
-Frozen accounts now reject deposits/withdrawals. Future transfer/interest paths must also
-respect frozen status. InterestPolicy/FixedRateInterestPolicy will supply the
+Frozen accounts now reject deposits, withdrawals and incoming/outgoing transfers. Future
+interest posting must also respect frozen status. InterestPolicy/FixedRateInterestPolicy will supply the
 Strategy pattern. Monthly interest must receive dates, validate month-end/chronology, round
 HALF_EVEN once, and reject a duplicate YearMonth independently of last posting date. Rate
 metadata already differs, but interest is not calculated or posted yet. No database, UI,

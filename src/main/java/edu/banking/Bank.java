@@ -12,6 +12,7 @@ import java.util.Map;
 public final class Bank {
     private final Map<String, Customer> customers = new LinkedHashMap<>();
     private final Map<String, Account> accounts = new LinkedHashMap<>();
+    private long lastTransferReference;
 
     /** Registers a unique identifier; a failed registration leaves the registry unchanged. */
     public Customer registerCustomer(String id, String name) {
@@ -75,6 +76,32 @@ public final class Bank {
     /** Immutable membership snapshot in opening order; contained accounts retain their identity. */
     public List<Account> getAccounts() {
         return List.copyOf(accounts.values());
+    }
+
+    /** Transfers a positive exact-cent amount between distinct accounts registered here.
+     * Returns an immutable receipt ordered TRANSFER_OUT, TRANSFER_IN with a shared Bank-local
+     * reference. Rejected operations preserve both ledgers and do not consume a reference.
+     * Atomicity assumes single-threaded in-memory use, as for this Bank's other operations.
+     */
+    public List<Transaction> transfer(String sourceId, String targetId, BigDecimal amount, LocalDate date) {
+        Account source = findAccount(sourceId);
+        Account target = findAccount(targetId);
+        if (source == target) {
+            throw new InvalidBankingInputException("Transfer requires two distinct accounts.");
+        }
+        long reference = lastTransferReference + 1;
+        Account.PreparedPosting outgoing = source.prepareTransferOut(amount, date, reference);
+        Account.PreparedPosting incoming = target.prepareTransferIn(amount, date, reference);
+        List<Transaction> receipt = List.of(outgoing.transaction(), incoming.transaction());
+
+        // All validation/allocation precedes either publication. These are distinct accounts;
+        // no callbacks or intervening mutations occur between prevalidation and the two commits.
+        outgoing.validate();
+        incoming.validate();
+        outgoing.commit();
+        incoming.commit();
+        lastTransferReference = reference;
+        return receipt;
     }
 
     private String availableAccountId(String accountId) {

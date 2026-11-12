@@ -75,17 +75,26 @@ public abstract class Account {
         return ledger.history();
     }
 
-    // Internal boundary for coordination. No new public posting or transfer API is exposed.
+    // Internal preparation boundary; accounts expose no public transfer mutator.
     final PreparedPosting prepareDeposit(BigDecimal amount, LocalDate date) {
-        return preparePosting(TransactionType.DEPOSIT, amount, date);
+        return preparePosting(TransactionType.DEPOSIT, amount, date, OptionalLong.empty());
     }
 
     final PreparedPosting prepareWithdrawal(BigDecimal amount, LocalDate date) {
-        return preparePosting(TransactionType.WITHDRAWAL, amount, date);
+        return preparePosting(TransactionType.WITHDRAWAL, amount, date, OptionalLong.empty());
+    }
+
+    final PreparedPosting prepareTransferOut(BigDecimal amount, LocalDate date, long reference) {
+        return preparePosting(TransactionType.TRANSFER_OUT, amount, date, OptionalLong.of(reference));
+    }
+
+    final PreparedPosting prepareTransferIn(BigDecimal amount, LocalDate date, long reference) {
+        return preparePosting(TransactionType.TRANSFER_IN, amount, date, OptionalLong.of(reference));
     }
 
     // Common template: validate and allocate everything before any ledger change.
-    private PreparedPosting preparePosting(TransactionType type, BigDecimal amount, LocalDate date) {
+    private PreparedPosting preparePosting(TransactionType type, BigDecimal amount, LocalDate date,
+                                           OptionalLong transferReference) {
         requireActive();
         BigDecimal normalized = BankingInput.nonNegativeMoney(amount, "Posting amount");
         if (normalized.signum() == 0) {
@@ -100,14 +109,15 @@ public abstract class Account {
                     + " must not precede latest posting date " + latestDate + ".");
         }
 
-        BigDecimal nextBalance = type == TransactionType.DEPOSIT
+        boolean credit = type == TransactionType.DEPOSIT || type == TransactionType.TRANSFER_IN;
+        BigDecimal nextBalance = credit
                 ? expected.balance().add(normalized) : expected.balance().subtract(normalized);
         if (nextBalance.compareTo(getMinimumBalance()) < 0) {
             throw new InsufficientFundsException("Account " + id + " has " + getAvailableBalance()
                     + " available; cannot withdraw " + normalized + ".");
         }
         Transaction entry = new Transaction(history.size() + 1L, id, type, normalized,
-                nextBalance, date, OptionalLong.empty());
+                nextBalance, date, transferReference);
         List<Transaction> nextHistory = new ArrayList<>(history);
         nextHistory.add(entry);
         LedgerState next = new LedgerState(nextBalance, List.copyOf(nextHistory));
@@ -115,7 +125,7 @@ public abstract class Account {
     }
 
     /** Opaque account-bound plan. Only Account can construct it; callers cannot alter its facts.
-     * Validate every participating plan before committing any in future coordination. Distinct
+     * Validate every participating plan before committing any in coordinated operations. Distinct
      * accounts and no intervening mutations are required; this is not a concurrency mechanism.
      */
     final class PreparedPosting {

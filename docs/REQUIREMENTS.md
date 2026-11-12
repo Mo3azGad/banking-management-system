@@ -6,7 +6,7 @@ project uses the user's explicitly stated assignment; it does not infer identity
 
 ## Mandatory PDF requirements
 
-| Source | Requirement | Milestone 6 status |
+| Source | Requirement | Milestone 7 status |
 |---|---|---|
 | Cover | Individual Java classes and JUnit tests; no running application, main, menu, UI, Scanner or System.out | Foundation follows this restriction |
 | Cover | Meaningful Git/GitHub commits spread over at least two weeks | First commit pushed to verified private GitHub repository; two-week history still outstanding |
@@ -15,7 +15,7 @@ project uses the user's explicitly stated assignment; it does not infer identity
 | Cover | Learned patterns and SOLID | Template Method and polymorphic rules implemented; InterestPolicy Strategy still planned |
 | Cover | Dates passed as parameters; never read system clock | Model and posting dates supplied explicitly; chronology validated without reading clock |
 | Banking (2), p.1 | Bank, customer, checking/savings accounts, transaction | Bank customer/account registries, concrete models and transaction records implemented |
-| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | Bank opening/retrieval, deposits, withdrawals, history and freezing implemented; transfers and interest remain |
+| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | Bank opening/retrieval, deposits, withdrawals, history, transfers and freezing implemented; interest remains |
 | Banking (2), p.1 | Different rules and monthly rates for checking and savings | Different opening floors and rate metadata implemented; interest posting planned |
 | Oral defense, p.1 | Individual five-minute defense with laptop, tests and code walkthrough; absence means failure | Interim preparation included; attend in weeks 11/12 |
 | Final report, p.2 | DOC/DOCX: UML/class overview, patterns, exceptions/checked choice, all five SOLID, testing/limitations/redesign | Interim DOCX only; final follows completed code |
@@ -53,11 +53,11 @@ Do not delay testing to days 11/12; test each implementation step.
 - Customer/account IDs are caller-supplied and unique in their respective registries. Transaction
   sequence IDs are deterministic and local to each Account; opening is 1. A ledger identity
   is (accountId, transactionId). This revises the earlier Bank-global proposal, not a PDF rule.
-  Failed operations consume no sequence; future Bank transfer references will correlate two legs.
+  Failed operations consume no sequence; Bank transfer references now correlate two legs.
 - In-memory, single-threaded operation. No database, authentication, persistent audit, concurrency
   or production banking claims. Frozen status applies to account operations, not customer lookup.
 
-These are explicit project decisions. Floors/rate metadata, deposits/withdrawals, opening/posting history and chronology are implemented. Bank ownership/ID validation is now implemented; freezing of current postings is implemented; transfers and monthly interest remain future work.
+These are explicit project decisions. Floors/rate metadata, deposits/withdrawals, opening/posting history and chronology are implemented. Bank ownership/ID validation is now implemented; freezing of current postings is implemented; transfers are now implemented; monthly interest remains future work.
 
 ## Bank opening and lookup decisions implemented on 9 November
 
@@ -74,14 +74,23 @@ the PDF. Account list snapshots protect membership, not immutable copies of bala
 and withdrawals check frozen state before validating amount/date/funds; history and all read
 access remain available. Freezing itself makes no financial entry, consumes no ID and stores no
 timestamp, so no date parameter or clock read is required. Available-balance metadata remains
-balance minus floor, not permission to post. Future transfer/interest operations must respect the
-frozen rule when they are implemented. The PDF requires freezing but leaves these details open.
+balance minus floor, not permission to post. Transfers now respect that frozen rule; future interest operations must also enforce it. The PDF requires freezing but leaves these details open.
 
 ## Posting preparation decisions implemented on 11 November
 
 Existing public deposits/withdrawals use an internal prepared-plan boundary: validation and full
 ledger allocation precede publication. Plans do not reserve IDs, advance dates or alter balances.
 They are bound to the originating object/state, reject repeated/stale commits and respect frozen
-status at preparation and commitment. No public prepare/commit API or Bank transfer exists yet.
+status at preparation and commitment. No public prepare/commit API is exposed; Bank.transfer now coordinates the internal plans.
 Private immutable ledger snapshots replace a mutable history/balance pair. These are architecture
 choices supporting the PDF's banking rules, not additional professor-mandated features.
+
+## Transfer decisions implemented on 12 November
+
+Bank resolves distinct registered accounts and permits different customers and types. A successful
+transfer posts exactly one outgoing/incoming entry with equal amount/date and a shared positive
+Bank-local reference, returning an immutable receipt in that order. Both legs/receipt are prepared
+and validated before publication. No rejected transfer changes either ledger or consumes local
+posting IDs/dates or the Bank reference. References are independent of account sequence IDs;
+separate Banks use independent counters. Atomicity assumes single-threaded in-memory operation.
+No fees, external bank transfer, persistence or concurrency requirement is invented.

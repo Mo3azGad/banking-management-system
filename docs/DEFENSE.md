@@ -1,6 +1,6 @@
 # Oral defense preparation — interim
 
-Milestone 6 adds validated internal posting plans and guarded ledger publication; transfers and monthly interest remain unimplemented. Do not present planned
+Milestone 7 adds atomic Bank transfers and paired history; interest policies and monthly posting remain unimplemented. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -97,8 +97,8 @@ dates remain required for financial postings and no system clock is read. Why no
 entry? The existing Transaction model holds financial facts; freezing only controls permission.
 Why not a State pattern? A private boolean and shared guard fit this two-state irreversible scope.
 Why does available balance remain visible? It is balance minus floor metadata; frozen permission
-is independent. Future transfers and interest must check frozen status, but those operations
-are not implemented yet and cannot honestly be claimed as tested.
+is independent. Bank transfers now check frozen status in milestone 7; interest posting remains unimplemented
+and cannot yet be claimed as tested.
 
 ## Explain milestone 6 (11 November)
 
@@ -118,10 +118,32 @@ Why a private LedgerState record? Balance and immutable history publish together
 reference assignment. All arithmetic/list allocation happens before the commit guard succeeds.
 Why an inner opaque plan? Its private fields/constructor and originating-account binding prevent
 forged/cross-account application. Why revalidate at commit? The account may have changed or frozen
-after preparation. Why no new public API? Clients still need only deposit/withdraw; coordination
-is an internal domain concern. What is the cost? O(n) ledger copy per preparation and retained
+after preparation. Why no public preparation API? Preparation/commit is internal; clients use deposit/withdraw
+and, since milestone 7, Bank.transfer. What is the cost? O(n) ledger copy per preparation and retained
 history per plan, acceptable here. This is neither concurrency control nor distributed two-phase
-commit. Future transfers must enforce distinct accounts and validate both plans before publication.
+commit. Bank.transfer now enforces distinct accounts and validates both plans before publication.
+
+## Explain milestone 7 (12 November)
+
+Run `mvn -Dtest=BankTransferTest test`, then `mvn clean verify` for the full suite.
+
+- Walk Bank.transfer through canonical lookup, distinctness, candidate reference, both transfer
+  plans, receipt allocation, both validations, both guarded commits and reference advancement.
+- `transferConservesMoneyAndPostsOneLinkedEntryPerAccount` checks all four concrete type pairs.
+- `dateValidForSourceButBeforeTargetOpeningCannotPartiallyDebit` and
+  `eitherFrozenAccountBlocksTransferWithoutChangingEitherLedger` explain recipient-side failure.
+- `transferReferencesAreIndependentOfLocalPostingSequenceNumbers` distinguishes the common
+  pairing key from each account's ledger ID. References are scoped to Bank, not globally unique.
+- `rejectedTransferAfterSuccessDoesNotLeaveAGapInTransferReferences` demonstrates no reservation.
+
+Why not withdraw then deposit? Recipient date/frozen validation could fail after debiting source.
+Why is the second guarded commit safe here? Both plans were prevalidated; registered accounts are
+distinct, execution is single-threaded, and publication runs no callbacks/arithmetic/allocation.
+There is no supported mutation between validations/commits. This is not concurrency/database
+atomicity. Why return List<Transaction>? Two immutable facts in documented out/in order are enough;
+a separate receipt framework adds no needed behavior. Are same-owner accounts allowed? Yes, as
+long as accounts differ. Does target frozen always beat bad source money? No global cross-account
+error priority is promised: lookups/distinctness run first, then outgoing and incoming preparation.
 
 ## Final five-minute outline (planned demo, not available yet)
 

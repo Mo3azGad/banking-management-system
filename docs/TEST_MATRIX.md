@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 6
+# Test evidence and obligations — milestone 7
 
 | Public operation | Successful behavior | Failure / boundary behavior |
 |---|---|---|
@@ -18,6 +18,8 @@
 | withdraw | Balance and returned/stored ledger entry; exact floor; replenishment | Invalid inputs/dates; one cent over available; at floor; insufficient funds; frozen status takes precedence |
 | Internal prepareDeposit / prepareWithdrawal | Validated preview; no publication, reservation or date advance; exact floor | Invalid amount/date/funds/frozen state preserves ledger and prior valid plans |
 | PreparedPosting.validate / commit | Origin-bound publication; old snapshots preserved; distinct prevalidated plans remain independent | Reuse/intervening posting/same-balance round trip rejects as stale; freeze-after-prepare blocks; frozen takes precedence over stale |
+| Bank.transfer | All four type pairs; conserved total; exact floor; one cent; linked entries/date/reference; immutable receipt; independent local IDs | Missing/same/foreign accounts; invalid money/date; either frozen; source funds/floor; recipient opening/latest-date failure; neither ledger nor counters partly change |
+| Internal prepareTransferOut / prepareTransferIn | Shared prepared-state contracts exercised through Bank transfers | Nonpositive reference rejects without publication |
 | getTransactionHistory | Opening, posting order, running balances, IDs and immutable snapshots | Mutation rejected; previous snapshots unchanged after later postings |
 
 Shared account-operation tests run for both concrete types through Account references.
@@ -33,13 +35,11 @@ contract, not a custom banking exception. Generated record accessors are checked
 
 ## Remaining test obligations
 
-- Transfers: paired entries/references, conservation, both-side prevalidation, no partial state
-  on missing/same account, insufficient funds, invalid date/amount or frozen status.
 - Interest: two policies/rates, HALF_EVEN ties, zero result, month-end/chronology, duplicate month,
   frozen status, injected-policy validation and failure-state preservation.
 
-Current totals/coverage are in VERIFICATION.md. History for transfer and interest types is only
-record-level tested until those posting operations exist. No persistence, concurrency, UI,
+Current totals/coverage are in VERIFICATION.md. Transfer history is now verified through Bank execution. Interest history remains record-level
+tested until monthly posting exists. No persistence, concurrency, UI,
 GitHub network integration or unattended scheduler is part of the Java test suite. Git pushes
 are verified independently. One compiler-generated switch default remains uncovered; every legal
 TransactionType and null rejection is tested. No fake enum values or removed checks chase coverage.
@@ -55,7 +55,7 @@ posting operations. They exercise first/repeated freeze, valid/invalid blocked p
 preservation, readable immutable history, Bank lookup/snapshot visibility and isolation between
 accounts owned by the same customer. An active account remains active after an insufficient-funds
 failure. No unfreeze operation exists; tests do not bypass private state merely to observe a
-hypothetical subsequent posting. Future transfers/interest still need frozen-state operation tests.
+hypothetical subsequent posting. Bank transfers now have frozen-state tests; interest will need them when implemented.
 
 Milestone 6 adds 79 PreparedPostingTest invocations. They test the internal domain boundary
 rather than reflection or private field manipulation. Preparation/validation leaves state intact;
@@ -64,3 +64,12 @@ reused plans, competing same-account plans and same-balance round trips cannot o
 Plans stay bound to their original object even when another standalone object has the same ID.
 Frozen state beats both invalid inputs and staleness. Separate-account preflight tests demonstrate
 that validation can precede publication; they do not test a Bank transfer or paired transfer history.
+
+Milestone 7 adds 86 BankTransferTest invocations, including all checking/savings directions and
+snapshot equality after rejection. Tests check paired immutable facts, exact floor/over-limit
+boundaries, both-side chronology, each frozen state, same/missing/case-sensitive/foreign IDs,
+transfer-reference independence/no gaps after failures, and huge round trips without lost cents.
+Source preparation is not published when the recipient fails. Existing prepared plans on both
+accounts become stale after success; a source plan survives a failed recipient preparation.
+No private counter manipulation or fabricated execution failures are used. Long-range reference
+exhaustion, VM resource failure, concurrency and persistence are not simulated/claimed tested.

@@ -1,10 +1,10 @@
 digraph Current {
- graph [rankdir=TB, label="Milestone 6 — implemented classes only", labelloc=t, fontsize=18, bgcolor="white", nodesep=0.35];
+ graph [rankdir=TB, label="Milestone 7 — implemented classes only", labelloc=t, fontsize=18, bgcolor="white", nodesep=0.35];
  node [shape=record, fontname="Helvetica", fontsize=10];
  edge [fontname="Helvetica", fontsize=9];
- Bank [label="{Bank|- customers: Map\l- accounts: Map\l|+ registerCustomer(id, name): Customer\l+ findCustomer(id): Customer\l+ getCustomers(): List\l+ openCheckingAccount(id, customerId, balance, date): CheckingAccount\l+ openSavingsAccount(id, customerId, balance, date): SavingsAccount\l+ findAccount(id): Account\l+ getAccounts(): List\l- availableAccountId(id): String\l}"];
+ Bank [label="{Bank|- customers: Map\l- accounts: Map\l- lastTransferReference: long\l|+ registerCustomer(id, name): Customer\l+ findCustomer(id): Customer\l+ getCustomers(): List\l+ openCheckingAccount(id, customerId, balance, date): CheckingAccount\l+ openSavingsAccount(id, customerId, balance, date): SavingsAccount\l+ findAccount(id): Account\l+ getAccounts(): List\l+ transfer(sourceId, targetId, amount, date): List\<Transaction\>\l- availableAccountId(id): String\l}"];
  Customer [label="{Customer|- id: String\l- name: String\l|+ Customer(id, name)\l+ getId(): String\l+ getName(): String\l}"];
- Account [label="{Account (abstract)|- id: String\l- owner: Customer\l- ledger: LedgerState\l- frozen: boolean\l- openedOn: LocalDate\l|# Account(id, owner, openingBalance, openedOn)\l+ getId(): String\l+ getOwner(): Customer\l+ getBalance(): BigDecimal\l+ getOpenedOn(): LocalDate\l+ isFrozen(): boolean\l+ freeze(): void\l+ getAvailableBalance(): BigDecimal\l+ deposit(amount, date): Transaction\l+ withdraw(amount, date): Transaction\l+ getTransactionHistory(): List\<Transaction\>\l~ prepareDeposit(amount, date): PreparedPosting\l~ prepareWithdrawal(amount, date): PreparedPosting\l- preparePosting(type, amount, date): PreparedPosting\l- requireActive(): void\l+ getMinimumBalance(): BigDecimal (abstract)\l+ getMonthlyInterestRate(): BigDecimal (abstract)\l}"];
+ Account [label="{Account (abstract)|- id: String\l- owner: Customer\l- ledger: LedgerState\l- frozen: boolean\l- openedOn: LocalDate\l|# Account(id, owner, openingBalance, openedOn)\l+ getId(): String\l+ getOwner(): Customer\l+ getBalance(): BigDecimal\l+ getOpenedOn(): LocalDate\l+ isFrozen(): boolean\l+ freeze(): void\l+ getAvailableBalance(): BigDecimal\l+ deposit(amount, date): Transaction\l+ withdraw(amount, date): Transaction\l+ getTransactionHistory(): List\<Transaction\>\l~ prepareDeposit(amount, date): PreparedPosting\l~ prepareWithdrawal(amount, date): PreparedPosting\l~ prepareTransferOut(amount, date, ref): PreparedPosting\l~ prepareTransferIn(amount, date, ref): PreparedPosting\l- preparePosting(type, amount, date, ref): PreparedPosting\l- requireActive(): void\l+ getMinimumBalance(): BigDecimal (abstract)\l+ getMonthlyInterestRate(): BigDecimal (abstract)\l}"];
  CheckingAccount [label="{CheckingAccount|+ CheckingAccount(id, owner, openingBalance, openedOn)\l+ getMinimumBalance(): BigDecimal\l+ getMonthlyInterestRate(): BigDecimal\l}"];
  SavingsAccount [label="{SavingsAccount|+ SavingsAccount(id, owner, openingBalance, openedOn)\l+ getMinimumBalance(): BigDecimal\l+ getMonthlyInterestRate(): BigDecimal\l}"];
  Transaction [label="{Transaction (record)|id: long\laccountId: String\ltype: TransactionType\lamount: BigDecimal\lbalanceAfter: BigDecimal\ldate: LocalDate\ltransferReference: OptionalLong\l|+ Transaction(all components)\l+ component accessors\l}"];
@@ -30,6 +30,7 @@ digraph Current {
  SavingsAccount -> Account [arrowhead=empty];
  Account -> LedgerState [arrowhead=vee, headlabel="1", label="current ledger"];
  LedgerState -> Transaction [arrowhead=vee, headlabel="1..*", label="immutable history"];
+ Bank -> PreparedPosting [style=dashed, label="prepare / prevalidate / commit both"];
  PreparedPosting -> Account [arrowhead=vee, headlabel="1", label="originating object"];
  PreparedPosting -> LedgerState [arrowhead=vee, headlabel="2", label="expected / next"];
  PreparedPosting -> Transaction [arrowhead=vee, headlabel="1", label="entry"];

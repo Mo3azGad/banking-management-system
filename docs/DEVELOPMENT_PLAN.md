@@ -23,6 +23,11 @@ history replacement, prepared future commits, empty commits or activity-only edi
   deposit/withdraw/freezing behavior is preserved. The clean private remote matched 10541db;
   no Bank transfer, transfer-type preparer or monthly interest implementation was added.
 
+- 12 November: milestone 7 adds Bank transfer coordination, paired transfer history/references,
+  conservation and rejection-state tests. The clean private remote matched 40c2964 before work.
+  Existing public posting/freezing contracts remain intact; no interest calculation/posting was
+  implemented or prewritten for a later commit.
+
 A work automation was saved/enabled on 8 November for evening sessions on 9–23 November.
 That recorded configuration does not prove future runs, credentials or pushes will succeed.
 Each session must check its environment, worktree, remote, authentication and private visibility,
@@ -33,8 +38,8 @@ The roadmap below is a plan, not a statement that later work has already happene
 |---|---|---|
 | Nov 9 | Bank account opening/registration and retrieval, ownership/unique IDs | Completed Nov 9; see MILESTONE_4_VERIFICATION.md |
 | Nov 10 | Account freezing, typed errors, repeated-freeze and blocked-posting/readable-history tests | Completed Nov 10; see MILESTONE_5_VERIFICATION.md |
-| Nov 11 | Prepared posting/commit boundary for coordinated two-account operations | Completed today; see VERIFICATION.md |
-| Nov 12 | Atomic Bank transfers with paired references/history | Conservation, both-side validation and no partial state |
+| Nov 11 | Prepared posting/commit boundary for coordinated two-account operations | Completed Nov 11; see MILESTONE_6_VERIFICATION.md |
+| Nov 12 | Atomic Bank transfers with paired references/history | Completed today; see VERIFICATION.md |
 | Nov 13 | InterestPolicy and FixedRateInterestPolicy strategy | BigDecimal calculation/rounding tests immediately |
 | Nov 14 | Explicit month-end monthly interest posting | Duplicate YearMonth, chronology and frozen-state cases |
 | Nov 15 | Real interest-boundary refinement | HALF_EVEN ties, zero, skipped months and policy failure |
@@ -56,6 +61,6 @@ The first commit was 8 November 2026 at 19:23:30 Istanbul time. The two-week spa
 outstanding. The Nov 23 final session is beyond 14 elapsed days; only real work/history can
 establish the professor's requirement. A saved schedule is not proof of future completion.
 
-Next session: implement Bank transfer coordination with paired transfer facts/references,
-registered/distinct account checks and prevalidation of both sides. Verify conservation, chronology,
-funds/frozen failures and no partial ledger mutation with immediate JUnit tests before a real push.
+Next session: implement InterestPolicy and FixedRateInterestPolicy with exact BigDecimal
+calculation/rounding tests and a narrow interface. Do not claim monthly interest posting until
+its dated/account-level behavior is implemented and tested in the following scope.

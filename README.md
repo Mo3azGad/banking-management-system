@@ -1,7 +1,7 @@
 # Banking Management System
 
-Advanced OOP, Project 2. **Milestone 6: validated posting preparation and guarded ledger publication.**
-Incremental university project; transfers and monthly interest posting remain
+Advanced OOP, Project 2. **Milestone 7: atomic Bank transfers with paired ledger history.**
+Incremental university project; interest policies and monthly interest posting remain
 later milestones. This is not yet the final submission.
 
 ## Run the tests
@@ -36,8 +36,14 @@ console output or system-clock access. JUnit 5 and JaCoCo results appear under
   `validate()` and guarded `commit()`. Preparing/validating does not reserve an ID or advance dates.
   Intervening postings and repeated commits raise `StalePostingException`; freezing after
   preparation raises `AccountFrozenException`. No new public preparation/commit API is exposed.
+- `Bank.transfer(sourceId, targetId, amount, date)` moves a positive exact-cent amount between
+  distinct accounts registered in that Bank. It returns an immutable two-entry receipt ordered
+  `TRANSFER_OUT`, `TRANSFER_IN`, with one shared positive Bank-local transfer reference.
+- Transfer preparation validates both sides and builds both complete ledgers/receipt before
+  publication. Rejection preserves both balances/histories, posting IDs/dates and the Bank reference.
+  Savings floors and frozen-state/chronology checks apply to the relevant transfer legs.
 - Final `freeze()` permanently blocks postings; `isFrozen()` exposes status. Repeated freezing
-  and all deposit/withdraw attempts on frozen accounts throw `AccountFrozenException` before
+  and all deposit/withdraw or transfer-leg attempts on frozen accounts throw `AccountFrozenException` before
   input validation. Access through Bank lookup or an existing account reference behaves alike.
 - Freezing does not add a financial transaction, consume a sequence ID or alter balance/chronology.
   No date is needed because it records no timestamp. History and all read-only metadata remain
@@ -53,7 +59,8 @@ console output or system-clock access. JUnit 5 and JaCoCo results appear under
 Transaction IDs start at 1 for opening and increase within each account. The identifier is the
 pair `(accountId, transactionId)`, not the sequence number alone. Failed operations consume no ID
 and do not advance the latest posting date. This replaces the earlier proposed Bank-wide
-sequence; future Bank transfers will coordinate separate cross-account transfer references.
+sequence. Bank now coordinates separate cross-account transfer references: local posting IDs
+can differ between outgoing and incoming entries while their transfer reference agrees.
 
 Direct Account constructors still create standalone domain objects with opening history. They
 are not implicitly registered. Use the Bank opening methods to enforce registered ownership and
@@ -71,7 +78,7 @@ not numerical requirements specified by the professor. Single-threaded, in-memor
 - `docs/DEVELOPMENT_PLAN.md`: remaining work roadmap and actual progress; schedule versus execution distinguished.
 - `docs/current-uml.svg` / `.dot`: implemented model; `docs/proposed-uml.mmd`: final target design.
 - `docs/TEST_MATRIX.md` and `docs/VERIFICATION.md`: current test/coverage evidence and limitations.
-- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_5_VERIFICATION.md`: earlier evidence.
+- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_6_VERIFICATION.md`: earlier evidence.
 - `docs/milestone-report.docx`: updated five-section interim Word report, not the final report.
 - `docs/DEFENSE.md`: current walkthrough, demonstration commands and eventual defense outline.
 
@@ -86,7 +93,7 @@ machine-specific tooling stay outside tracked source. On another computer use `g
 and `gh auth setup-git` before pushing.
 
 Milestones 1–3 were genuinely developed on 8 November 2026; milestone 4 was developed on
-9 November; milestone 5 freezing on 10 November; milestone 6 posting preparation on 11 November. The professor's at-least-two-week
+9 November; milestone 5 freezing on 10 November; milestone 6 posting preparation on 11 November; milestone 7 transfers on 12 November. The professor's at-least-two-week
 history requirement is still outstanding.
 Never change author/committer dates or invent activity. A work automation was saved and enabled
 on 8 November for 9–23 November evenings in Europe/Istanbul. Saved scheduling is not proof of
@@ -94,10 +101,8 @@ future execution or pushes; verify each actual session and its result separately
 
 ## Next milestone
 
-Implement Bank transfer coordination with paired transfer records/references and both-side
-validation before publication. Current preparation supports only deposits/withdrawals; there is
-no Bank.transfer, transfer-type preparation or paired transfer operation yet. InterestPolicy/monthly
-interest, the final report and defense rehearsal also remain. Keep UML and documentation synchronized with each tested increment.
+Implement the narrow InterestPolicy/FixedRateInterestPolicy strategy with BigDecimal calculation
+and rounding tests. Monthly interest posting follows later, then final report/defense preparation. Keep UML and documentation synchronized with each tested increment.
 
 ## Internal preparation contract
 
@@ -110,5 +115,20 @@ LedgerState is a private record containing balance and immutable history. Prepar
 copies history and allocates its result before publication: O(n) preparation cost and storage
 for a retained plan, versus O(1) immutable history retrieval. This tradeoff is acceptable for the
 small in-memory project. No concurrency, database transaction or distributed two-phase commit
-is claimed. A future coordinator must use distinct accounts, prevalidate all plans before any
-commit and allow no intervening mutations. Tests of this boundary are not completed transfer tests.
+is claimed. Bank transfer coordination enforces distinct accounts, prevalidates both plans before either
+commit and allows no intervening mutations. Internal boundary tests remain separate from the
+new BankTransferTest integration cases.
+
+## Transfer validation and reference scope
+
+Bank resolves both account IDs, rejects the same resolved account, then prepares the outgoing
+leg before the incoming leg. Each preparer checks its own frozen status before amount/date/funds.
+If multiple problems exist across accounts, the first reached failure wins; there is no global
+error-priority rule across two accounts. All failures occur before any financial publication.
+The immutable receipt is also allocated before commitment, with no application callbacks or
+intervening mutations between final prevalidation and commits. Atomicity is limited to the
+single-threaded in-memory model, not database durability or concurrent access.
+
+References start at 1 per Bank and advance only after both commits succeed. They are neither
+account posting IDs nor globally unique across Banks or process restarts. Different account
+owners and different account types are allowed; foreign-bank accounts are not imported by ID.
