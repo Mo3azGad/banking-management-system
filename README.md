@@ -1,8 +1,8 @@
 # Banking Management System
 
-Advanced OOP, Project 2. **Milestone 7: atomic Bank transfers with paired ledger history.**
-Incremental university project; interest policies and monthly interest posting remain
-later milestones. This is not yet the final submission.
+Advanced OOP, Project 2. **Milestone 8: pure fixed-rate monthly interest calculation.**
+Incremental university project; account-level policy injection and dated monthly interest
+posting remain later milestones. This is not yet the final submission.
 
 ## Run the tests
 
@@ -54,6 +54,11 @@ console output or system-clock access. JUnit 5 and JaCoCo results appear under
   nonzero fractions of a cent are rejected instead of silently rounded.
 - Custom exception hierarchy: invalid input, duplicate/missing customer or account, insufficient
   funds, frozen-account state, stale posting plans, and invalid posting chronology. Tests exercise every concrete custom exception.
+- `InterestPolicy.calculate(balance)` is a one-operation pure calculation contract.
+  `FixedRateInterestPolicy(monthlyRate)` validates a nonnegative monthly decimal rate, multiplies
+  exactly and rounds the final result once to two decimals with `HALF_EVEN`. Zero rates/results
+  are valid. Missing, negative, sub-cent balance input and unsupported decimal arithmetic fail
+  with `InvalidBankingInputException`; rates retain their precision and have no invented cap.
 - Transaction is an immutable record; its construction alone never executes an operation.
 
 Transaction IDs start at 1 for opening and increase within each account. The identifier is the
@@ -67,18 +72,19 @@ are not implicitly registered. Use the Bank opening methods to enforce registere
 unique account IDs. No external-account import API is introduced. Lookup uses normalized,
 case-sensitive IDs, and customer/account IDs have separate namespaces. Different Banks may
 use the same IDs independently.
-Names may repeat and identifiers are case-sensitive. Rates are metadata; calculation and posting
-will be introduced with InterestPolicy later. The fixed floors/rates are project choices,
+Names may repeat and identifiers are case-sensitive. Accounts still expose rate metadata.
+The pure policy can now calculate a quote from that metadata/balance, but Account does not yet
+hold/invoke an injected policy and there is no monthly interest posting API. The fixed floors/rates are project choices,
 not numerical requirements specified by the professor. Single-threaded, in-memory use only.
 
 ## Documentation
 
 - `docs/REQUIREMENTS.md`: PDF obligations versus explicit implementation choices.
-- `docs/ARCHITECTURE.md`: current design, Template Method, planned Strategy and SOLID mapping.
+- `docs/ARCHITECTURE.md`: current design, Template Method, calculation policy components and current/planned SOLID mapping.
 - `docs/DEVELOPMENT_PLAN.md`: remaining work roadmap and actual progress; schedule versus execution distinguished.
 - `docs/current-uml.svg` / `.dot`: implemented model; `docs/proposed-uml.mmd`: final target design.
 - `docs/TEST_MATRIX.md` and `docs/VERIFICATION.md`: current test/coverage evidence and limitations.
-- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_6_VERIFICATION.md`: earlier evidence.
+- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_7_VERIFICATION.md`: earlier evidence.
 - `docs/milestone-report.docx`: updated five-section interim Word report, not the final report.
 - `docs/DEFENSE.md`: current walkthrough, demonstration commands and eventual defense outline.
 
@@ -93,7 +99,7 @@ machine-specific tooling stay outside tracked source. On another computer use `g
 and `gh auth setup-git` before pushing.
 
 Milestones 1–3 were genuinely developed on 8 November 2026; milestone 4 was developed on
-9 November; milestone 5 freezing on 10 November; milestone 6 posting preparation on 11 November; milestone 7 transfers on 12 November. The professor's at-least-two-week
+9 November; milestone 5 freezing on 10 November; milestone 6 posting preparation on 11 November; milestone 7 transfers on 12 November; milestone 8 policy calculation on 13 November. The professor's at-least-two-week
 history requirement is still outstanding.
 Never change author/committer dates or invent activity. A work automation was saved and enabled
 on 8 November for 9–23 November evenings in Europe/Istanbul. Saved scheduling is not proof of
@@ -101,8 +107,9 @@ future execution or pushes; verify each actual session and its result separately
 
 ## Next milestone
 
-Implement the narrow InterestPolicy/FixedRateInterestPolicy strategy with BigDecimal calculation
-and rounding tests. Monthly interest posting follows later, then final report/defense preparation. Keep UML and documentation synchronized with each tested increment.
+Integrate the InterestPolicy abstraction with dated month-end interest posting. Enforce once
+per YearMonth, chronology/frozen status, result validation and unchanged state on rejection,
+then continue final report/defense preparation. Keep UML and documentation synchronized with each tested increment.
 
 ## Internal preparation contract
 
@@ -132,3 +139,16 @@ single-threaded in-memory model, not database durability or concurrent access.
 References start at 1 per Bank and advance only after both commits succeed. They are neither
 account posting IDs nor globally unique across Banks or process restarts. Different account
 owners and different account types are allowed; foreign-bank accounts are not imported by ID.
+
+## Interest calculation versus posting
+
+A monthly rate is a decimal multiplier, e.g. 0.001 = 0.1%, not 1% and not an annual rate divided
+by twelve. Balance input must be nonnegative and exactly representable in cents; extra trailing
+zeros are allowed. Rate precision is not rounded before multiplication. HALF_EVEN is applied
+only to the final result: 5.00 × 0.001 = 0.005 becomes 0.00, while 15.00 × 0.001 = 0.015 becomes
+0.02. Unsupported BigDecimal scale arithmetic raises a custom input exception, not a raw error.
+
+Calculation stores no dates, reads no clock, changes no ledger and decides no month eligibility.
+It can quote a frozen account's balance because a quote is a read, not a posting permission.
+The interface and fixed algorithm are implemented and exercised through InterestPolicy references;
+Account-to-policy injection/DIP and monthly posting are not claimed as complete yet.

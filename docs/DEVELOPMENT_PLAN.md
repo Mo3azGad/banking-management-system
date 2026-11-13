@@ -28,6 +28,11 @@ history replacement, prepared future commits, empty commits or activity-only edi
   Existing public posting/freezing contracts remain intact; no interest calculation/posting was
   implemented or prewritten for a later commit.
 
+- 13 November: milestone 8 implements the narrow InterestPolicy contract and immutable fixed-rate
+  algorithm, with exact BigDecimal/HALF_EVEN/input-limit tests. The clean private remote matched
+  080fe14 before work. Existing posting/transfer/freezing code was not changed, and account-level
+  injection, monthly eligibility/ledger posting were not prewritten for later publication.
+
 A work automation was saved/enabled on 8 November for evening sessions on 9–23 November.
 That recorded configuration does not prove future runs, credentials or pushes will succeed.
 Each session must check its environment, worktree, remote, authentication and private visibility,
@@ -39,8 +44,8 @@ The roadmap below is a plan, not a statement that later work has already happene
 | Nov 9 | Bank account opening/registration and retrieval, ownership/unique IDs | Completed Nov 9; see MILESTONE_4_VERIFICATION.md |
 | Nov 10 | Account freezing, typed errors, repeated-freeze and blocked-posting/readable-history tests | Completed Nov 10; see MILESTONE_5_VERIFICATION.md |
 | Nov 11 | Prepared posting/commit boundary for coordinated two-account operations | Completed Nov 11; see MILESTONE_6_VERIFICATION.md |
-| Nov 12 | Atomic Bank transfers with paired references/history | Completed today; see VERIFICATION.md |
-| Nov 13 | InterestPolicy and FixedRateInterestPolicy strategy | BigDecimal calculation/rounding tests immediately |
+| Nov 12 | Atomic Bank transfers with paired references/history | Completed Nov 12; see MILESTONE_7_VERIFICATION.md |
+| Nov 13 | InterestPolicy and FixedRateInterestPolicy strategy | Completed pure calculation today; see VERIFICATION.md |
 | Nov 14 | Explicit month-end monthly interest posting | Duplicate YearMonth, chronology and frozen-state cases |
 | Nov 15 | Real interest-boundary refinement | HALF_EVEN ties, zero, skipped months and policy failure |
 | Nov 16 | Cross-operation integration scenarios | Fix actual invariant defects found |
@@ -61,6 +66,7 @@ The first commit was 8 November 2026 at 19:23:30 Istanbul time. The two-week spa
 outstanding. The Nov 23 final session is beyond 14 elapsed days; only real work/history can
 establish the professor's requirement. A saved schedule is not proof of future completion.
 
-Next session: implement InterestPolicy and FixedRateInterestPolicy with exact BigDecimal
-calculation/rounding tests and a narrow interface. Do not claim monthly interest posting until
-its dated/account-level behavior is implemented and tested in the following scope.
+Next session: integrate InterestPolicy with dated monthly posting. Validate explicit month-end,
+chronology, duplicate YearMonth and frozen status; validate any policy result before publication
+and test all rejection-state invariants immediately. Pure calculation must remain separate from
+posting eligibility and no system clock may be read.

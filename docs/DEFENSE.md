@@ -1,6 +1,6 @@
 # Oral defense preparation — interim
 
-Milestone 7 adds atomic Bank transfers and paired history; interest policies and monthly posting remain unimplemented. Do not present planned
+Milestone 8 adds the pure InterestPolicy contract and FixedRateInterestPolicy algorithm; account policy injection and monthly posting remain unimplemented. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -144,6 +144,28 @@ atomicity. Why return List<Transaction>? Two immutable facts in documented out/i
 a separate receipt framework adds no needed behavior. Are same-owner accounts allowed? Yes, as
 long as accounts differ. Does target frozen always beat bad source money? No global cross-account
 error priority is promised: lookups/distinctness run first, then outgoing and incoming preparation.
+
+## Explain milestone 8 (13 November)
+
+Run `mvn -Dtest=FixedRateInterestPolicyTest test`, then `mvn clean verify` for the entire project.
+
+- InterestPolicy has one operation; FixedRateInterestPolicy validates an immutable monthly decimal
+  rate, validates a balance, multiplies exactly and rounds the final product HALF_EVEN.
+- Show `halfEvenRoundingHandlesBothTieDirectionsAndAdjacentValues`: 0.005 rounds to 0.00,
+  0.015 to 0.02, 0.025 to 0.02. Explain the parity before running the assertions.
+- `retainsRatePrecisionUntilTheFinalInterestRounding` guards against rounding the rate too early.
+- `actualCheckingAndSavingsRateMetadataProduceDifferentQuotes` demonstrates 0.001 versus 0.003
+  on the actual model metadata; the interface is used for calls rather than a concrete API dependency.
+- `calculationDoesNotPostInterestOrMutateEvenAFrozenAccountsLedger` distinguishes a quote from
+  dated posting permission. No eligible month, balance update or interest history is created.
+
+Why no date parameter? Pure math uses only supplied balance/rate; month eligibility belongs in
+the forthcoming posting operation. Why no rate cap? None is specified by the PDF; nonnegative
+input is the documented contract. Why allow zero? Rounded-zero interest is a valid financial
+result, unlike zero deposit/withdraw requests. Why not another exception subclass? Existing input
+failure covers invalid rate/balance and unsupported decimal precision. Is Account DIP finished?
+No: strategy components exist, but Account does not yet receive/invoke the abstraction. Do not
+claim completed policy injection or monthly application until that code and its tests exist.
 
 ## Final five-minute outline (planned demo, not available yet)
 

@@ -6,17 +6,17 @@ project uses the user's explicitly stated assignment; it does not infer identity
 
 ## Mandatory PDF requirements
 
-| Source | Requirement | Milestone 7 status |
+| Source | Requirement | Milestone 8 status |
 |---|---|---|
 | Cover | Individual Java classes and JUnit tests; no running application, main, menu, UI, Scanner or System.out | Foundation follows this restriction |
 | Cover | Meaningful Git/GitHub commits spread over at least two weeks | First commit pushed to verified private GitHub repository; two-week history still outstanding |
 | Cover | Own base and specialized exceptions; clear messages; no null/error printing on failure | Customer/account registry, input, frozen-account, stale-plan, insufficient-funds and posting-date exceptions implemented and tested |
 | Cover | Every nontrivial public method tested for success and failure; every exception thrown in a test | Covered for implemented operations; see test matrix |
-| Cover | Learned patterns and SOLID | Template Method and polymorphic rules implemented; InterestPolicy Strategy still planned |
+| Cover | Learned patterns and SOLID | Template Method, polymorphic rules and pure InterestPolicy components implemented; account policy integration remains |
 | Cover | Dates passed as parameters; never read system clock | Model and posting dates supplied explicitly; chronology validated without reading clock |
 | Banking (2), p.1 | Bank, customer, checking/savings accounts, transaction | Bank customer/account registries, concrete models and transaction records implemented |
 | Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | Bank opening/retrieval, deposits, withdrawals, history, transfers and freezing implemented; interest remains |
-| Banking (2), p.1 | Different rules and monthly rates for checking and savings | Different opening floors and rate metadata implemented; interest posting planned |
+| Banking (2), p.1 | Different rules and monthly rates for checking and savings | Different floors/rate metadata and pure fixed-rate calculation implemented; monthly posting planned |
 | Oral defense, p.1 | Individual five-minute defense with laptop, tests and code walkthrough; absence means failure | Interim preparation included; attend in weeks 11/12 |
 | Final report, p.2 | DOC/DOCX: UML/class overview, patterns, exceptions/checked choice, all five SOLID, testing/limitations/redesign | Interim DOCX only; final follows completed code |
 | Cover | Submit on UZEM by 07.12.2026 | Interpreted as 7 December 2026; PDF gives no time |
@@ -94,3 +94,13 @@ and validated before publication. No rejected transfer changes either ledger or 
 posting IDs/dates or the Bank reference. References are independent of account sequence IDs;
 separate Banks use independent counters. Atomicity assumes single-threaded in-memory operation.
 No fees, external bank transfer, persistence or concurrency requirement is invented.
+
+## Interest-calculation decisions implemented on 13 November
+
+InterestPolicy exposes only calculate(balance). FixedRateInterestPolicy accepts a nonnegative
+monthly decimal rate, validates nonnegative exact-cent balance input and rounds only the exact
+product to cents with HALF_EVEN. Zero rates/results are allowed; rate precision is preserved,
+and no upper cap, annualization, fees or proration is invented. Invalid/unsupported decimal
+input uses InvalidBankingInputException. Calculation needs no date because it is pure math;
+it neither posts history nor decides eligible months. Account policy injection and the actual
+dated application of monthly interest remain future work.

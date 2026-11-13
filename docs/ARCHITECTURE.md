@@ -1,4 +1,4 @@
-# Architecture — current milestone 7 and final target
+# Architecture — current milestone 8 and final target
 
 ## Implemented responsibilities
 
@@ -131,6 +131,27 @@ leg's frozen check wins over its other invalid inputs, but there is no global or
 spread across two accounts. A valid source plan followed by a recipient date/frozen failure is
 still uncommitted, so a rejected transfer cannot partially debit the sender.
 
+## Interest calculation components implemented in milestone 8
+
+InterestPolicy is a public @FunctionalInterface with only calculate(BigDecimal balance).
+FixedRateInterestPolicy is final, stores an immutable monthlyRate, and implements that contract.
+Its constructor rejects null/negative rates through the existing InvalidBankingInputException.
+Zero, high-precision and rates above 1 are allowed; no professor-specified cap exists. The rate
+is a monthly decimal multiplier, not an annual percentage. There is no rate setter/getter API.
+
+calculate validates a nonnegative exact-cent balance using BankingInput, multiplies exactly,
+and calls setScale(2, HALF_EVEN) once on the final product. Zero results are valid. It never
+rounds the rate first, annualizes, prorates, compounds or reads a clock. BigDecimal arithmetic
+scale overflow is translated into a clear custom input exception. Arbitrary numeric magnitude
+is supported within Java's decimal representation/resource limits; no unlimited-resource claim.
+
+The pure strategy contract and one concrete algorithm are complete standalone calculation APIs,
+used through InterestPolicy in JUnit. Account does not yet store/use an InterestPolicy; no UML
+association or complete account-level DIP integration is asserted. A quote can use existing
+account rate metadata and balance without changing history, even if the account is frozen.
+Monthly posting will separately enforce dates, eligibility, duplicate months, frozen permission
+and validation of an injected policy's result before any state publication.
+
 ## Exception hierarchy
 
 Abstract BankingException extends RuntimeException. InvalidBankingInputException covers missing,
@@ -141,18 +162,20 @@ the type-specific floor, and InvalidPostingDateException reports chronology viol
 date is invalid input, not a chronological value for active accounts. StalePostingException
 rejects reused/superseded plans before they can overwrite a newer ledger. New AccountFrozenException
 rejects repeated freezing and postings on frozen accounts before other input/funds/date failures. Every concrete subtype is thrown by tests.
-Unchecked domain failures fit the in-memory API; no checked I/O is hidden or printed.
+FixedRateInterestPolicy reuses InvalidBankingInputException for invalid rate/balance and
+unsupported decimal precision; no new exception subtype is needed. Unchecked domain failures fit the in-memory API; no checked I/O is hidden or printed.
 
 ## SOLID mapping
 
-- SRP, implemented: Bank coordinates customer/account registration, Customer owns identity, Account enforces posting
-  invariants, Transaction validates ledger facts, BankingInput handles common input rules.
+- SRP, implemented: Bank coordinates registration/transfers, Customer owns identity, Account enforces posting
+  invariants, Transaction validates facts, BankingInput handles shared input, and FixedRateInterestPolicy
+  isolates pure interest arithmetic.
 - OCP, partly implemented: the inherited posting template uses the account-specific balance-floor
-  hook. Final checking/savings types require no duplicated algorithms. InterestPolicy extension
-  is planned and must not be described as already implemented.
+  hook. Final checking/savings types require no duplicated algorithms. The InterestPolicy contract and fixed algorithm now exist; integration into the Account
+  posting context is still planned.
 - LSP, implemented for supplied subtypes: both obey a base contract expressed in terms of available
   balance. Shared success/failure tests verify it through Account references.
-- ISP: current APIs avoid UI/persistence duties. The narrow InterestPolicy interface is planned.
+- ISP: current APIs avoid UI/persistence duties. InterestPolicy now exposes only calculation, with no account lifecycle, dates, UI or persistence methods.
 - DIP: planned Account-to-InterestPolicy dependency injection remains unimplemented. Current
   BankingInput is a helper, not an invented abstraction used to claim DIP.
 
@@ -160,11 +183,11 @@ Unchecked domain failures fit the in-memory API; no checked I/O is hidden or pri
 
 Bank registration and transfer coordination are now implemented. The transfer code deliberately
 does not compose public withdraw/deposit, which could leave a partial result on recipient failure.
-Interest policy calculation and monthly posting remain the next functionality.
+The pure policy calculation now exists. Account policy injection and monthly posting remain next.
 
 Frozen accounts now reject deposits, withdrawals and incoming/outgoing transfers. Future
-interest posting must also respect frozen status. InterestPolicy/FixedRateInterestPolicy will supply the
-Strategy pattern. Monthly interest must receive dates, validate month-end/chronology, round
+interest posting must also respect frozen status. InterestPolicy/FixedRateInterestPolicy now supply the narrow strategy components; account-context
+injection is not yet implemented. Monthly interest must receive dates, validate month-end/chronology, round
 HALF_EVEN once, and reject a duplicate YearMonth independently of last posting date. Rate
-metadata already differs, but interest is not calculated or posted yet. No database, UI,
+metadata already differs and the pure calculation is implemented, but account interest is not posted yet. No database, UI,
 concurrency or framework is justified. The final UML/report must follow completed code.
