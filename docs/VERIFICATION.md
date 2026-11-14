@@ -1,41 +1,40 @@
-# Milestone 8 verification — pure interest calculation policy
+# Milestone 9 verification — dated monthly interest posting
 
-Verified 13 November 2026 (Europe/Istanbul), full Maven `clean verify`: BUILD SUCCESS.
+Verified 14 November 2026 (Europe/Istanbul), full Maven `clean verify`: BUILD SUCCESS.
 Eclipse Temurin 21.0.13+9, Java 17 compiler target; Maven 3.9.11; JUnit 5.11.4;
 Surefire 3.5.2; JaCoCo 0.8.12.
 
-JUnit: 529 invocations, 0 failures, 0 errors, 0 skipped.
-All 488 prior cases remain; FixedRateInterestPolicyTest adds 41 cases.
+JUnit: 581 invocations, 0 failures, 0 errors, 0 skipped.
+All 529 prior cases remain; MonthlyInterestTest adds 52 cases.
 
-- Instruction: 892/892 (100.00%).
-- Branch: 60/61 (98.36%).
-- Line: 203/203 (100.00%).
-- Method: 62/62 (100.00%).
-- Class: 21/21 (100.00%).
+- Instruction: 1046/1046 (100.00%).
+- Branch: 68/69 (98.55%).
+- Line: 238/238 (100.00%).
+- Method: 70/70 (100.00%).
+- Class: 23/23 (100.00%).
 
-All executable policy code, including custom wrapping of decimal scale arithmetic failure,
-is covered. The only missed branch remains Transaction's compiler-emitted enum-switch fallback;
-all legal types/null rejection are tested. JaCoCo counts 21 executable classes, excluding the
-InterestPolicy interface because it contains only an abstract method. All nine concrete custom
-exceptions remain exercised; invalid policy inputs reuse InvalidBankingInputException.
+All Account, Bank, prepared-posting and policy branches are covered. The one missed branch remains
+Transaction's compiler-emitted enum fallback; all legal values/null rejection are tested. Eleven
+concrete custom exceptions are now exercised through operations, including duplicate interest and
+unexpected policy failure with its cause. The interface has no executable code and is excluded
+from JaCoCo class counts. No private state, clock or forged enum values inflate coverage.
 
-Calculation tests cover monthly decimal semantics, zero/high-precision rates, exact-cent balance
-validation, final-only HALF_EVEN ties/neighbors, large money and repeatability. Tests use actual
-checking/savings metadata and show that even a frozen Account's quote does not mutate its ledger.
-No Account policy field/injection, month-end eligibility, duplicate month or interest posting is
-implemented/claimed tested. No production Account/Bank posting implementation changed today.
+New tests cover default/overridden policy construction, actual INTEREST ledger facts, month-end/
+chronology/frozen rejection, YearMonth protection after ordinary postings and zero credit, invalid
+results, propagated/wrapped failures, retries without ID/month reservation, stale plans and actual
+Bank-owned accounts. Policy doubles deliberately return invalid outputs/throw once to test defensive
+handling. Pure policies must not mutate Account state: arbitrary callback side effects, concurrency,
+VM resources and persistence are not rollback-tested or claimed supported.
 
-The existing local JDK/Maven, external proxy settings and system Java CA trust store were reused.
-No credentials/tools are committed. Normal installations use `mvn clean verify`. Source restrictions
-are checked separately; current UML is rendered/visually inspected and DOCX sections/diagram are
-structurally checked. No full Word pagination rendering or unbounded resource guarantees are claimed.
-Earlier evidence is preserved in the numbered milestone files.
+Existing local JDK/Maven/proxy settings/Java CA trust were reused; no credentials/tools are committed.
+Normal installations run `mvn clean verify`. UML is rendered/visually inspected and Word sections/
+diagram structurally checked; no full Word pagination rendering is claimed. Prior evidence remains
+in numbered files. A final artifact/requirements review is still needed before submission.
 
 ## Repository preflight
 
-The EXISTING worktree was clean on main. Fetch confirmed HEAD/origin agreement at
-080fe14a40fc94a2d6a2265fdf2c83afc3abe066. GitHub confirmed private visibility and push permission;
-original commits were verified as ancestors. A meaningful real-date commit/push follows review,
-then its exact remote SHA/private visibility/ancestry are checked and reported in the session result.
-No history rewrite, replacement project or delayed publication of prewritten future code is used.
-The two-week span is unfinished; a saved automation is not proof of future completion.
+Existing main was clean; fetch matched origin exactly at 044f15c2b9b0209ba912752283946e275372d97a.
+GitHub confirmed private visibility and push permission, and original commits remain ancestors.
+A meaningful real-date commit/push follows review; exact remote SHA/private visibility/ancestry are
+verified and reported in the session result. No original history or timestamps are rewritten.
+The two-week span remains unfinished; saved scheduling is not proof of later completion.

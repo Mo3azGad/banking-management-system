@@ -1,5 +1,5 @@
 classDiagram
-  %% PROPOSED final design. Milestone 8 includes policy components; Account injection/monthly posting remain planned.
+  %% TARGET design. Milestone 9 now includes Account policy injection and monthly application; final review continues.
   class Bank {
     +registerCustomer(id, name) Customer
     +findCustomer(id) Customer
@@ -42,6 +42,8 @@ classDiagram
   class CustomerNotFoundException
   class InsufficientFundsException
   class StalePostingException
+  class InterestAlreadyAppliedException
+  class InterestCalculationException
   class AccountFrozenException
   class DuplicateAccountException
   class AccountNotFoundException
@@ -57,6 +59,8 @@ classDiagram
   BankingException <|-- InvalidBankingInputException
   BankingException <|-- DuplicateCustomerException
   BankingException <|-- StalePostingException
+  BankingException <|-- InterestAlreadyAppliedException
+  BankingException <|-- InterestCalculationException
   BankingException <|-- AccountFrozenException
   BankingException <|-- DuplicateAccountException
   BankingException <|-- AccountNotFoundException

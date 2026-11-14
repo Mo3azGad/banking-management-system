@@ -33,6 +33,11 @@ history replacement, prepared future commits, empty commits or activity-only edi
   080fe14 before work. Existing posting/transfer/freezing code was not changed, and account-level
   injection, monthly eligibility/ledger posting were not prewritten for later publication.
 
+- 14 November: milestone 9 integrates constructor-injected policies and actual dated monthly
+  posting, with ledger-derived YearMonth protection and immediate failure/retry tests. The clean
+  private remote matched 044f15c before work. Remaining dates are genuine boundary/integration
+  audits and final documentation/defense, not deferred implementation of today's core checks.
+
 A work automation was saved/enabled on 8 November for evening sessions on 9–23 November.
 That recorded configuration does not prove future runs, credentials or pushes will succeed.
 Each session must check its environment, worktree, remote, authentication and private visibility,
@@ -45,8 +50,8 @@ The roadmap below is a plan, not a statement that later work has already happene
 | Nov 10 | Account freezing, typed errors, repeated-freeze and blocked-posting/readable-history tests | Completed Nov 10; see MILESTONE_5_VERIFICATION.md |
 | Nov 11 | Prepared posting/commit boundary for coordinated two-account operations | Completed Nov 11; see MILESTONE_6_VERIFICATION.md |
 | Nov 12 | Atomic Bank transfers with paired references/history | Completed Nov 12; see MILESTONE_7_VERIFICATION.md |
-| Nov 13 | InterestPolicy and FixedRateInterestPolicy strategy | Completed pure calculation today; see VERIFICATION.md |
-| Nov 14 | Explicit month-end monthly interest posting | Duplicate YearMonth, chronology and frozen-state cases |
+| Nov 13 | InterestPolicy and FixedRateInterestPolicy strategy | Completed Nov 13; see MILESTONE_8_VERIFICATION.md |
+| Nov 14 | Explicit month-end monthly interest posting | Completed today; see VERIFICATION.md |
 | Nov 15 | Real interest-boundary refinement | HALF_EVEN ties, zero, skipped months and policy failure |
 | Nov 16 | Cross-operation integration scenarios | Fix actual invariant defects found |
 | Nov 17 | Shared subtype contracts and SOLID/pattern review | Simplify demonstrated complexity only |
@@ -66,7 +71,7 @@ The first commit was 8 November 2026 at 19:23:30 Istanbul time. The two-week spa
 outstanding. The Nov 23 final session is beyond 14 elapsed days; only real work/history can
 establish the professor's requirement. A saved schedule is not proof of future completion.
 
-Next session: integrate InterestPolicy with dated monthly posting. Validate explicit month-end,
-chronology, duplicate YearMonth and frozen status; validate any policy result before publication
-and test all rejection-state invariants immediately. Pure calculation must remain separate from
-posting eligibility and no system clock may be read.
+Next session: review genuine interest boundaries and integration behavior against requirements,
+including rounding, zero credits, repeated/skipped months and policy failure assumptions. Use
+existing tests/evidence first; fix real gaps, avoid artificial edits or empty commits, and complete
+all affected tests before making any verified real-date push.

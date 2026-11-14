@@ -1,6 +1,6 @@
 # Oral defense preparation — interim
 
-Milestone 8 adds the pure InterestPolicy contract and FixedRateInterestPolicy algorithm; account policy injection and monthly posting remain unimplemented. Do not present planned
+Milestone 9 integrates InterestPolicy into dated Account monthly posting; all listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -22,7 +22,7 @@ of a single rejection/isolation behavior, rather than unrelated checks.
 - BankingInput rejects fractions of a cent with UNNECESSARY rather than silently rounding.
 - Transaction is immutable: type determines direction, amounts remain unsigned, and optional
   transfer references distinguish ordinary entries from transfer legs.
-- Transaction creation is validation only; Account executes dated deposits/withdrawals, while Bank transfer coordination remains future work.
+- Transaction creation is validation only; Account executes dated postings and Bank coordinates transfers (added in milestone 7).
 - All dates are supplied. Record validation cannot determine account chronology without account
   state; that validation belongs in the posting workflow.
 
@@ -45,7 +45,7 @@ Run `mvn -Dtest=AccountOperationsTest test`, then `mvn clean verify` for the ful
 
 Why include an opening entry? It establishes a complete starting balance and chronology bound.
 Why account-local IDs? The pair (accountId, transactionId) is unique within a registered bank;
-independent accounts need no static counter or Bank service to post. Transfer pairing will use
+independent accounts need no static counter or Bank service to post. Transfer pairing uses
 another Bank-coordinated reference. This replaces an earlier plan, not a professor requirement.
 Why is this Template Method? One non-overridable algorithm uses a polymorphic minimum hook;
 subclasses vary the rule without duplicating or bypassing posting validation.
@@ -97,8 +97,8 @@ dates remain required for financial postings and no system clock is read. Why no
 entry? The existing Transaction model holds financial facts; freezing only controls permission.
 Why not a State pattern? A private boolean and shared guard fit this two-state irreversible scope.
 Why does available balance remain visible? It is balance minus floor metadata; frozen permission
-is independent. Bank transfers now check frozen status in milestone 7; interest posting remains unimplemented
-and cannot yet be claimed as tested.
+is independent. Bank transfers check frozen status since milestone 7, and monthly interest does so
+since milestone 9; both have success/failure tests.
 
 ## Explain milestone 6 (11 November)
 
@@ -160,14 +160,36 @@ Run `mvn -Dtest=FixedRateInterestPolicyTest test`, then `mvn clean verify` for t
   dated posting permission. No eligible month, balance update or interest history is created.
 
 Why no date parameter? Pure math uses only supplied balance/rate; month eligibility belongs in
-the forthcoming posting operation. Why no rate cap? None is specified by the PDF; nonnegative
+the monthly posting operation added in milestone 9. Why no rate cap? None is specified by the PDF; nonnegative
 input is the documented contract. Why allow zero? Rounded-zero interest is a valid financial
 result, unlike zero deposit/withdraw requests. Why not another exception subclass? Existing input
 failure covers invalid rate/balance and unsupported decimal precision. Is Account DIP finished?
-No: strategy components exist, but Account does not yet receive/invoke the abstraction. Do not
-claim completed policy injection or monthly application until that code and its tests exist.
+Milestone 8 had only strategy components. Milestone 9 now injects the abstraction into Account
+and invokes it from actual monthly posting, so the new context is concrete DIP/Strategy evidence.
 
-## Final five-minute outline (planned demo, not available yet)
+## Explain milestone 9 (14 November)
+
+Run `mvn -Dtest=MonthlyInterestTest test`, then `mvn clean verify`.
+
+- Account receives a nonnull InterestPolicy; ordinary constructors compose default policies,
+  optional five-argument constructors accept an override. Account depends only on the interface.
+- Walk applyMonthlyInterest: frozen/date/month-end/chronology/duplicate checks, one calculation,
+  result validation, prepared immutable entry/ledger, then guarded commit. No system clock is read.
+- Show `defaultPolicyPostsTheCorrectRateAndOneCompleteInterestEntry` and
+  `ordinarySameDayPostingsDoNotPermitReapplicationOrRecallThePolicy`.
+- `zeroCreditIsRecordedAndStillProtectsTheProcessedMonth` explains the ledger-as-month-marker.
+- `invalidPolicyResultPreservesTheMonthAndSequenceForAValidRetry` and
+  `unexpectedPolicyFailureIsWrappedWithItsCauseAndAllowsRetry` demonstrate failure contracts.
+
+Why no separate processed-month set? The INTEREST entry is already an immutable authoritative
+record; publishing it with balance makes the marker atomic. What about same-day later deposits?
+They are allowed, but the earlier interest is not recomputed. What does getMonthlyInterestRate
+mean with a custom algorithm? The default product rate, not introspection of an arbitrary policy.
+What if a callback mutates an account itself? It violates InterestPolicy's pure contract; its
+external side effects are not rolled back. Frozen/stale guards still stop invalid prepared interest
+publication. State-preservation tests use controlled output/failure doubles, not arbitrary callbacks.
+
+## Proposed final five-minute outline (to refine in the defense session)
 
 0:00–0:40: scope and constraints: classes/tests only, in-memory, two account types.
 0:40–1:35: show final UML: Bank coordinates, Account holds invariants, concrete types vary rules.
@@ -190,7 +212,7 @@ How can date tests be repeatable? Supply fixed LocalDate values; never use now()
 What does atomic transfer mean here? Validation completes for both accounts before either
 changes, within single-threaded in-memory execution; no concurrency/persistence guarantees.
 Does inheritance alone prove LSP? No: each subtype must satisfy the base contract and shared tests.
-What would you change to add a rate? Supply another validated InterestPolicy after that interface exists.
+What would you change to add a rate? Supply another validated InterestPolicy through a concrete account's policy constructor.
 
 Practice changing a real rule (for example, savings floor) and adjusting the boundary tests.
 Explain why each expected result changes before running the tests. Memorization is insufficient.

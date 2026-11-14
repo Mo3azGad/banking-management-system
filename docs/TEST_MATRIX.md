@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 8
+# Test evidence and obligations — milestone 9
 
 | Public operation | Successful behavior | Failure / boundary behavior |
 |---|---|---|
@@ -22,6 +22,8 @@
 | Internal prepareTransferOut / prepareTransferIn | Shared prepared-state contracts exercised through Bank transfers | Nonpositive reference rejects without publication |
 | FixedRateInterestPolicy constructor | Nonnegative rates including zero, high precision and rates above 1 | Null/negative rate rejects with clear custom input exception |
 | InterestPolicy.calculate via FixedRateInterestPolicy | Actual checking/savings quotes; HALF_EVEN ties/neighbors; zero; large money; trailing/scientific exact-cent input; repeatability | Null/negative/sub-cent balance; zero rate cannot bypass validation; unsupported arithmetic scale becomes custom failure |
+| CheckingAccount / SavingsAccount injected constructors | Default constructors unchanged; custom policy delegates and overrides algorithm | Null policy rejects; existing constructor validation still runs through injected overloads |
+| applyMonthlyInterest | Default rates; complete INTEREST facts; compounding on next month; zero marker; Bank lookup; injected algorithm | Null/non-month-end/pre-opening/backdated date; duplicate month after ordinary posts; frozen; invalid result; propagated/wrapped policy errors; no ledger/ID/month reservation on rejection |
 | getTransactionHistory | Opening, posting order, running balances, IDs and immutable snapshots | Mutation rejected; previous snapshots unchanged after later postings |
 
 Shared account-operation tests run for both concrete types through Account references.
@@ -37,12 +39,11 @@ contract, not a custom banking exception. Generated record accessors are checked
 
 ## Remaining test obligations
 
-- Interest posting: Account policy integration, month-end/chronology, duplicate month, frozen
-  permission, injected-policy result validation and no financial mutation on rejected application.
-  Pure fixed-rate arithmetic/rounding/zero results are tested now; posting still does not exist.
+- Further interest boundary/integration review: inspect tie/near-tie, skipped-month and callback
+  assumptions against actual requirements; add tests only for real gaps/defects found. Core posting
+  eligibility, injection, results and rejection-state invariants are implemented/tested now.
 
-Current totals/coverage are in VERIFICATION.md. Transfer history is now verified through Bank execution. Interest history remains record-level
-tested until monthly posting exists. No persistence, concurrency, UI,
+Current totals/coverage are in VERIFICATION.md. Transfer history is now verified through Bank execution. Interest history is now verified through actual Account monthly application. No persistence, concurrency, UI,
 GitHub network integration or unattended scheduler is part of the Java test suite. Git pushes
 are verified independently. One compiler-generated switch default remains uncovered; every legal
 TransactionType and null rejection is tested. No fake enum values or removed checks chase coverage.
@@ -58,7 +59,7 @@ posting operations. They exercise first/repeated freeze, valid/invalid blocked p
 preservation, readable immutable history, Bank lookup/snapshot visibility and isolation between
 accounts owned by the same customer. An active account remains active after an insufficient-funds
 failure. No unfreeze operation exists; tests do not bypass private state merely to observe a
-hypothetical subsequent posting. Bank transfers now have frozen-state tests; interest will need them when implemented.
+hypothetical subsequent posting. Bank transfers now have frozen-state tests; monthly application now also has frozen-state rejection tests.
 
 Milestone 6 adds 79 PreparedPostingTest invocations. They test the internal domain boundary
 rather than reflection or private field manipulation. Preparation/validation leaves state intact;
@@ -83,3 +84,12 @@ no premature rate rounding, very large exact values, stable repeated calls, supp
 scale failure translation and actual Account rate metadata. A quote from a frozen bank-owned
 account does not post interest, change balance/history or unfreeze it. These are calculation
 and read-state tests, not month eligibility, policy injection or monthly application tests.
+
+Milestone 9 adds 52 MonthlyInterestTest invocations. They exercise both default/custom constructors,
+month-end/leap-day cases, chronology after opening/deposit/withdrawal, current-month duplicates
+independent of latest entry, rounded/explicit zero credit, policy call eligibility, invalid outputs,
+domain and unexpected failures with retries, month/ID preservation, old prepared-plan validity and
+same-month-number/different-year behavior. Bank-owned default accounts use injected fixed policies.
+Test doubles deliberately return invalid values/throw once to verify defensive result handling;
+no private state or clock is manipulated. Impure policy side effects/concurrency/VM failure are
+outside the documented pure single-threaded contract and are not claimed rollback-tested.

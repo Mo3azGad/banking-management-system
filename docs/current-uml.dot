@@ -1,12 +1,12 @@
 digraph Current {
- graph [rankdir=TB, label="Milestone 8 — implemented classes only", labelloc=t, fontsize=18, bgcolor="white", nodesep=0.35];
+ graph [rankdir=TB, label="Milestone 9 — implemented classes only", labelloc=t, fontsize=18, bgcolor="white", nodesep=0.35];
  node [shape=record, fontname="Helvetica", fontsize=10];
  edge [fontname="Helvetica", fontsize=9];
  Bank [label="{Bank|- customers: Map\l- accounts: Map\l- lastTransferReference: long\l|+ registerCustomer(id, name): Customer\l+ findCustomer(id): Customer\l+ getCustomers(): List\l+ openCheckingAccount(id, customerId, balance, date): CheckingAccount\l+ openSavingsAccount(id, customerId, balance, date): SavingsAccount\l+ findAccount(id): Account\l+ getAccounts(): List\l+ transfer(sourceId, targetId, amount, date): List\<Transaction\>\l- availableAccountId(id): String\l}"];
  Customer [label="{Customer|- id: String\l- name: String\l|+ Customer(id, name)\l+ getId(): String\l+ getName(): String\l}"];
- Account [label="{Account (abstract)|- id: String\l- owner: Customer\l- ledger: LedgerState\l- frozen: boolean\l- openedOn: LocalDate\l|# Account(id, owner, openingBalance, openedOn)\l+ getId(): String\l+ getOwner(): Customer\l+ getBalance(): BigDecimal\l+ getOpenedOn(): LocalDate\l+ isFrozen(): boolean\l+ freeze(): void\l+ getAvailableBalance(): BigDecimal\l+ deposit(amount, date): Transaction\l+ withdraw(amount, date): Transaction\l+ getTransactionHistory(): List\<Transaction\>\l~ prepareDeposit(amount, date): PreparedPosting\l~ prepareWithdrawal(amount, date): PreparedPosting\l~ prepareTransferOut(amount, date, ref): PreparedPosting\l~ prepareTransferIn(amount, date, ref): PreparedPosting\l- preparePosting(type, amount, date, ref): PreparedPosting\l- requireActive(): void\l+ getMinimumBalance(): BigDecimal (abstract)\l+ getMonthlyInterestRate(): BigDecimal (abstract)\l}"];
- CheckingAccount [label="{CheckingAccount|+ CheckingAccount(id, owner, openingBalance, openedOn)\l+ getMinimumBalance(): BigDecimal\l+ getMonthlyInterestRate(): BigDecimal\l}"];
- SavingsAccount [label="{SavingsAccount|+ SavingsAccount(id, owner, openingBalance, openedOn)\l+ getMinimumBalance(): BigDecimal\l+ getMonthlyInterestRate(): BigDecimal\l}"];
+ Account [label="{Account (abstract)|- id: String\l- owner: Customer\l- interestPolicy: InterestPolicy\l- ledger: LedgerState\l- frozen: boolean\l- openedOn: LocalDate\l|# Account(id, owner, openingBalance, openedOn, policy)\l+ getId(): String\l+ getOwner(): Customer\l+ getBalance(): BigDecimal\l+ getOpenedOn(): LocalDate\l+ isFrozen(): boolean\l+ freeze(): void\l+ getAvailableBalance(): BigDecimal\l+ deposit(amount, date): Transaction\l+ withdraw(amount, date): Transaction\l+ applyMonthlyInterest(date): Transaction\l+ getTransactionHistory(): List\<Transaction\>\l~ prepareDeposit(amount, date): PreparedPosting\l~ prepareWithdrawal(amount, date): PreparedPosting\l~ prepareTransferOut(amount, date, ref): PreparedPosting\l~ prepareTransferIn(amount, date, ref): PreparedPosting\l- preparePosting(type, amount, date, ref): PreparedPosting\l- validatePostingDate(expected, date): void\l- prepareEntry(expected, type, amount, balance, date, ref): PreparedPosting\l- requireActive(): void\l+ getMinimumBalance(): BigDecimal (abstract)\l+ getMonthlyInterestRate(): BigDecimal (abstract)\l}"];
+ CheckingAccount [label="{CheckingAccount|+ CheckingAccount(id, owner, openingBalance, openedOn)\l+ CheckingAccount(id, owner, balance, date, policy)\l+ getMinimumBalance(): BigDecimal\l+ getMonthlyInterestRate(): BigDecimal\l}"];
+ SavingsAccount [label="{SavingsAccount|+ SavingsAccount(id, owner, openingBalance, openedOn)\l+ SavingsAccount(id, owner, balance, date, policy)\l+ getMinimumBalance(): BigDecimal\l+ getMonthlyInterestRate(): BigDecimal\l}"];
  Transaction [label="{Transaction (record)|id: long\laccountId: String\ltype: TransactionType\lamount: BigDecimal\lbalanceAfter: BigDecimal\ldate: LocalDate\ltransferReference: OptionalLong\l|+ Transaction(all components)\l+ component accessors\l}"];
  TransactionType [label="{TransactionType (enum)|OPENING, DEPOSIT, WITHDRAWAL\lTRANSFER_IN, TRANSFER_OUT, INTEREST\l}"];
  BankingInput [label="{BankingInput (package-private)|~ text(value, field): String\l~ required(value, field): T\l~ nonNegativeMoney(value, field): BigDecimal\l}"];
@@ -24,6 +24,8 @@ digraph Current {
  StalePostingException [label="StalePostingException"];
  InterestPolicy [label="{InterestPolicy (interface)|+ calculate(balance): BigDecimal\l}"];
  FixedRateInterestPolicy [label="{FixedRateInterestPolicy|- monthlyRate: BigDecimal\l|+ FixedRateInterestPolicy(monthlyRate)\l+ calculate(balance): BigDecimal\l}"];
+ InterestAlreadyAppliedException [label="InterestAlreadyAppliedException"];
+ InterestCalculationException [label="InterestCalculationException"];
  RuntimeException [label="RuntimeException (JDK)"];
  Bank -> Customer [arrowhead=none, arrowtail=odiamond, dir=both, taillabel="1", headlabel="0..*", label="registered"];
  Bank -> Account [arrowhead=none, arrowtail=odiamond, dir=both, taillabel="1", headlabel="0..*", label="registered"];
@@ -59,6 +61,13 @@ digraph Current {
  FixedRateInterestPolicy -> InterestPolicy [arrowhead=empty, style=dashed];
  FixedRateInterestPolicy -> BankingInput [style=dashed];
  FixedRateInterestPolicy -> InvalidBankingInputException [style=dashed];
+ Account -> InterestPolicy [arrowhead=vee, headlabel="1", label="injected calculation"];
+ CheckingAccount -> FixedRateInterestPolicy [style=dashed, label="default"];
+ SavingsAccount -> FixedRateInterestPolicy [style=dashed, label="default"];
+ InterestAlreadyAppliedException -> BankingException [arrowhead=empty];
+ InterestCalculationException -> BankingException [arrowhead=empty];
+ Account -> InterestAlreadyAppliedException [style=dashed];
+ Account -> InterestCalculationException [style=dashed];
  BankingException -> RuntimeException [arrowhead=empty];
  BankingInput -> InvalidBankingInputException [style=dashed];
 }

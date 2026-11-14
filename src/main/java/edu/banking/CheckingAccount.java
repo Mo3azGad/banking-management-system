@@ -9,7 +9,13 @@ public final class CheckingAccount extends Account {
     private static final BigDecimal MONTHLY_RATE = new BigDecimal("0.001");
 
     public CheckingAccount(String id, Customer owner, BigDecimal openingBalance, LocalDate openedOn) {
-        super(id, owner, openingBalance, openedOn);
+        this(id, owner, openingBalance, openedOn, new FixedRateInterestPolicy(MONTHLY_RATE));
+    }
+
+    /** Explicit policy override; getMonthlyInterestRate still describes the default product rate. */
+    public CheckingAccount(String id, Customer owner, BigDecimal openingBalance, LocalDate openedOn,
+                           InterestPolicy interestPolicy) {
+        super(id, owner, openingBalance, openedOn, interestPolicy);
     }
 
     @Override

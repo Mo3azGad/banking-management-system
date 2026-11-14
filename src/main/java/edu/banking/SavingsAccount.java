@@ -9,7 +9,13 @@ public final class SavingsAccount extends Account {
     private static final BigDecimal MONTHLY_RATE = new BigDecimal("0.003");
 
     public SavingsAccount(String id, Customer owner, BigDecimal openingBalance, LocalDate openedOn) {
-        super(id, owner, openingBalance, openedOn);
+        this(id, owner, openingBalance, openedOn, new FixedRateInterestPolicy(MONTHLY_RATE));
+    }
+
+    /** Explicit policy override; getMonthlyInterestRate still describes the default product rate. */
+    public SavingsAccount(String id, Customer owner, BigDecimal openingBalance, LocalDate openedOn,
+                           InterestPolicy interestPolicy) {
+        super(id, owner, openingBalance, openedOn, interestPolicy);
         if (getBalance().compareTo(MINIMUM_BALANCE) < 0) {
             throw new InvalidBankingInputException("Savings opening balance must be at least 100.00.");
         }

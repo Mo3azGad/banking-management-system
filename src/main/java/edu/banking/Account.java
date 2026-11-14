@@ -2,6 +2,7 @@ package edu.banking;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalLong;
@@ -12,6 +13,7 @@ import java.util.OptionalLong;
 public abstract class Account {
     private final String id;
     private final Customer owner;
+    private final InterestPolicy interestPolicy;
     private LedgerState ledger;
     private boolean frozen;
     private final LocalDate openedOn;
@@ -19,11 +21,13 @@ public abstract class Account {
     // The history is immutable. Publishing this one reference updates balance and history together.
     private record LedgerState(BigDecimal balance, List<Transaction> history) { }
 
-    protected Account(String id, Customer owner, BigDecimal openingBalance, LocalDate openedOn) {
+    protected Account(String id, Customer owner, BigDecimal openingBalance, LocalDate openedOn,
+                      InterestPolicy interestPolicy) {
         this.id = BankingInput.text(id, "Account identifier");
         this.owner = BankingInput.required(owner, "Account owner");
         BigDecimal balance = BankingInput.nonNegativeMoney(openingBalance, "Opening balance");
         this.openedOn = BankingInput.required(openedOn, "Opening date");
+        this.interestPolicy = BankingInput.required(interestPolicy, "Interest policy");
         Transaction opening = new Transaction(1, this.id, TransactionType.OPENING, balance, balance,
                 this.openedOn, OptionalLong.empty());
         ledger = new LedgerState(balance, List.of(opening));
@@ -48,7 +52,7 @@ public abstract class Account {
     /** The balance floor that withdrawals and transfers must preserve. */
     public abstract BigDecimal getMinimumBalance();
 
-    /** Monthly decimal rate, not a percentage: 0.001 means 0.1%. */
+    /** Default product monthly decimal rate; an explicitly injected policy may use another algorithm. */
     public abstract BigDecimal getMonthlyInterestRate();
 
     /** Balance above the type-specific floor; frozen status separately controls posting permission. */
@@ -68,6 +72,39 @@ public abstract class Account {
      */
     public final Transaction withdraw(BigDecimal amount, LocalDate date) {
         return prepareWithdrawal(amount, date).commit();
+    }
+
+    /** Applies the injected policy to the current balance at a supplied month-end, once per month.
+     * Zero interest marks the month processed. Rejection preserves state for contract-conforming policies.
+     * Same-day ordinary postings remain allowed; they do not cause an interest recalculation.
+     */
+    public final Transaction applyMonthlyInterest(LocalDate date) {
+        requireActive();
+        BankingInput.required(date, "Interest posting date");
+        YearMonth month = YearMonth.from(date);
+        if (!date.equals(month.atEndOfMonth())) {
+            throw new InvalidPostingDateException("Monthly interest date must be the last day of its month.");
+        }
+        LedgerState expected = ledger;
+        validatePostingDate(expected, date);
+        for (Transaction entry : expected.history()) {
+            if (entry.type() == TransactionType.INTEREST && YearMonth.from(entry.date()).equals(month)) {
+                throw new InterestAlreadyAppliedException("Interest already applied for account " + id
+                        + " in " + month + ".");
+            }
+        }
+
+        BigDecimal amount;
+        try {
+            amount = interestPolicy.calculate(expected.balance());
+        } catch (BankingException failure) {
+            throw failure;
+        } catch (RuntimeException failure) {
+            throw new InterestCalculationException("Interest policy failed for account " + id + ".", failure);
+        }
+        BigDecimal interest = BankingInput.nonNegativeMoney(amount, "Calculated interest");
+        return prepareEntry(expected, TransactionType.INTEREST, interest,
+                expected.balance().add(interest), date, OptionalLong.empty()).commit();
     }
 
     /** Immutable snapshot in posting order, including opening. IDs are local to this account. */
@@ -102,12 +139,7 @@ public abstract class Account {
         }
         BankingInput.required(date, "Posting date");
         LedgerState expected = ledger;
-        List<Transaction> history = expected.history();
-        LocalDate latestDate = history.get(history.size() - 1).date();
-        if (date.isBefore(latestDate)) {
-            throw new InvalidPostingDateException("Posting date " + date
-                    + " must not precede latest posting date " + latestDate + ".");
-        }
+        validatePostingDate(expected, date);
 
         boolean credit = type == TransactionType.DEPOSIT || type == TransactionType.TRANSFER_IN;
         BigDecimal nextBalance = credit
@@ -116,7 +148,22 @@ public abstract class Account {
             throw new InsufficientFundsException("Account " + id + " has " + getAvailableBalance()
                     + " available; cannot withdraw " + normalized + ".");
         }
-        Transaction entry = new Transaction(history.size() + 1L, id, type, normalized,
+        return prepareEntry(expected, type, normalized, nextBalance, date, transferReference);
+    }
+
+    private void validatePostingDate(LedgerState expected, LocalDate date) {
+        List<Transaction> history = expected.history();
+        LocalDate latestDate = history.get(history.size() - 1).date();
+        if (date.isBefore(latestDate)) {
+            throw new InvalidPostingDateException("Posting date " + date
+                    + " must not precede latest posting date " + latestDate + ".");
+        }
+    }
+
+    private PreparedPosting prepareEntry(LedgerState expected, TransactionType type, BigDecimal amount,
+                                         BigDecimal nextBalance, LocalDate date, OptionalLong transferReference) {
+        List<Transaction> history = expected.history();
+        Transaction entry = new Transaction(history.size() + 1L, id, type, amount,
                 nextBalance, date, transferReference);
         List<Transaction> nextHistory = new ArrayList<>(history);
         nextHistory.add(entry);

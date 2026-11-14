@@ -6,17 +6,17 @@ project uses the user's explicitly stated assignment; it does not infer identity
 
 ## Mandatory PDF requirements
 
-| Source | Requirement | Milestone 8 status |
+| Source | Requirement | Milestone 9 status |
 |---|---|---|
 | Cover | Individual Java classes and JUnit tests; no running application, main, menu, UI, Scanner or System.out | Foundation follows this restriction |
 | Cover | Meaningful Git/GitHub commits spread over at least two weeks | First commit pushed to verified private GitHub repository; two-week history still outstanding |
 | Cover | Own base and specialized exceptions; clear messages; no null/error printing on failure | Customer/account registry, input, frozen-account, stale-plan, insufficient-funds and posting-date exceptions implemented and tested |
 | Cover | Every nontrivial public method tested for success and failure; every exception thrown in a test | Covered for implemented operations; see test matrix |
-| Cover | Learned patterns and SOLID | Template Method, polymorphic rules and pure InterestPolicy components implemented; account policy integration remains |
+| Cover | Learned patterns and SOLID | Template Method, polymorphic rules and constructor-injected InterestPolicy Strategy and monthly posting implemented |
 | Cover | Dates passed as parameters; never read system clock | Model and posting dates supplied explicitly; chronology validated without reading clock |
 | Banking (2), p.1 | Bank, customer, checking/savings accounts, transaction | Bank customer/account registries, concrete models and transaction records implemented |
-| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | Bank opening/retrieval, deposits, withdrawals, history, transfers and freezing implemented; interest remains |
-| Banking (2), p.1 | Different rules and monthly rates for checking and savings | Different floors/rate metadata and pure fixed-rate calculation implemented; monthly posting planned |
+| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | Bank opening/retrieval, deposits, withdrawals, history, transfers and freezing and monthly interest implemented; final audits/report remain |
+| Banking (2), p.1 | Different rules and monthly rates for checking and savings | Different floors/rate metadata and fixed-rate calculation and actual default monthly postings implemented |
 | Oral defense, p.1 | Individual five-minute defense with laptop, tests and code walkthrough; absence means failure | Interim preparation included; attend in weeks 11/12 |
 | Final report, p.2 | DOC/DOCX: UML/class overview, patterns, exceptions/checked choice, all five SOLID, testing/limitations/redesign | Interim DOCX only; final follows completed code |
 | Cover | Submit on UZEM by 07.12.2026 | Interpreted as 7 December 2026; PDF gives no time |
@@ -57,7 +57,7 @@ Do not delay testing to days 11/12; test each implementation step.
 - In-memory, single-threaded operation. No database, authentication, persistent audit, concurrency
   or production banking claims. Frozen status applies to account operations, not customer lookup.
 
-These are explicit project decisions. Floors/rate metadata, deposits/withdrawals, opening/posting history and chronology are implemented. Bank ownership/ID validation is now implemented; freezing of current postings is implemented; transfers are now implemented; monthly interest remains future work.
+These are explicit project decisions. Floors/rate metadata, deposits/withdrawals, opening/posting history, chronology, Bank ownership/ID validation, freezing, transfers and monthly interest are implemented.
 
 ## Bank opening and lookup decisions implemented on 9 November
 
@@ -74,7 +74,7 @@ the PDF. Account list snapshots protect membership, not immutable copies of bala
 and withdrawals check frozen state before validating amount/date/funds; history and all read
 access remain available. Freezing itself makes no financial entry, consumes no ID and stores no
 timestamp, so no date parameter or clock read is required. Available-balance metadata remains
-balance minus floor, not permission to post. Transfers now respect that frozen rule; future interest operations must also enforce it. The PDF requires freezing but leaves these details open.
+balance minus floor, not permission to post. Transfers and monthly interest respect that frozen rule. The PDF requires freezing but leaves these details open.
 
 ## Posting preparation decisions implemented on 11 November
 
@@ -102,5 +102,16 @@ monthly decimal rate, validates nonnegative exact-cent balance input and rounds 
 product to cents with HALF_EVEN. Zero rates/results are allowed; rate precision is preserved,
 and no upper cap, annualization, fees or proration is invented. Invalid/unsupported decimal
 input uses InvalidBankingInputException. Calculation needs no date because it is pure math;
-it neither posts history nor decides eligible months. Account policy injection and the actual
-dated application of monthly interest remain future work.
+it neither posts history nor decides eligible months. Those policy-injection and dated-posting responsibilities are implemented in milestone 9.
+
+## Monthly application decisions implemented on 14 November
+
+Standard concrete constructors preserve default fixed policies; optional policy constructors
+support explicit overrides, while getMonthlyInterestRate remains default product metadata.
+applyMonthlyInterest takes the date as a parameter and validates frozen/date/month-end/chronology/
+duplicate-month rules before calling the policy. INTEREST history is the processed-YearMonth
+marker; zero credit also records a marker. Null/negative/imprecise results reject before publication.
+Unexpected policy runtime failures are wrapped with their cause; existing BankingExceptions propagate.
+First-month interest is not prorated; skipped months are not automatically credited. Later ordinary
+same-day posts remain allowed but do not recalculate interest already applied to the earlier balance.
+The policy's pure-contract assumption excludes rollback of arbitrary callback side effects.

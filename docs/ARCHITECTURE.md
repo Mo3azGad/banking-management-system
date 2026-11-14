@@ -1,4 +1,4 @@
-# Architecture — current milestone 8 and final target
+# Architecture — current milestone 9 and final target
 
 ## Implemented responsibilities
 
@@ -16,10 +16,10 @@ mutable account balances. Bank ID namespaces are case-sensitive and normalize su
 whitespace; customer/account namespaces are distinct and each Bank is independent. Customer is immutable. BankingInput
 is package-private and shares text, required-value and exact-cent validation across entities.
 Account validates identity, owner, opening balance/date and creates an OPENING Transaction.
-CheckingAccount permits a zero floor; SavingsAccount enforces 100.00. Both expose monthly
-rate metadata. No overridable method is called from the base constructor.
+CheckingAccount permits a zero floor; SavingsAccount enforces 100.00. Both expose default product monthly
+rate metadata and compose default FixedRateInterestPolicy instances. No overridable method is called from the base constructor.
 
-Account owns a private frozen flag and one reference to a private immutable LedgerState record
+Account receives a nonnull InterestPolicy through its protected constructor and owns a private frozen flag and one reference to a private immutable LedgerState record
 (balance plus immutable Transaction list). Direct constructors create an opening entry; Bank
 opening methods also register the account for a known customer. Existing public signatures and
 success/failure contracts remain unchanged.
@@ -59,7 +59,7 @@ small in-memory scope favors predictable publication over throughput optimizatio
 concurrency mechanism: ledger validation/assignment is not synchronized and frozen state is separate.
 No database rollback, persistence or distributed two-phase commit pattern is implemented.
 
-For future two-account coordination, first prepare and validate every participating plan. Accounts
+For two-account coordination, first prepare and validate every participating plan. Accounts
 must be distinct, with no intervening mutations. Each commit then rechecks only that Account's
 state; committing the other distinct Account cannot invalidate it, and no callbacks/allocations
 run on the successful publication path. Bank.transfer now enforces these assumptions using both internal transfer preparers.
@@ -68,7 +68,7 @@ It prevalidates both plans before either guarded commit and allocates the receip
 ## Freezing contract implemented in milestone 5
 
 New accounts are active. Final `freeze()` checks active state and sets the private frozen flag;
-repeat calls throw AccountFrozenException. Both current posting operations enter the same
+repeat calls throw AccountFrozenException. Deposits, withdrawals and transfer preparations enter the same
 private `requireActive()` guard during preparation and again on plan validation/commit. There is no unfreeze method,
 setter or need for a State-pattern framework for this irreversible two-state lifecycle.
 
@@ -81,8 +81,8 @@ same frozen Account, while other accounts of the same customer remain independen
 
 Frozen attempts reject before any mutation, even when amount/date/funds are also invalid. This
 is an explicit error-precedence decision, not a rule specified by the PDF. Existing active
-account input/date/funds behavior is preserved. Transfer preparers now enforce the same per-account rule; future interest posting must also
-respect it when implemented.
+account input/date/funds behavior is preserved. Transfer preparers and monthly interest posting
+enforce the same per-account rule.
 
 ## Transaction facts and revised ID ownership
 
@@ -145,12 +145,39 @@ rounds the rate first, annualizes, prorates, compounds or reads a clock. BigDeci
 scale overflow is translated into a clear custom input exception. Arbitrary numeric magnitude
 is supported within Java's decimal representation/resource limits; no unlimited-resource claim.
 
-The pure strategy contract and one concrete algorithm are complete standalone calculation APIs,
-used through InterestPolicy in JUnit. Account does not yet store/use an InterestPolicy; no UML
-association or complete account-level DIP integration is asserted. A quote can use existing
-account rate metadata and balance without changing history, even if the account is frozen.
-Monthly posting will separately enforce dates, eligibility, duplicate months, frozen permission
-and validation of an injected policy's result before any state publication.
+The pure contract/algorithm remain usable independently for read-only quotes, even from frozen
+balances. Account now receives/stores InterestPolicy and invokes it for monthly posting. Standard
+four-argument checking/savings constructors wire their default rates; explicit five-argument
+overloads inject an alternative algorithm. The base Account never constructs FixedRateInterestPolicy.
+getMonthlyInterestRate is retained as default product metadata, not a custom-policy rate query.
+
+## Monthly posting implemented in milestone 9
+
+Final applyMonthlyInterest(LocalDate) performs: active guard; nonnull date; month-end check using
+YearMonth; chronology check; search for an existing INTEREST record in that YearMonth; one policy
+calculation from the pre-posting balance; nonnegative exact-cent result validation; prepared-entry
+creation and guarded commitment. Both normal posting and interest now share date validation and
+entry/immutable-ledger preparation. Interest may be zero without relaxing positive ordinary posting.
+
+The ledger is the month marker. Its INTEREST entry and balance publish together; no separate
+mutable set/cache can get ahead of a failed operation. Duplicate checking is independent of the
+latest transaction type. Chronology is checked before duplicates, so an older date after a newer
+posting fails as a backdate rather than using the duplicate-month exception. Current-month repeats
+use InterestAlreadyAppliedException. Domain policy exceptions propagate unchanged; unexpected
+RuntimeExceptions are wrapped in InterestCalculationException with their cause retained via a
+new protected BankingException(message, cause) constructor. Invalid results use the existing
+InvalidBankingInputException. No policy is called before eligibility validation succeeds.
+
+First-month application is allowed without proration, including opening at month-end. Missing
+months do not generate catch-up entries and past dates cannot be inserted later. The calculation
+uses the balance at invocation; same-day ordinary postings after application remain legal, without
+recalculation. Zero result still creates a new ledger version and prevents repeat application.
+Injected policies explicitly override the default algorithm; product rate metadata stays unchanged.
+
+Pure-policy contract: no Account mutation or clock reads. State-preservation claims concern
+contract-conforming calculations, invalid outputs and exceptions without external side effects.
+Impure callbacks are not rolled back; frozen/stale validation prevents publication over changed
+state. This remains single-threaded in-memory code, not concurrency or database rollback.
 
 ## Exception hierarchy
 
@@ -163,31 +190,28 @@ date is invalid input, not a chronological value for active accounts. StalePosti
 rejects reused/superseded plans before they can overwrite a newer ledger. New AccountFrozenException
 rejects repeated freezing and postings on frozen accounts before other input/funds/date failures. Every concrete subtype is thrown by tests.
 FixedRateInterestPolicy reuses InvalidBankingInputException for invalid rate/balance and
-unsupported decimal precision; no new exception subtype is needed. Unchecked domain failures fit the in-memory API; no checked I/O is hidden or printed.
+unsupported decimal precision; no new exception subtype is needed. InterestAlreadyAppliedException reports repeated current-month application. InterestCalculationException
+wraps unexpected policy failures with their cause. Unchecked domain failures fit the in-memory API; no checked I/O is hidden or printed.
 
 ## SOLID mapping
 
 - SRP, implemented: Bank coordinates registration/transfers, Customer owns identity, Account enforces posting
   invariants, Transaction validates facts, BankingInput handles shared input, and FixedRateInterestPolicy
   isolates pure interest arithmetic.
-- OCP, partly implemented: the inherited posting template uses the account-specific balance-floor
-  hook. Final checking/savings types require no duplicated algorithms. The InterestPolicy contract and fixed algorithm now exist; integration into the Account
-  posting context is still planned.
+- OCP: the inherited posting template uses the account-specific balance-floor
+  hook. Final checking/savings types require no duplicated algorithms. The injected InterestPolicy can change calculation behavior without changing the Account
+  eligibility/publication algorithm; custom-policy tests exercise that extension point.
 - LSP, implemented for supplied subtypes: both obey a base contract expressed in terms of available
   balance. Shared success/failure tests verify it through Account references.
 - ISP: current APIs avoid UI/persistence duties. InterestPolicy now exposes only calculation, with no account lifecycle, dates, UI or persistence methods.
-- DIP: planned Account-to-InterestPolicy dependency injection remains unimplemented. Current
-  BankingInput is a helper, not an invented abstraction used to claim DIP.
+- DIP: Account stores/uses the injected InterestPolicy interface. Concrete checking/savings
+  constructors compose the default fixed policy; Account has no concrete algorithm dependency.
+  BankingInput remains a helper rather than a fabricated DIP abstraction.
 
-## Remaining design
+## Remaining review
 
-Bank registration and transfer coordination are now implemented. The transfer code deliberately
-does not compose public withdraw/deposit, which could leave a partial result on recipient failure.
-The pure policy calculation now exists. Account policy injection and monthly posting remain next.
-
-Frozen accounts now reject deposits, withdrawals and incoming/outgoing transfers. Future
-interest posting must also respect frozen status. InterestPolicy/FixedRateInterestPolicy now supply the narrow strategy components; account-context
-injection is not yet implemented. Monthly interest must receive dates, validate month-end/chronology, round
-HALF_EVEN once, and reject a duplicate YearMonth independently of last posting date. Rate
-metadata already differs and the pure calculation is implemented, but account interest is not posted yet. No database, UI,
-concurrency or framework is justified. The final UML/report must follow completed code.
+The PDF's listed banking operations are now implemented. Further sessions must review actual
+rounding/eligibility boundaries, cross-operation invariants, subtype contracts and documentation,
+fix genuine defects and complete the final report/defense. Existing constructor/getter compatibility
+and the distinction between default product rates/custom policies must remain clear. No database,
+UI or concurrency framework is required. The final UML/report must continue to reflect real code.
