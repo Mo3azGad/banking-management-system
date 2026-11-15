@@ -1,6 +1,6 @@
 # Banking Management System
 
-Advanced OOP, Project 2. **Milestone 9: dated monthly interest posting with injected policies.**
+Advanced OOP, Project 2. **Milestone 10: interest-boundary review and behavioral test refinement.**
 All listed banking operations now exist. Boundary/integration review, final documentation/report,
 defense preparation and the genuine two-week history remain; this is not yet the final submission.
 
@@ -94,7 +94,8 @@ not numerical requirements specified by the professor. Single-threaded, in-memor
 - `docs/DEVELOPMENT_PLAN.md`: remaining work roadmap and actual progress; schedule versus execution distinguished.
 - `docs/current-uml.svg` / `.dot`: implemented model; `docs/proposed-uml.mmd`: final target design.
 - `docs/TEST_MATRIX.md` and `docs/VERIFICATION.md`: current test/coverage evidence and limitations.
-- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_8_VERIFICATION.md`: earlier evidence.
+- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_9_VERIFICATION.md`: earlier evidence.
+- `docs/INTEREST_BOUNDARY_REVIEW.md`: 15 November findings, exact financial examples and 37 added cases; production code unchanged.
 - `docs/milestone-report.docx`: updated five-section interim Word report, not the final report.
 - `docs/DEFENSE.md`: current walkthrough, demonstration commands and eventual defense outline.
 
@@ -109,7 +110,7 @@ machine-specific tooling stay outside tracked source. On another computer use `g
 and `gh auth setup-git` before pushing.
 
 Milestones 1–3 were genuinely developed on 8 November 2026; milestone 4 was developed on
-9 November; milestone 5 freezing on 10 November; milestone 6 posting preparation on 11 November; milestone 7 transfers on 12 November; milestone 8 policy calculation on 13 November; milestone 9 monthly posting on 14 November. The professor's at-least-two-week
+9 November; milestone 5 freezing on 10 November; milestone 6 posting preparation on 11 November; milestone 7 transfers on 12 November; milestone 8 policy calculation on 13 November; milestone 9 monthly posting on 14 November; milestone 10 interest-boundary tests/review on 15 November. The professor's at-least-two-week
 history requirement is still outstanding.
 Never change author/committer dates or invent activity. A work automation was saved and enabled
 on 8 November for 9–23 November evenings in Europe/Istanbul. Saved scheduling is not proof of
@@ -117,7 +118,7 @@ future execution or pushes; verify each actual session and its result separately
 
 ## Next milestone
 
-Review interest boundaries and cross-operation behavior, then continue integration, SOLID/coverage
+Review cross-operation scenarios and invariants, then continue SOLID/coverage
 audits, final UML/report and defense preparation. Do not manufacture edits solely to create activity. Keep UML and documentation synchronized with each tested increment.
 
 ## Internal preparation contract

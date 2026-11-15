@@ -1,6 +1,7 @@
 # Oral defense preparation — interim
 
-Milestone 9 integrates InterestPolicy into dated Account monthly posting; all listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
+Milestone 9 integrates InterestPolicy into dated Account monthly posting; milestone 10 reviews
+interest boundaries with 37 additional cases and no production change. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -188,6 +189,16 @@ mean with a custom algorithm? The default product rate, not introspection of an 
 What if a callback mutates an account itself? It violates InterestPolicy's pure contract; its
 external side effects are not rolled back. Frozen/stale guards still stop invalid prepared interest
 publication. State-preservation tests use controlled output/failure doubles, not arbitrary callbacks.
+
+## Explain milestone 10 (15 November)
+
+Run `mvn -Dtest=MonthlyInterestBoundaryTest test`. Explain why 100% line coverage did not establish
+posted rounding or recovery after a previously successful month. Show
+`postedCreditsAndBalancesRespectHalfEvenTiesAndTheirNeighbors`: checking 1005.00 credits 1.00,
+while 1015.00 credits 1.02; the ledger and actual balance must agree with the rounded quote.
+Show `failedLaterMonthKeepsPriorMarkersAndAllowsAnEarlierMonthThenRetry`: a failed March
+calculation must retain January's marker without preventing February or reserving March/IDs.
+No production fix was needed. The review strengthened evidence rather than inventing a feature.
 
 ## Proposed final five-minute outline (to refine in the defense session)
 

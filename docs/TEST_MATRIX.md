@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 9
+# Test evidence and obligations — milestone 10
 
 | Public operation | Successful behavior | Failure / boundary behavior |
 |---|---|---|
@@ -39,9 +39,9 @@ contract, not a custom banking exception. Generated record accessors are checked
 
 ## Remaining test obligations
 
-- Further interest boundary/integration review: inspect tie/near-tie, skipped-month and callback
-  assumptions against actual requirements; add tests only for real gaps/defects found. Core posting
-  eligibility, injection, results and rejection-state invariants are implemented/tested now.
+- Cross-operation integration review: combine transfer, monthly posting and lifecycle through Bank
+  references; inspect actual invariants and fix real gaps. Interest-boundary review is recorded in
+  INTEREST_BOUNDARY_REVIEW.md. Later audits do not substitute for testing current changes.
 
 Current totals/coverage are in VERIFICATION.md. Transfer history is now verified through Bank execution. Interest history is now verified through actual Account monthly application. No persistence, concurrency, UI,
 GitHub network integration or unattended scheduler is part of the Java test suite. Git pushes
@@ -93,3 +93,10 @@ same-month-number/different-year behavior. Bank-owned default accounts use injec
 Test doubles deliberately return invalid values/throw once to verify defensive result handling;
 no private state or clock is manipulated. Impure policy side effects/concurrency/VM failure are
 outside the documented pure single-threaded contract and are not claimed rollback-tested.
+
+Milestone 10 adds 37 MonthlyInterestBoundaryTest invocations. They establish actual posted
+HALF_EVEN ties/neighbors for both products, Gregorian century/common-year month-ends, precise
+no-catch-up amounts and rejected backfill, chronology precedence for old processed months, five
+later-month failure modes after prior success, real fixed-policy scale failure through Account,
+and consecutive rounded-zero months without fraction accumulation. Tests preserve old markers,
+chronology and IDs on failure. No production change was necessary; coverage remains unchanged.

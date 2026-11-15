@@ -1,4 +1,4 @@
-# Architecture — current milestone 9 and final target
+# Architecture — implemented model and milestone 10 review
 
 ## Implemented responsibilities
 
@@ -209,6 +209,10 @@ wraps unexpected policy failures with their cause. Unchecked domain failures fit
   BankingInput remains a helper rather than a fabricated DIP abstraction.
 
 ## Remaining review
+
+The 15 November boundary review found behavioral test gaps, with no production correction needed.
+Posted rounding, skipped-month amounts and policy rejection after prior success now have explicit
+tests; see INTEREST_BOUNDARY_REVIEW.md. The production model and milestone 9 UML remain unchanged.
 
 The PDF's listed banking operations are now implemented. Further sessions must review actual
 rounding/eligibility boundaries, cross-operation invariants, subtype contracts and documentation,
