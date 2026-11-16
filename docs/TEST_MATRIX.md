@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 10
+# Test evidence and obligations — milestone 11
 
 | Public operation | Successful behavior | Failure / boundary behavior |
 |---|---|---|
@@ -39,9 +39,9 @@ contract, not a custom banking exception. Generated record accessors are checked
 
 ## Remaining test obligations
 
-- Cross-operation integration review: combine transfer, monthly posting and lifecycle through Bank
-  references; inspect actual invariants and fix real gaps. Interest-boundary review is recorded in
-  INTEREST_BOUNDARY_REVIEW.md. Later audits do not substitute for testing current changes.
+- Review shared subtype contracts and actual SOLID/pattern evidence, then audit public operations,
+  exceptions and input/mutation ordering. Mixed-operation evidence is in INTEGRATION_REVIEW.md;
+  interest boundaries are in INTEREST_BOUNDARY_REVIEW.md. Close actual gaps found in later audits.
 
 Current totals/coverage are in VERIFICATION.md. Transfer history is now verified through Bank execution. Interest history is now verified through actual Account monthly application. No persistence, concurrency, UI,
 GitHub network integration or unattended scheduler is part of the Java test suite. Git pushes
@@ -100,3 +100,10 @@ no-catch-up amounts and rejected backfill, chronology precedence for old process
 later-month failure modes after prior success, real fixed-policy scale failure through Account,
 and consecutive rounded-zero months without fraction accumulation. Tests preserve old markers,
 chronology and IDs on failure. No production change was necessary; coverage remains unchanged.
+
+Milestone 11 adds 21 BankScenarioTest invocations through public APIs. They reconstruct every
+running ledger balance/ID/date/floor through a two-month external-flow scenario, pair transfer
+references across unequal local IDs, exercise interest before/after transfers for all four type
+pairs, reject transfers before either side's latest interest without state/counter changes, spend
+interest up to the floor and freeze after mixed financial activity without blocking other accounts.
+Existing snapshots/markers remain intact. No production defect was found; coverage is unchanged.

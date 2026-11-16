@@ -1,7 +1,8 @@
 # Oral defense preparation — interim
 
 Milestone 9 integrates InterestPolicy into dated Account monthly posting; milestone 10 reviews
-interest boundaries with 37 additional cases and no production change. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
+interest boundaries with 37 additional cases. Milestone 11 adds 21 cross-operation scenarios;
+neither review required production changes. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -199,6 +200,17 @@ while 1015.00 credits 1.02; the ledger and actual balance must agree with the ro
 Show `failedLaterMonthKeepsPriorMarkersAndAllowsAnEarlierMonthThenRetry`: a failed March
 calculation must retain January's marker without preventing February or reserving March/IDs.
 No production fix was needed. The review strengthened evidence rather than inventing a feature.
+
+## Explain milestone 11 (16 November)
+
+Run `mvn -Dtest=BankScenarioTest test`. Show
+`twoMonthWorkflowReconcilesExternalFlowsInterestAndPairedTransfers` with the financial table in
+INTEGRATION_REVIEW.md. The total 1607.70 equals initial 1500 + deposits 200 - withdrawal 100 +
+interest 7.70. Explain why paired transfers change individual balances but conserve that total,
+and why their shared reference differs from each leg's local posting ID. The test helper rebuilds
+running balances from facts; explicit expected totals check the actual financial result too.
+Show `sameDayTransferAfterInterestCannotReopenEitherProcessedMonth`: an ordinary transfer entry
+cannot erase the INTEREST marker. No new production abstraction was needed to pass these cases.
 
 ## Proposed final five-minute outline (to refine in the defense session)
 

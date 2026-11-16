@@ -43,6 +43,11 @@ history replacement, prepared future commits, empty commits or activity-only edi
   The clean private remote matched c81ba88 before work. No production defect was found or
   new feature added; the existing implementation/UML were retained after review.
 
+- 16 November: milestone 11 adds 21 public-API integration cases for two-month reconciliation,
+  transfer/interest ordering, interest-driven chronology/availability and freeze isolation after
+  prior activity. The clean private remote matched 797b145 before work. No production defect
+  was found; existing production code/UML were retained after review.
+
 A work automation was saved/enabled on 8 November for evening sessions on 9–23 November.
 That recorded configuration does not prove future runs, credentials or pushes will succeed.
 Each session must check its environment, worktree, remote, authentication and private visibility,
@@ -58,7 +63,7 @@ The roadmap below is a plan, not a statement that later work has already happene
 | Nov 13 | InterestPolicy and FixedRateInterestPolicy strategy | Completed Nov 13; see MILESTONE_8_VERIFICATION.md |
 | Nov 14 | Explicit month-end monthly interest posting | Completed Nov 14; see MILESTONE_9_VERIFICATION.md |
 | Nov 15 | Real interest-boundary refinement | Completed Nov 15; see INTEREST_BOUNDARY_REVIEW.md and VERIFICATION.md |
-| Nov 16 | Cross-operation integration scenarios | Fix actual invariant defects found |
+| Nov 16 | Cross-operation integration scenarios | Completed Nov 16; see INTEGRATION_REVIEW.md and VERIFICATION.md |
 | Nov 17 | Shared subtype contracts and SOLID/pattern review | Simplify demonstrated complexity only |
 | Nov 18 | Public-operation/exception/coverage audit | Close actual gaps, not artificial coverage targets |
 | Nov 19 | Input/error and mutation-order audit | Substantive corrections/findings only |
@@ -76,7 +81,7 @@ The first commit was 8 November 2026 at 19:23:30 Istanbul time. The two-week spa
 outstanding. The Nov 23 final session is beyond 14 elapsed days; only real work/history can
 establish the professor's requirement. A saved schedule is not proof of future completion.
 
-Next session: review cross-operation scenarios and invariants involving Bank transfers,
-monthly interest and account lifecycle. Use
+Next session: review shared subtype contracts and actual SOLID/pattern evidence; simplify only
+demonstrated complexity and fix actual gaps. Use
 existing tests/evidence first; fix real gaps, avoid artificial edits or empty commits, and complete
 all affected tests before making any verified real-date push.

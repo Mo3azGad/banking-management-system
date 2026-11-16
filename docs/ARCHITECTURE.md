@@ -1,4 +1,4 @@
-# Architecture — implemented model and milestone 10 review
+# Architecture — implemented model and milestone 11 review
 
 ## Implemented responsibilities
 
@@ -213,6 +213,11 @@ wraps unexpected policy failures with their cause. Unchecked domain failures fit
 The 15 November boundary review found behavioral test gaps, with no production correction needed.
 Posted rounding, skipped-month amounts and policy rejection after prior success now have explicit
 tests; see INTEREST_BOUNDARY_REVIEW.md. The production model and milestone 9 UML remain unchanged.
+
+The 16 November integration review verifies ledger reconciliation across two months, both orders
+of transfer/interest, interest-driven transfer date bounds/floors and freeze isolation after prior
+activity. Its 21 cases use public operations only. No production correction was needed; see
+INTEGRATION_REVIEW.md for exact financial examples and design conclusions.
 
 The PDF's listed banking operations are now implemented. Further sessions must review actual
 rounding/eligibility boundaries, cross-operation invariants, subtype contracts and documentation,
