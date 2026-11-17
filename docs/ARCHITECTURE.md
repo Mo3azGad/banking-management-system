@@ -1,4 +1,4 @@
-# Architecture — implemented model and milestone 11 review
+# Architecture — implemented model and milestone 12 review
 
 ## Implemented responsibilities
 
@@ -198,15 +198,26 @@ wraps unexpected policy failures with their cause. Unchecked domain failures fit
 - SRP, implemented: Bank coordinates registration/transfers, Customer owns identity, Account enforces posting
   invariants, Transaction validates facts, BankingInput handles shared input, and FixedRateInterestPolicy
   isolates pure interest arithmetic.
-- OCP: the inherited posting template uses the account-specific balance-floor
-  hook. Final checking/savings types require no duplicated algorithms. The injected InterestPolicy can change calculation behavior without changing the Account
-  eligibility/publication algorithm; custom-policy tests exercise that extension point.
+- OCP: the inherited posting template uses the account-specific balance-floor hook. Injected
+  InterestPolicy changes calculation without changing eligibility/publication; custom-policy
+  tests exercise that extension point. A new Bank-supported product still needs intentional
+  opening/registration API work; this is a local extension seam, not modification-free evolution.
 - LSP, implemented for supplied subtypes: both obey a base contract expressed in terms of available
-  balance. Shared success/failure tests verify it through Account references.
-- ISP: current APIs avoid UI/persistence duties. InterestPolicy now exposes only calculation, with no account lifecycle, dates, UI or persistence methods.
+  balance. Shared success/failure tests verify it through Account references. Savings' constructor
+  establishes its floor; once valid, it obeys the same posting preconditions. Raw balance is not
+  promised to be wholly withdrawable. Floor hooks must be stable/pure; arbitrary future subtypes
+  are not automatically proved substitutable by these tests.
+- ISP: InterestPolicy exposes only calculation; the context's algorithm dependency is not forced
+  to implement account lifecycle, dates or storage. Merely omitting UI would not establish ISP.
 - DIP: Account stores/uses the injected InterestPolicy interface. Concrete checking/savings
   constructors compose the default fixed policy; Account has no concrete algorithm dependency.
   BankingInput remains a helper rather than a fabricated DIP abstraction.
+
+DESIGN_REVIEW.md maps each principle and the two actual patterns to source and named shared
+tests. Account Javadoc now states the base preconditions, postconditions, lifecycle/read contract
+and subtype hook obligations. The review retains existing executable code: no demonstrated defect
+or complexity reduction justified a new abstraction. Bank opening methods are named creation
+conveniences, not the GoF Factory Method pattern; a frozen boolean is not the State pattern.
 
 ## Remaining review
 
@@ -219,8 +230,8 @@ of transfer/interest, interest-driven transfer date bounds/floors and freeze iso
 activity. Its 21 cases use public operations only. No production correction was needed; see
 INTEGRATION_REVIEW.md for exact financial examples and design conclusions.
 
-The PDF's listed banking operations are now implemented. Further sessions must review actual
-rounding/eligibility boundaries, cross-operation invariants, subtype contracts and documentation,
-fix genuine defects and complete the final report/defense. Existing constructor/getter compatibility
+The PDF's listed banking operations are now implemented. Further sessions must audit all public
+operations/exceptions and input/mutation order against requirements, fix genuine defects and
+complete final documentation/report/defense. Existing constructor/getter compatibility
 and the distinction between default product rates/custom policies must remain clear. No database,
 UI or concurrency framework is required. The final UML/report must continue to reflect real code.

@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 11
+# Test evidence and obligations — milestone 12
 
 | Public operation | Successful behavior | Failure / boundary behavior |
 |---|---|---|
@@ -39,9 +39,9 @@ contract, not a custom banking exception. Generated record accessors are checked
 
 ## Remaining test obligations
 
-- Review shared subtype contracts and actual SOLID/pattern evidence, then audit public operations,
-  exceptions and input/mutation ordering. Mixed-operation evidence is in INTEGRATION_REVIEW.md;
-  interest boundaries are in INTEREST_BOUNDARY_REVIEW.md. Close actual gaps found in later audits.
+- Audit public operations/exceptions against the PDF and this matrix, then review input/mutation
+  ordering. DESIGN_REVIEW.md records existing shared-contract evidence and its limits; integration
+  and interest-boundary reviews remain separate. Close actual gaps found in the wider audits.
 
 Current totals/coverage are in VERIFICATION.md. Transfer history is now verified through Bank execution. Interest history is now verified through actual Account monthly application. No persistence, concurrency, UI,
 GitHub network integration or unattended scheduler is part of the Java test suite. Git pushes
@@ -107,3 +107,10 @@ references across unequal local IDs, exercise interest before/after transfers fo
 pairs, reject transfers before either side's latest interest without state/counter changes, spend
 interest up to the floor and freeze after mixed financial activity without blocking other accounts.
 Existing snapshots/markers remain intact. No production defect was found; coverage is unchanged.
+
+Milestone 12 reviews the already shared AccountTest, AccountOperationsTest, AccountFreezeTest
+and monthly suites through Account references. DESIGN_REVIEW.md names success/failure evidence
+for the base availability, chronology, snapshot, lifecycle and injected-policy contracts. No new
+test or executable refactor was necessary; all 639 existing cases were rerun. Account Javadoc
+now states the obligations those tests assess. This review does not prove future subtype or
+impure-policy correctness and does not replace the remaining full public-operation audit.

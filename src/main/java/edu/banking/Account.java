@@ -7,8 +7,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalLong;
 
-/** Shared account invariants and dated posting workflows. Single-threaded, in-memory use.
+/** Shared account contract and dated posting workflows. Single-threaded, in-memory use.
  * Direct construction creates an opening ledger entry; Bank opening methods also register the model.
+ *
+ * <p>Clients can use either supplied subtype through this contract:
+ * <ul>
+ *   <li>An active account accepts positive exact-cent deposits, and withdrawals no greater than
+ *       {@link #getAvailableBalance()}. Raw balance is not a promise that all funds may be spent.</li>
+ *   <li>Posting dates are supplied and cannot precede the latest ledger entry; same-day postings
+ *       are allowed. Monthly interest additionally requires month-end and an unprocessed month.</li>
+ *   <li>Successful postings publish balance and immutable history together. Domain rejection
+ *       preserves the ledger and next local ID for policies without external side effects.</li>
+ *   <li>Freezing blocks all financial postings permanently but leaves balances/history readable.
+ *       Available balance describes funds above the floor, not permission to post.</li>
+ * </ul>
+ * <p>Subtype constructors must establish an opening balance at least their nonnegative exact-cent
+ * floor. The floor hook must be stable and side-effect free. The default monthly rate is product
+ * metadata; actual monthly calculation uses the injected pure {@link InterestPolicy} instead.
+ * Subtypes supply these rules without overriding final posting validation/publication methods.
  */
 public abstract class Account {
     private final String id;
@@ -49,7 +65,7 @@ public abstract class Account {
         frozen = true;
     }
 
-    /** The balance floor that withdrawals and transfers must preserve. */
+    /** Stable, nonnegative exact-cent floor established at opening and preserved by debits. */
     public abstract BigDecimal getMinimumBalance();
 
     /** Default product monthly decimal rate; an explicitly injected policy may use another algorithm. */
@@ -67,7 +83,8 @@ public abstract class Account {
         return prepareDeposit(amount, date).commit();
     }
 
-    /** Posts a strictly positive withdrawal from an active account, preserving the type-specific floor.
+    /** Posts a positive exact-cent withdrawal no greater than the active account's available balance.
+     * The supplied date must be on or after the latest ledger entry; the type-specific floor remains.
      * Returns the recorded entry. Rejection preserves balance, history and sequence.
      */
     public final Transaction withdraw(BigDecimal amount, LocalDate date) {

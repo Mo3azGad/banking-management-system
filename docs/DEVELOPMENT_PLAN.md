@@ -48,6 +48,11 @@ history replacement, prepared future commits, empty commits or activity-only edi
   prior activity. The clean private remote matched 797b145 before work. No production defect
   was found; existing production code/UML were retained after review.
 
+- 17 November: milestone 12 codifies the shared Account contract in Javadoc and maps actual
+  source/shared-test evidence to SOLID and the two implemented patterns. The clean private remote
+  matched e7a723c before work. No behavioral defect or justified simplification was found; all
+  639 existing cases were rerun without inventing redundant tests or changing executable code.
+
 A work automation was saved/enabled on 8 November for evening sessions on 9–23 November.
 That recorded configuration does not prove future runs, credentials or pushes will succeed.
 Each session must check its environment, worktree, remote, authentication and private visibility,
@@ -64,7 +69,7 @@ The roadmap below is a plan, not a statement that later work has already happene
 | Nov 14 | Explicit month-end monthly interest posting | Completed Nov 14; see MILESTONE_9_VERIFICATION.md |
 | Nov 15 | Real interest-boundary refinement | Completed Nov 15; see INTEREST_BOUNDARY_REVIEW.md and VERIFICATION.md |
 | Nov 16 | Cross-operation integration scenarios | Completed Nov 16; see INTEGRATION_REVIEW.md and VERIFICATION.md |
-| Nov 17 | Shared subtype contracts and SOLID/pattern review | Simplify demonstrated complexity only |
+| Nov 17 | Shared subtype contracts and SOLID/pattern review | Completed Nov 17; see DESIGN_REVIEW.md and VERIFICATION.md |
 | Nov 18 | Public-operation/exception/coverage audit | Close actual gaps, not artificial coverage targets |
 | Nov 19 | Input/error and mutation-order audit | Substantive corrections/findings only |
 | Nov 20 | Accurate final UML and design documentation | Compare diagrams/class descriptions to actual code |
@@ -81,7 +86,7 @@ The first commit was 8 November 2026 at 19:23:30 Istanbul time. The two-week spa
 outstanding. The Nov 23 final session is beyond 14 elapsed days; only real work/history can
 establish the professor's requirement. A saved schedule is not proof of future completion.
 
-Next session: review shared subtype contracts and actual SOLID/pattern evidence; simplify only
-demonstrated complexity and fix actual gaps. Use
+Next session: audit public operations/custom exceptions against the PDF, test matrix and coverage,
+closing only real gaps found. Use
 existing tests/evidence first; fix real gaps, avoid artificial edits or empty commits, and complete
 all affected tests before making any verified real-date push.

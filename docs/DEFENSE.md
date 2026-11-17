@@ -2,7 +2,8 @@
 
 Milestone 9 integrates InterestPolicy into dated Account monthly posting; milestone 10 reviews
 interest boundaries with 37 additional cases. Milestone 11 adds 21 cross-operation scenarios;
-neither review required production changes. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
+neither review required production changes. Milestone 12 clarifies the shared base contract and
+precise SOLID/pattern claims using existing tests. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -211,6 +212,21 @@ and why their shared reference differs from each leg's local posting ID. The tes
 running balances from facts; explicit expected totals check the actual financial result too.
 Show `sameDayTransferAfterInterestCannotReopenEitherProcessedMonth`: an ordinary transfer entry
 cannot erase the INTEREST marker. No new production abstraction was needed to pass these cases.
+
+## Explain milestone 12 (17 November)
+
+Use DESIGN_REVIEW.md and Account's class Javadoc. For an active 250.00 balance, withdrawing
+availability leaves checking at 0.00 and savings at 100.00. The client uses Account and an eligible
+supplied date; it needs no instanceof branch. Point to
+`permitsWithdrawalOfExactlyTheAvailableBalance` and
+`withdrawalOneCentOverAvailableBalancePreservesState` for both success and rejection evidence.
+LSP does not promise that the raw balance is entirely spendable or prove future subclasses safe.
+
+Trace Template Method through final deposit/withdraw, preparePosting and the minimum hook;
+trace Strategy through Account's injected InterestPolicy and concrete default composition.
+Explain each SOLID row using a real member. A new policy changes calculation without changing
+eligibility, but a new Bank product still needs a creation API. Named opening methods are not
+GoF Factory Method and the frozen flag is not State. No additional pattern framework was needed.
 
 ## Proposed final five-minute outline (to refine in the defense session)
 
