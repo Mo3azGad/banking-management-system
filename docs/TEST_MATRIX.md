@@ -1,4 +1,9 @@
-# Test evidence and obligations — milestone 12
+# Test evidence and obligations — milestone 13
+
+API_EXCEPTION_AUDIT.md provides the complete public declaration accounting, named success/rejection
+witnesses and all eleven custom-exception throw witnesses. Its 67 unique test selectors were checked
+against source and this session's passing JUnit reports. This behavior matrix remains the broader
+boundary overview; line coverage alone is not the audit evidence.
 
 | Public operation | Successful behavior | Failure / boundary behavior |
 |---|---|---|
@@ -39,8 +44,8 @@ contract, not a custom banking exception. Generated record accessors are checked
 
 ## Remaining test obligations
 
-- Audit public operations/exceptions against the PDF and this matrix, then review input/mutation
-  ordering. DESIGN_REVIEW.md records existing shared-contract evidence and its limits; integration
+- Review input/error contracts and mutation ordering in more detail. The public-operation/exception
+  audit is recorded in API_EXCEPTION_AUDIT.md. DESIGN_REVIEW.md records shared contracts; integration
   and interest-boundary reviews remain separate. Close actual gaps found in the wider audits.
 
 Current totals/coverage are in VERIFICATION.md. Transfer history is now verified through Bank execution. Interest history is now verified through actual Account monthly application. No persistence, concurrency, UI,
@@ -114,3 +119,10 @@ for the base availability, chronology, snapshot, lifecycle and injected-policy c
 test or executable refactor was necessary; all 639 existing cases were rerun. Account Javadoc
 now states the obligations those tests assess. This review does not prove future subtype or
 impure-policy correctness and does not replace the remaining full public-operation audit.
+
+Milestone 13 completes that public-operation/custom-exception audit without adding redundant
+tests or changing executable code. All 639 cases pass. Public APIs with meaningful failure paths
+have named successful/rejected witnesses; valid-state no-input queries, basic getters, generated
+record/enum utilities and exception carrier constructors have explicit classifications. The sole
+missed branch is the Transaction constructor's enum fallback at source line 24. Two exception
+comments were corrected; all signatures, behavior and UML relationships remain unchanged.

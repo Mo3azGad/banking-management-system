@@ -3,7 +3,8 @@
 Milestone 9 integrates InterestPolicy into dated Account monthly posting; milestone 10 reviews
 interest boundaries with 37 additional cases. Milestone 11 adds 21 cross-operation scenarios;
 neither review required production changes. Milestone 12 clarifies the shared base contract and
-precise SOLID/pattern claims using existing tests. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
+precise SOLID/pattern claims using existing tests. Milestone 13 maps public operations and all
+custom exceptions to named passing cases. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -227,6 +228,21 @@ trace Strategy through Account's injected InterestPolicy and concrete default co
 Explain each SOLID row using a real member. A new policy changes calculation without changing
 eligibility, but a new Bank product still needs a creation API. Named opening methods are not
 GoF Factory Method and the frozen flag is not State. No additional pattern framework was needed.
+
+## Explain milestone 13 (18 November)
+
+Use API_EXCEPTION_AUDIT.md to locate a successful and rejected operation, then show its exact
+test selector. Explain why constructor line coverage alone does not prove an exception was thrown:
+each of the eleven concrete types has an operation/assertThrows witness. For example, run
+`mvn -Dtest=MonthlyInterestTest#unexpectedPolicyFailureIsWrappedWithItsCauseAndAllowsRetry test`
+to show the real wrapper path, retained cause, unchanged state and retry.
+
+The audit accounts for 60 public callables, including generated/basic/carrier declarations;
+24 are domain-operation/constructor declarations. A no-input snapshot getter cannot fail in valid
+state: its returned collection rejects mutation with a JDK exception. Do not invent a banking
+failure for that getter or miscount that JDK exception as a custom type. All 639 cases pass;
+the documented exhaustive-enum fallback is the only missed branch. Coverage is supporting
+evidence, not proof for all possible inputs. No new behavioral test was warranted by this audit.
 
 ## Proposed final five-minute outline (to refine in the defense session)
 

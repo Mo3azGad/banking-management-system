@@ -6,12 +6,12 @@ project uses the user's explicitly stated assignment; it does not infer identity
 
 ## Mandatory PDF requirements
 
-| Source | Requirement | Milestone 9 status |
+| Source | Requirement | Current status after 18 November audit |
 |---|---|---|
 | Cover | Individual Java classes and JUnit tests; no running application, main, menu, UI, Scanner or System.out | Foundation follows this restriction |
 | Cover | Meaningful Git/GitHub commits spread over at least two weeks | First commit pushed to verified private GitHub repository; two-week history still outstanding |
-| Cover | Own base and specialized exceptions; clear messages; no null/error printing on failure | Customer/account registry, input, frozen-account, stale-plan, insufficient-funds and posting-date exceptions implemented and tested |
-| Cover | Every nontrivial public method tested for success and failure; every exception thrown in a test | Covered for implemented operations; see test matrix |
+| Cover | Own base and specialized exceptions; clear messages; no null/error printing on failure | Abstract unchecked base plus eleven concrete types; explicit operation-throw witnesses in API_EXCEPTION_AUDIT.md |
+| Cover | Every nontrivial public method tested for success and failure; every exception thrown in a test | Audited all 24 domain-operation/constructor declarations against named tests; valid-state queries with no failure input are explained rather than given invented failures |
 | Cover | Learned patterns and SOLID | Template Method, polymorphic rules and constructor-injected InterestPolicy Strategy and monthly posting implemented |
 | Cover | Dates passed as parameters; never read system clock | Model and posting dates supplied explicitly; chronology validated without reading clock |
 | Banking (2), p.1 | Bank, customer, checking/savings accounts, transaction | Bank customer/account registries, concrete models and transaction records implemented |

@@ -1,4 +1,4 @@
-# Architecture — implemented model and milestone 12 review
+# Architecture — implemented model and milestone 13 audit
 
 ## Implemented responsibilities
 
@@ -230,8 +230,14 @@ of transfer/interest, interest-driven transfer date bounds/floors and freeze iso
 activity. Its 21 cases use public operations only. No production correction was needed; see
 INTEGRATION_REVIEW.md for exact financial examples and design conclusions.
 
-The PDF's listed banking operations are now implemented. Further sessions must audit all public
-operations/exceptions and input/mutation order against requirements, fix genuine defects and
+The 18 November public API/exception audit accounts for 60 direct public callable declarations,
+including 24 domain-operation/constructor declarations, and verifies 67 named passing test
+selectors. Each of the eleven concrete exceptions has an operation-throw witness. Two exception
+comments now describe their full existing use (interest month-end dates and outgoing transfers).
+No executable/API/UML change was needed; see API_EXCEPTION_AUDIT.md for boundaries and evidence.
+
+The PDF's listed banking operations are now implemented. Further sessions must review input/error
+contracts and mutation order against requirements, fix genuine defects and
 complete final documentation/report/defense. Existing constructor/getter compatibility
 and the distinction between default product rates/custom policies must remain clear. No database,
 UI or concurrency framework is required. The final UML/report must continue to reflect real code.
