@@ -1,4 +1,4 @@
-# Architecture — implemented model and milestone 13 audit
+# Architecture — implemented model and milestone 14 review
 
 ## Implemented responsibilities
 
@@ -34,6 +34,11 @@ prepareWithdrawal and immediately commit the returned PreparedPosting. One priva
 3. Builds a complete Transaction with the next account-local sequence ID.
 4. Copies immutable history with that entry and allocates the full replacement LedgerState.
 5. Returns a plan bound to this Account, expected ledger reference, replacement state and entry.
+
+Floor rejection now names the attempted debit: `cannot transfer` for an outgoing transfer and
+the existing `cannot withdraw` for a withdrawal. The type, amount normalization, validation and
+publication order are unchanged. INPUT_MUTATION_REVIEW.md records the reproduced diagnostic
+defect, first-reached guard ordering and observable-state boundaries.
 
 Preparing and validating are side-effect free: no balance/history/date change or ID reservation.
 The package-private, final, non-static inner PreparedPosting has a private constructor and private
@@ -184,8 +189,9 @@ state. This remains single-threaded in-memory code, not concurrency or database 
 Abstract BankingException extends RuntimeException. InvalidBankingInputException covers missing,
 nonpositive and imprecise inputs; DuplicateCustomerException and CustomerNotFoundException
 cover customer registry failures. DuplicateAccountException and AccountNotFoundException now
-cover duplicate opening IDs and absent account lookups. New InsufficientFundsException reports a withdrawal that breaches
-the type-specific floor, and InvalidPostingDateException reports chronology violations. A null
+cover duplicate opening IDs and absent account lookups. InsufficientFundsException reports a
+withdrawal/outgoing transfer that breaches the floor; its message now identifies the operation.
+InvalidPostingDateException reports chronology or monthly month-end date violations. A null
 date is invalid input, not a chronological value for active accounts. StalePostingException
 rejects reused/superseded plans before they can overwrite a newer ledger. New AccountFrozenException
 rejects repeated freezing and postings on frozen accounts before other input/funds/date failures. Every concrete subtype is thrown by tests.
@@ -236,8 +242,12 @@ selectors. Each of the eleven concrete exceptions has an operation-throw witness
 comments now describe their full existing use (interest month-end dates and outgoing transfers).
 No executable/API/UML change was needed; see API_EXCEPTION_AUDIT.md for boundaries and evidence.
 
-The PDF's listed banking operations are now implemented. Further sessions must review input/error
-contracts and mutation order against requirements, fix genuine defects and
-complete final documentation/report/defense. Existing constructor/getter compatibility
+The 19 November input/mutation review corrects that transfer diagnostic and adds 20 public-API
+cases for exact messages, multi-invalid-input precedence and unchanged rejection/retry state.
+No financial mutation-order defect was found; existing ledger/transfer/month-marker boundaries
+are retained. No new member/API/relationship warrants a UML change for this correction.
+
+The PDF's listed banking operations are now implemented. Further sessions must complete final
+UML/documentation/report/defense and independent review. Existing constructor/getter compatibility
 and the distinction between default product rates/custom policies must remain clear. No database,
 UI or concurrency framework is required. The final UML/report must continue to reflect real code.

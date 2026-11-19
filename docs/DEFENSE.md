@@ -4,7 +4,8 @@ Milestone 9 integrates InterestPolicy into dated Account monthly posting; milest
 interest boundaries with 37 additional cases. Milestone 11 adds 21 cross-operation scenarios;
 neither review required production changes. Milestone 12 clarifies the shared base contract and
 precise SOLID/pattern claims using existing tests. Milestone 13 maps public operations and all
-custom exceptions to named passing cases. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
+custom exceptions to named passing cases. Milestone 14 fixes an insufficient-transfer diagnostic
+and verifies input/publication ordering with 20 new cases. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -243,6 +244,21 @@ state: its returned collection rejects mutation with a JDK exception. Do not inv
 failure for that getter or miscount that JDK exception as a custom type. All 639 cases pass;
 the documented exhaustive-enum fallback is the only missed branch. Coverage is supporting
 evidence, not proof for all possible inputs. No new behavioral test was warranted by this audit.
+
+## Explain milestone 14 (19 November)
+
+Run `mvn -Dtest=InputContractTest test`. Show
+`insufficientTransferNamesTheRequestedOperationAndKeepsRetryState`: the old `cannot withdraw`
+message failed the new test; the corrected `cannot transfer` identifies the actual request.
+The withdrawal test preserves its old wording. Both use normalized money and verify rejection
+before a valid earlier-date retry with consecutive IDs/first transfer reference.
+
+Explain the phase boundary with `targetLookupPrecedesFrozenSourceAndInvalidPostingInputs`:
+Bank resolves both accounts before preparing any leg, so an absent recipient is reported before
+examining a frozen source or bad amount/date. Direct Account methods still check frozen state
+first. This is not a global frozen-first rule across two accounts. Use INPUT_MUTATION_REVIEW.md
+to distinguish guard order, full allocation/prevalidation and actual immutable-ledger publication.
+No financial mutation-order defect was found; the existing boundary remains justified.
 
 ## Proposed final five-minute outline (to refine in the defense session)
 

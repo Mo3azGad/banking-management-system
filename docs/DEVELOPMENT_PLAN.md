@@ -59,6 +59,11 @@ history replacement, prepared future commits, empty commits or activity-only edi
   were corrected; no executable defect/new test was found necessary. The clean private remote
   matched f20b7e0 before work and the complete 639-case suite passes.
 
+- 19 November: milestone 14 reproduces and corrects an insufficient-transfer message that said
+  `withdraw`, preserving withdrawal diagnostics and all financial/publication rules. Twenty new
+  cases cover messages, overlapping invalid-input priorities and rejection/retry state. The clean
+  private remote matched 282f2b4 before work. No mutation-order defect was found; full suite 659.
+
 A work automation was saved/enabled on 8 November for evening sessions on 9–23 November.
 That recorded configuration does not prove future runs, credentials or pushes will succeed.
 Each session must check its environment, worktree, remote, authentication and private visibility,
@@ -76,8 +81,8 @@ The roadmap below is a plan, not a statement that later work has already happene
 | Nov 15 | Real interest-boundary refinement | Completed Nov 15; see INTEREST_BOUNDARY_REVIEW.md and MILESTONE_10_VERIFICATION.md |
 | Nov 16 | Cross-operation integration scenarios | Completed Nov 16; see INTEGRATION_REVIEW.md and MILESTONE_11_VERIFICATION.md |
 | Nov 17 | Shared subtype contracts and SOLID/pattern review | Completed Nov 17; see DESIGN_REVIEW.md and MILESTONE_12_VERIFICATION.md |
-| Nov 18 | Public-operation/exception/coverage audit | Completed Nov 18; see API_EXCEPTION_AUDIT.md and VERIFICATION.md |
-| Nov 19 | Input/error and mutation-order audit | Substantive corrections/findings only |
+| Nov 18 | Public-operation/exception/coverage audit | Completed Nov 18; see API_EXCEPTION_AUDIT.md and MILESTONE_13_VERIFICATION.md |
+| Nov 19 | Input/error and mutation-order audit | Completed Nov 19; see INPUT_MUTATION_REVIEW.md and VERIFICATION.md |
 | Nov 20 | Accurate final UML and design documentation | Compare diagrams/class descriptions to actual code |
 | Nov 21 | Complete the five-section Word report | Use actual test evidence, limitations and design changes |
 | Nov 22 | Five-minute defense and modification exercise | Demonstrate actual tests and code understanding |
@@ -92,7 +97,7 @@ The first commit was 8 November 2026 at 19:23:30 Istanbul time. The two-week spa
 outstanding. The Nov 23 final session is beyond 14 elapsed days; only real work/history can
 establish the professor's requirement. A saved schedule is not proof of future completion.
 
-Next session: review input/error contracts and mutation ordering, implementing or documenting
-substantive findings only. Use
+Next session: regenerate final UML and class/pattern/SOLID presentation from the implemented
+code, reviewing accuracy rather than inventing new model features. Use
 existing tests/evidence first; fix real gaps, avoid artificial edits or empty commits, and complete
 all affected tests before making any verified real-date push.

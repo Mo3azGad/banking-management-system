@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 13
+# Test evidence and obligations — milestone 14
 
 API_EXCEPTION_AUDIT.md provides the complete public declaration accounting, named success/rejection
 witnesses and all eleven custom-exception throw witnesses. Its 67 unique test selectors were checked
@@ -44,9 +44,10 @@ contract, not a custom banking exception. Generated record accessors are checked
 
 ## Remaining test obligations
 
-- Review input/error contracts and mutation ordering in more detail. The public-operation/exception
-  audit is recorded in API_EXCEPTION_AUDIT.md. DESIGN_REVIEW.md records shared contracts; integration
-  and interest-boundary reviews remain separate. Close actual gaps found in the wider audits.
+- Final artifact/independent review must confirm that documentation matches actual behavior and
+  close genuine gaps found. Input/error and publication ordering are reviewed in
+  INPUT_MUTATION_REVIEW.md; API/exception, design, integration and interest-boundary evidence remain
+  separate. The remaining sessions are not permission to defer testing current changes.
 
 Current totals/coverage are in VERIFICATION.md. Transfer history is now verified through Bank execution. Interest history is now verified through actual Account monthly application. No persistence, concurrency, UI,
 GitHub network integration or unattended scheduler is part of the Java test suite. Git pushes
@@ -126,3 +127,11 @@ have named successful/rejected witnesses; valid-state no-input queries, basic ge
 record/enum utilities and exception carrier constructors have explicit classifications. The sole
 missed branch is the Transaction constructor's enum fallback at source line 24. Two exception
 comments were corrected; all signatures, behavior and UML relationships remain unchanged.
+
+Milestone 14 adds 20 InputContractTest invocations. The insufficient-transfer regression failed
+twice before the message fix, then passes for both products; withdrawal wording stays unchanged.
+Further cases establish lookup/distinctness before frozen/bad transfer inputs, money before a
+missing direct-posting date, chronology before insufficient funds and occupied account ID before
+owner/opening validation. Rejections preserve both ledgers/registries as applicable; retries show
+no reserved local IDs/dates/transfer reference. Only diagnostic wording changes in production;
+both outcomes of that choice are covered. Full suite: 659 cases, 100% lines and 98.59% branches.

@@ -162,8 +162,9 @@ public abstract class Account {
         BigDecimal nextBalance = credit
                 ? expected.balance().add(normalized) : expected.balance().subtract(normalized);
         if (nextBalance.compareTo(getMinimumBalance()) < 0) {
+            String operation = type == TransactionType.TRANSFER_OUT ? "transfer" : "withdraw";
             throw new InsufficientFundsException("Account " + id + " has " + getAvailableBalance()
-                    + " available; cannot withdraw " + normalized + ".");
+                    + " available; cannot " + operation + " " + normalized + ".");
         }
         return prepareEntry(expected, type, normalized, nextBalance, date, transferReference);
     }
