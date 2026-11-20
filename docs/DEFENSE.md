@@ -5,7 +5,8 @@ interest boundaries with 37 additional cases. Milestone 11 adds 21 cross-operati
 neither review required production changes. Milestone 12 clarifies the shared base contract and
 precise SOLID/pattern claims using existing tests. Milestone 13 maps public operations and all
 custom exceptions to named passing cases. Milestone 14 fixes an insufficient-transfer diagnostic
-and verifies input/publication ordering with 20 new cases. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
+and verifies input/publication ordering with 20 new cases. Milestone 15 supplies the three final
+UML views and consolidated class/pattern/SOLID guide. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
 classes as implemented. The final defense carries 30 points and attendance is compulsory.
 
 ## Explain the current code
@@ -259,6 +260,18 @@ examining a frozen source or bad amount/date. Direct Account methods still check
 first. This is not a global frozen-first rule across two accounts. Use INPUT_MUTATION_REVIEW.md
 to distinguish guard order, full allocation/prevalidation and actual immutable-ledger publication.
 No financial mutation-order defect was found; the existing boundary remains justified.
+
+## Read the final UML (20 November)
+
+Start with UML_GUIDE.md and the domain SVG, then open the posting-internal and exception views.
+Explain that Account reads balance from private LedgerState; it has no direct balance field.
+LedgerState is a static nested record, while PreparedPosting captures one enclosing Account.
+The history starts with OPENING, so its multiplicity is 1..*. Registry membership is optional
+for a directly constructed Customer/Account, and the diagrams do not claim composition lifetimes.
+Italic product hooks are abstract; concrete products provide floor/rate constants. The guide
+expands elided parameters and identifies static/final members, both constructors per product,
+default rate metadata, injected policy calculation and the two actual patterns. The old proposal
+is archived and is not the implementation diagram. No new business feature is implied by a box.
 
 ## Proposed final five-minute outline (to refine in the defense session)
 

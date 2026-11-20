@@ -1,0 +1,28 @@
+digraph UML {
+graph [rankdir=TB, bgcolor="white", pad=0.18, nodesep=0.32, ranksep=0.55, splines=polyline, fontname="Helvetica", fontsize=16, labelloc=t, label=<<B>Banking Management System | Posting internals</B><BR/><FONT POINT-SIZE="10">Same classes as domain view • internal members and publication boundary</FONT>>];
+node [shape=plain, fontname="Helvetica", fontsize=10];
+edge [fontname="Helvetica", fontsize=9, color="#46576B", arrowsize=0.75, labeldistance=1.8];
+Bank [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#203B58"><FONT COLOR="white"><B>Bank «context»</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">+ transfer(...)<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+Account [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#203B58"><FONT COLOR="white"><B>Account {abstract}</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">- ledger: LedgerState<BR ALIGN="LEFT"/>- frozen: boolean<BR ALIGN="LEFT"/></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT"># Account(..., interestPolicy)<BR ALIGN="LEFT"/>~ prepareDeposit(...)<BR ALIGN="LEFT"/>~ prepareWithdrawal(...)<BR ALIGN="LEFT"/>~ prepareTransferOut(...)<BR ALIGN="LEFT"/>~ prepareTransferIn(...)<BR ALIGN="LEFT"/>- preparePosting(...)<BR ALIGN="LEFT"/>- validatePostingDate(...)<BR ALIGN="LEFT"/>- prepareEntry(...)<BR ALIGN="LEFT"/>- requireActive(): void<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+PreparedPosting [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#203B58"><FONT COLOR="white"><B>Account.PreparedPosting</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">{package-private, non-static inner}<BR ALIGN="LEFT"/>- expected: LedgerState<BR ALIGN="LEFT"/>- next: LedgerState<BR ALIGN="LEFT"/>- entry: Transaction<BR ALIGN="LEFT"/></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">- PreparedPosting(expected,<BR ALIGN="LEFT"/>    next, entry)<BR ALIGN="LEFT"/>~ transaction(): Transaction<BR ALIGN="LEFT"/>~ validate(): void<BR ALIGN="LEFT"/>~ commit(): Transaction<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+LedgerState [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#203B58"><FONT COLOR="white"><B>Account.LedgerState<BR/>«private static record»</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">- balance: BigDecimal<BR ALIGN="LEFT"/>- history: List&lt;Transaction&gt;<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+Transaction [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#203B58"><FONT COLOR="white"><B>«record» Transaction «context»</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">{immutable financial fact}<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+BankingInput [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#226D71"><FONT COLOR="white"><B>BankingInput<BR/>{package-private, final}</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">- BankingInput()<BR ALIGN="LEFT"/>{static operations}<BR ALIGN="LEFT"/>~ text(value, field)<BR ALIGN="LEFT"/>~ required(value, field)<BR ALIGN="LEFT"/>~ nonNegativeMoney(value, field)<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+{rank=same; Bank; Account;}
+{rank=same; PreparedPosting; LedgerState;}
+{rank=same; Transaction; BankingInput;}
+Bank -> Account [style=invis, weight=10];
+PreparedPosting -> LedgerState [style=invis, weight=10];
+Transaction -> BankingInput [style=invis];
+Account -> LedgerState [style=invis, weight=10];
+PreparedPosting -> Transaction [style=invis, weight=10];
+LedgerState -> BankingInput [style=invis];
+Bank -> PreparedPosting [style="dashed", arrowhead="vee", label="coordinates two plans", constraint="false"];
+PreparedPosting -> Account [arrowhead="vee", label="enclosing object", taillabel="0..*", headlabel="1", constraint="false"];
+Account -> LedgerState [arrowhead="vee", label="current ledger", headlabel="1", constraint="false"];
+PreparedPosting -> LedgerState [arrowhead="vee", label="expected", constraint="false"];
+PreparedPosting -> LedgerState [arrowhead="vee", label="next", constraint="false"];
+PreparedPosting -> Transaction [arrowhead="vee", label="entry", headlabel="1", constraint="false"];
+LedgerState -> Transaction [arrowhead="vee", label="immutable history", headlabel="1..*", constraint="false"];
+Account -> BankingInput [style="dashed", arrowhead="vee", label="validates", constraint="false"];
+}

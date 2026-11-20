@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 14
+# Test evidence and obligations — milestone 15
 
 API_EXCEPTION_AUDIT.md provides the complete public declaration accounting, named success/rejection
 witnesses and all eleven custom-exception throw witnesses. Its 67 unique test selectors were checked
@@ -135,3 +135,10 @@ missing direct-posting date, chronology before insufficient funds and occupied a
 owner/opening validation. Rejections preserve both ledgers/registries as applicable; retries show
 no reserved local IDs/dates/transfer reference. Only diagnostic wording changes in production;
 both outcomes of that choice are covered. Full suite: 659 cases, 100% lines and 98.59% branches.
+
+Milestone 15 adds no behavioral test or executable change. The full existing 659-case suite is
+rerun. Separate documentation checks compare all 24 depicted banking types, 30 displayed field
+references and 48 displayed operation references/visibility with compiled metadata, verify the
+generalization/realization edges and rendered SVG node sets, and inspect all three views. These
+are diagram checks, not extra JUnit cases or proof of every behavior. UML_GUIDE.md supplies the
+selected-member legend, omitted exact signatures, multiplicities and actual pattern/SOLID limits.

@@ -1,4 +1,9 @@
-# Architecture — implemented model and milestone 14 review
+# Architecture — final implemented design, milestone 15
+
+UML_GUIDE.md is the consolidated class/signature/pattern/SOLID presentation. Its three final
+views separate the domain, posting internals and exception hierarchy. Selective members are
+labelled; all 24 source banking types appear across the views. Basic getter/constructor details
+and exact parameter/return types are completed by the guide and actual source.
 
 ## Implemented responsibilities
 
@@ -229,7 +234,8 @@ conveniences, not the GoF Factory Method pattern; a frozen boolean is not the St
 
 The 15 November boundary review found behavioral test gaps, with no production correction needed.
 Posted rounding, skipped-month amounts and policy rejection after prior success now have explicit
-tests; see INTEREST_BOUNDARY_REVIEW.md. The production model and milestone 9 UML remain unchanged.
+tests; see INTEREST_BOUNDARY_REVIEW.md. At that stage the model and milestone 9 UML were retained;
+the final presentation is regenerated on 20 November without changing behavior.
 
 The 16 November integration review verifies ledger reconciliation across two months, both orders
 of transfer/interest, interest-driven transfer date bounds/floors and freeze isolation after prior
@@ -247,7 +253,13 @@ cases for exact messages, multi-invalid-input precedence and unchanged rejection
 No financial mutation-order defect was found; existing ledger/transfer/month-marker boundaries
 are retained. No new member/API/relationship warrants a UML change for this correction.
 
+The 20 November presentation separates three views and checks displayed members/visibility and
+inheritance against compiled metadata. It corrects optional Bank membership and nonempty ledger
+history, shows static LedgerState versus non-static PreparedPosting, and archives the superseded
+proposal with its obsolete direct balance/minimumBalance hook. Only the enum's stale future-work
+comment changes in Java. Final diagrams are rendered and inspected; no executable change is needed.
+
 The PDF's listed banking operations are now implemented. Further sessions must complete final
-UML/documentation/report/defense and independent review. Existing constructor/getter compatibility
+report assembly/defense and independent review. Existing constructor/getter compatibility
 and the distinction between default product rates/custom policies must remain clear. No database,
 UI or concurrency framework is required. The final UML/report must continue to reflect real code.

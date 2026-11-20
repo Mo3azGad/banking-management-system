@@ -1,0 +1,31 @@
+digraph UML {
+graph [rankdir=TB, bgcolor="white", pad=0.18, nodesep=0.32, ranksep=0.55, splines=polyline, fontname="Helvetica", fontsize=16, labelloc=t, label=<<B>Banking Management System | Exception hierarchy</B><BR/><FONT POINT-SIZE="10">All eleven custom leaves extend BankingException directly; constructors in UML_GUIDE.md</FONT>>];
+node [shape=plain, fontname="Helvetica", fontsize=10];
+edge [fontname="Helvetica", fontsize=9, color="#46576B", arrowsize=0.75, labeldistance=1.8];
+graph [rankdir=LR, nodesep=0.16, ranksep=0.55];
+RuntimeException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#657587"><FONT COLOR="white"><B>RuntimeException<BR/>«JDK»</B></FONT></TD></TR></TABLE>>];
+BankingException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#203B58"><FONT COLOR="white"><B>BankingException<BR/>{abstract}</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT"># BankingException(message)<BR ALIGN="LEFT"/># BankingException(message,<BR ALIGN="LEFT"/>    cause)<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
+BankingException -> RuntimeException [arrowhead="empty"];
+DuplicateCustomerException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#355D7C"><FONT COLOR="white"><B>DuplicateCustomer<BR/>Exception</B></FONT></TD></TR></TABLE>>];
+DuplicateCustomerException -> BankingException [arrowhead="empty"];
+CustomerNotFoundException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#355D7C"><FONT COLOR="white"><B>CustomerNotFound<BR/>Exception</B></FONT></TD></TR></TABLE>>];
+CustomerNotFoundException -> BankingException [arrowhead="empty"];
+DuplicateAccountException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#355D7C"><FONT COLOR="white"><B>DuplicateAccount<BR/>Exception</B></FONT></TD></TR></TABLE>>];
+DuplicateAccountException -> BankingException [arrowhead="empty"];
+AccountNotFoundException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#355D7C"><FONT COLOR="white"><B>AccountNotFound<BR/>Exception</B></FONT></TD></TR></TABLE>>];
+AccountNotFoundException -> BankingException [arrowhead="empty"];
+InvalidBankingInputException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#355D7C"><FONT COLOR="white"><B>InvalidBankingInput<BR/>Exception</B></FONT></TD></TR></TABLE>>];
+InvalidBankingInputException -> BankingException [arrowhead="empty"];
+InsufficientFundsException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#355D7C"><FONT COLOR="white"><B>InsufficientFunds<BR/>Exception</B></FONT></TD></TR></TABLE>>];
+InsufficientFundsException -> BankingException [arrowhead="empty"];
+InvalidPostingDateException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#355D7C"><FONT COLOR="white"><B>InvalidPostingDate<BR/>Exception</B></FONT></TD></TR></TABLE>>];
+InvalidPostingDateException -> BankingException [arrowhead="empty"];
+AccountFrozenException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#355D7C"><FONT COLOR="white"><B>AccountFrozen<BR/>Exception</B></FONT></TD></TR></TABLE>>];
+AccountFrozenException -> BankingException [arrowhead="empty"];
+StalePostingException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#355D7C"><FONT COLOR="white"><B>StalePosting<BR/>Exception</B></FONT></TD></TR></TABLE>>];
+StalePostingException -> BankingException [arrowhead="empty"];
+InterestAlreadyAppliedException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#355D7C"><FONT COLOR="white"><B>InterestAlreadyApplied<BR/>Exception</B></FONT></TD></TR></TABLE>>];
+InterestAlreadyAppliedException -> BankingException [arrowhead="empty"];
+InterestCalculationException [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6" COLOR="#B7C4D1"><TR><TD BGCOLOR="#355D7C"><FONT COLOR="white"><B>InterestCalculation<BR/>Exception</B></FONT></TD></TR></TABLE>>];
+InterestCalculationException -> BankingException [arrowhead="empty"];
+}

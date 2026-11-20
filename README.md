@@ -1,7 +1,7 @@
 # Banking Management System
 
-Advanced OOP, Project 2. **Milestone 14: input/error contracts and mutation-order review.**
-All listed banking operations now exist. Final UML/documentation/report,
+Advanced OOP, Project 2. **Milestone 15: final implemented UML and design presentation.**
+All listed banking operations and the final design views now exist. Final report assembly,
 defense preparation and the genuine two-week history remain; this is not yet the final submission.
 
 ## Run the tests
@@ -92,9 +92,11 @@ not numerical requirements specified by the professor. Single-threaded, in-memor
 - `docs/REQUIREMENTS.md`: PDF obligations versus explicit implementation choices.
 - `docs/ARCHITECTURE.md`: current design, Template Method, injected calculation Strategy and actual SOLID mapping.
 - `docs/DEVELOPMENT_PLAN.md`: remaining work roadmap and actual progress; schedule versus execution distinguished.
-- `docs/current-uml.svg` / `.dot`: implemented model; `docs/proposed-uml.mmd`: final target design.
+- `docs/UML_GUIDE.md`: final class responsibilities, signatures, relationships, patterns and SOLID.
+- `docs/current-uml.svg` / `.dot`: domain view; `docs/uml/`: posting-internal and exception views.
+- `docs/history/`: clearly labelled superseded proposal, retained as historical material.
 - `docs/TEST_MATRIX.md` and `docs/VERIFICATION.md`: current test/coverage evidence and limitations.
-- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_13_VERIFICATION.md`: earlier evidence.
+- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_14_VERIFICATION.md`: earlier evidence.
 - `docs/INTEREST_BOUNDARY_REVIEW.md`: 15 November findings, exact financial examples and 37 added cases; production code unchanged.
 - `docs/INTEGRATION_REVIEW.md`: 16 November two-month worked example, 21 cross-operation cases and design conclusions.
 - `docs/DESIGN_REVIEW.md`: 17 November shared contracts, source/test evidence for SOLID/patterns and limits of extension claims.
@@ -114,7 +116,7 @@ machine-specific tooling stay outside tracked source. On another computer use `g
 and `gh auth setup-git` before pushing.
 
 Milestones 1–3 were genuinely developed on 8 November 2026; milestone 4 was developed on
-9 November; milestone 5 freezing on 10 November; milestone 6 posting preparation on 11 November; milestone 7 transfers on 12 November; milestone 8 policy calculation on 13 November; milestone 9 monthly posting on 14 November; milestone 10 interest-boundary tests/review on 15 November; milestone 11 integration scenarios on 16 November; milestone 12 subtype/design review on 17 November; milestone 13 API/exception audit on 18 November; milestone 14 input/mutation review on 19 November. The professor's at-least-two-week
+9 November; milestone 5 freezing on 10 November; milestone 6 posting preparation on 11 November; milestone 7 transfers on 12 November; milestone 8 policy calculation on 13 November; milestone 9 monthly posting on 14 November; milestone 10 interest-boundary tests/review on 15 November; milestone 11 integration scenarios on 16 November; milestone 12 subtype/design review on 17 November; milestone 13 API/exception audit on 18 November; milestone 14 input/mutation review on 19 November; milestone 15 final UML/design presentation on 20 November. The professor's at-least-two-week
 history requirement is still outstanding.
 Never change author/committer dates or invent activity. A work automation was saved and enabled
 on 8 November for 9–23 November evenings in Europe/Istanbul. Saved scheduling is not proof of
@@ -122,7 +124,7 @@ future execution or pushes; verify each actual session and its result separately
 
 ## Next milestone
 
-Finalize UML/class/pattern/SOLID presentation, then the report and defense preparation. Do not
+Assemble and visually review the final five-section Word report, then refine defense preparation. Do not
 manufacture edits solely to create activity. Keep documentation synchronized with verified work.
 
 ## Internal preparation contract
