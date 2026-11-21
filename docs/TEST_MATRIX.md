@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 15
+# Test evidence and obligations — milestone 16
 
 API_EXCEPTION_AUDIT.md provides the complete public declaration accounting, named success/rejection
 witnesses and all eleven custom-exception throw witnesses. Its 67 unique test selectors were checked
@@ -142,3 +142,9 @@ references and 48 displayed operation references/visibility with compiled metada
 generalization/realization edges and rendered SVG node sets, and inspect all three views. These
 are diagram checks, not extra JUnit cases or proof of every behavior. UML_GUIDE.md supplies the
 selected-member legend, omitted exact signatures, multiplicities and actual pattern/SOLID limits.
+
+Milestone 16 rebuilds the same 659-case suite for final technical report assembly. Its five required
+sections, fourteen per-suite counts, coverage figures, named test selectors and three embedded
+figures are checked against current source/generated evidence. The rendered 13-page PDF is reviewed
+for pagination, text/table bounds and diagram legibility. These artifact checks add no JUnit cases;
+Java source/test files and the UML model are unchanged. See REPORT_BUILD.md and VERIFICATION.md.

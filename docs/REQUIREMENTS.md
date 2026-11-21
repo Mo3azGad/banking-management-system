@@ -6,7 +6,7 @@ project uses the user's explicitly stated assignment; it does not infer identity
 
 ## Mandatory PDF requirements
 
-| Source | Requirement | Current status after 18 November audit |
+| Source | Requirement | Current status after 21 November report assembly |
 |---|---|---|
 | Cover | Individual Java classes and JUnit tests; no running application, main, menu, UI, Scanner or System.out | Foundation follows this restriction |
 | Cover | Meaningful Git/GitHub commits spread over at least two weeks | First commit pushed to verified private GitHub repository; two-week history still outstanding |
@@ -15,10 +15,10 @@ project uses the user's explicitly stated assignment; it does not infer identity
 | Cover | Learned patterns and SOLID | Template Method, polymorphic rules and constructor-injected InterestPolicy Strategy and monthly posting implemented |
 | Cover | Dates passed as parameters; never read system clock | Model and posting dates supplied explicitly; chronology validated without reading clock |
 | Banking (2), p.1 | Bank, customer, checking/savings accounts, transaction | Bank customer/account registries, concrete models and transaction records implemented |
-| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | Bank opening/retrieval, deposits, withdrawals, history, transfers and freezing and monthly interest implemented; final audits/report remain |
+| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | All listed banking operations implemented; current final technical report describes them. Independent submission review remains |
 | Banking (2), p.1 | Different rules and monthly rates for checking and savings | Different floors/rate metadata and fixed-rate calculation and actual default monthly postings implemented |
 | Oral defense, p.1 | Individual five-minute defense with laptop, tests and code walkthrough; absence means failure | Interim preparation included; attend in weeks 11/12 |
-| Final report, p.2 | DOC/DOCX: UML/class overview, patterns, exceptions/checked choice, all five SOLID, testing/limitations/redesign | Interim DOCX only; final follows completed code |
+| Final report, p.2 | DOC/DOCX: UML/class overview, patterns, exceptions/checked choice, all five SOLID, testing/limitations/redesign | Final technical DOCX assembled and rendered/verified on 21 November; final-report.docx and PDF preview. Defense and independent review remain |
 | Cover | Submit on UZEM by 07.12.2026 | Interpreted as 7 December 2026; PDF gives no time |
 
 Rubric: exceptions 10; tests 15; patterns/SOLID 25; Git 5; report 15; oral defense 30.

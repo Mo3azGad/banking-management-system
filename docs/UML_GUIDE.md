@@ -1,8 +1,9 @@
 # Final implemented design — 20 November 2026
 
 These diagrams describe the existing Java implementation in `src/main/java/edu/banking`.
-They introduce no proposed classes or public operations. The full report is still interim;
-its final assembly and pagination review are the next planned session.
+They introduce no proposed classes or public operations. The final five-section technical report
+was assembled and its rendered pagination/figures reviewed on 21 November; see final-report.docx
+and REPORT_BUILD.md. The UML model itself remains the verified 20 November design.
 
 ## Three complementary UML views
 
@@ -182,7 +183,7 @@ dot -Tsvg docs/uml/exceptions.dot -o docs/uml/exceptions.svg
 ```
 
 SVGs are the zoomable exports; DOT files are the editable semantic sources. PNGs embedded in
-the interim report are rendered from the same sources. Rendering/disassembly do not execute
+the final report are rendered from the same sources. Rendering/disassembly do not execute
 domain operations; JUnit remains their only execution entry point.
 
 The obsolete [proposal](history/proposed-uml-before-final-review.mmd) is retained byte-for-byte
@@ -190,5 +191,6 @@ as history, not final design. It had a direct Account balance, a nonexistent min
 and overly strong composition/registration multiplicities. The final views show actual LedgerState,
 getMinimumBalance, optional Bank membership, immutable nonempty history and injected strategy.
 Earlier complete diagrams remain available in Git history. No Java API/behavior change or new
-test was needed for this documentation milestone. Final report assembly, defense and independent
-review remain; the authentic two-week span is still in progress.
+test was needed for that documentation milestone. Final report assembly is complete as of
+21 November; defense refinement and independent review remain, and the authentic two-week span
+is still in progress.

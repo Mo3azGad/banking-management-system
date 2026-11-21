@@ -259,7 +259,8 @@ history, shows static LedgerState versus non-static PreparedPosting, and archive
 proposal with its obsolete direct balance/minimumBalance hook. Only the enum's stale future-work
 comment changes in Java. Final diagrams are rendered and inspected; no executable change is needed.
 
-The PDF's listed banking operations are now implemented. Further sessions must complete final
-report assembly/defense and independent review. Existing constructor/getter compatibility
+The PDF's listed banking operations are implemented, and the final five-section report is complete.
+The 21 November session renders and reviews the report with current test evidence; see REPORT_BUILD.md.
+Further sessions must complete defense refinement and independent review. Existing constructor/getter compatibility
 and the distinction between default product rates/custom policies must remain clear. No database,
 UI or concurrency framework is required. The final UML/report must continue to reflect real code.

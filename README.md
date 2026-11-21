@@ -1,8 +1,8 @@
 # Banking Management System
 
-Advanced OOP, Project 2. **Milestone 15: final implemented UML and design presentation.**
-All listed banking operations and the final design views now exist. Final report assembly,
-defense preparation and the genuine two-week history remain; this is not yet the final submission.
+Advanced OOP, Project 2. **Milestone 16: final five-section technical report.**
+All listed banking operations, final design views and the rendered/verified Word report now exist.
+Defense refinement, independent submission review and the genuine two-week history remain.
 
 ## Run the tests
 
@@ -96,13 +96,16 @@ not numerical requirements specified by the professor. Single-threaded, in-memor
 - `docs/current-uml.svg` / `.dot`: domain view; `docs/uml/`: posting-internal and exception views.
 - `docs/history/`: clearly labelled superseded proposal, retained as historical material.
 - `docs/TEST_MATRIX.md` and `docs/VERIFICATION.md`: current test/coverage evidence and limitations.
-- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_14_VERIFICATION.md`: earlier evidence.
+- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_15_VERIFICATION.md`: earlier evidence.
 - `docs/INTEREST_BOUNDARY_REVIEW.md`: 15 November findings, exact financial examples and 37 added cases; production code unchanged.
 - `docs/INTEGRATION_REVIEW.md`: 16 November two-month worked example, 21 cross-operation cases and design conclusions.
 - `docs/DESIGN_REVIEW.md`: 17 November shared contracts, source/test evidence for SOLID/patterns and limits of extension claims.
 - `docs/API_EXCEPTION_AUDIT.md`: 18 November compiled public inventory, 67 verified named test selectors and a throw witness for each of the eleven custom exception types.
 - `docs/INPUT_MUTATION_REVIEW.md`: 19 November operation-specific transfer diagnostic correction, guard/publication ordering and 20 new cases.
-- `docs/milestone-report.docx`: updated five-section interim Word report, not the final report.
+- [Final technical report](docs/final-report.docx): the five required sections, actual test evidence and three UML figures.
+- [PDF preview](docs/final-report-preview.pdf): the rendered 13-page Word report for layout review; submit the DOCX required by the PDF.
+- `docs/REPORT_BUILD.md` / `tools/build_report.py`: portable report regeneration, evidence and rendering checks.
+- `docs/history/milestone-report-through-nov20.docx`: unchanged archived interim report, superseded by the final technical report.
 - `docs/DEFENSE.md`: current walkthrough, demonstration commands and eventual defense outline.
 
 ## Git and GitHub
@@ -124,8 +127,9 @@ future execution or pushes; verify each actual session and its result separately
 
 ## Next milestone
 
-Assemble and visually review the final five-section Word report, then refine defense preparation. Do not
-manufacture edits solely to create activity. Keep documentation synchronized with verified work.
+Refine the five-minute defense, JUnit demonstration and independent modification exercise using the actual
+implementation. The subsequent independent submission review remains a separate session. Do not manufacture
+edits solely to create activity. Keep documentation synchronized with verified work.
 
 ## Internal preparation contract
 
