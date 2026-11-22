@@ -261,6 +261,7 @@ comment changes in Java. Final diagrams are rendered and inspected; no executabl
 
 The PDF's listed banking operations are implemented, and the final five-section report is complete.
 The 21 November session renders and reviews the report with current test evidence; see REPORT_BUILD.md.
-Further sessions must complete defense refinement and independent review. Existing constructor/getter compatibility
+Defense preparation is completed on 22 November in DEFENSE.md, DEFENSE_DEMO.md and DEFENSE_EXERCISE.md.
+Student rehearsal/attendance and the independent review remain. Existing constructor/getter compatibility
 and the distinction between default product rates/custom policies must remain clear. No database,
 UI or concurrency framework is required. The final UML/report must continue to reflect real code.

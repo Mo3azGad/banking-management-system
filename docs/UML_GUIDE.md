@@ -192,5 +192,6 @@ and overly strong composition/registration multiplicities. The final views show 
 getMinimumBalance, optional Bank membership, immutable nonempty history and injected strategy.
 Earlier complete diagrams remain available in Git history. No Java API/behavior change or new
 test was needed for that documentation milestone. Final report assembly is complete as of
-21 November; defense refinement and independent review remain, and the authentic two-week span
-is still in progress.
+21 November. Defense preparation is completed on 22 November in DEFENSE.md, with a verified demo
+and independent exercise; personal rehearsal/attendance and the independent review remain. Current
+verification records the genuine session timing without implying professor acceptance.

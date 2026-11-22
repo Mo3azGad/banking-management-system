@@ -1,302 +1,164 @@
-# Oral defense preparation — interim
+# Individual oral defense — final preparation, 22 November 2026
 
-Milestone 9 integrates InterestPolicy into dated Account monthly posting; milestone 10 reviews
-interest boundaries with 37 additional cases. Milestone 11 adds 21 cross-operation scenarios;
-neither review required production changes. Milestone 12 clarifies the shared base contract and
-precise SOLID/pattern claims using existing tests. Milestone 13 maps public operations and all
-custom exceptions to named passing cases. Milestone 14 fixes an insufficient-transfer diagnostic
-and verifies input/publication ordering with 20 new cases. Milestone 15 supplies the three final
-UML views and consolidated class/pattern/SOLID guide. All listed banking operations now exist, with final reviews/report/defense remaining. Do not present planned
-classes as implemented. The final defense carries 30 points and attendance is compulsory.
+The official PDF requires a five-minute individual defense in weeks 11–12: bring your laptop,
+run tests and walk through your code. Attendance is compulsory; absence fails the project.
+The defense is worth 30 points. Confirm your assigned course slot separately from the
+7 December UZEM submission deadline. These notes prepare you; they do not record that you
+have personally rehearsed, completed the exercise or attended the defense.
 
-## Explain the current code
+Use the timed explanation below, [verified demo](DEFENSE_DEMO.md), and
+[independent exercise](DEFENSE_EXERCISE.md). The [technical report](final-report.docx) and
+[13-page preview](final-report-preview.pdf) retain their verified 21 November edition;
+no Java behavior/UML change is needed for today's preparation. Current test evidence is in
+[VERIFICATION.md](VERIFICATION.md).
 
-- Customer constructor establishes valid immutable identity; BankingInput.text rejects missing data.
-- registerCustomer validates first, checks uniqueness, and changes the map only on success.
-- findCustomer normalizes input and throws a clear typed exception when the identity is absent.
-- getCustomers copies the map values, preventing callers changing bank state or old snapshots.
+## Five-minute explanation
 
-Run `mvn -Dtest=CustomerTest,BankTest test`. Walk through duplicateRegistrationKeepsOriginalCustomer
-and customerSnapshotDoesNotChangeAfterLaterRegistration. Assertions on unchanged state are part
-of a single rejection/isolation behavior, rather than unrelated checks.
+The quoted paragraphs are a speaking draft, not claims about future demonstrations. The
+speaking draft is about 520 words: approximately 4 minutes 20 seconds at 120 words/minute,
+leaving about 40 seconds for navigation and the two brief JUnit runs. Rehearse aloud with a stopwatch, explain in your own
+words and pause for the professor's questions. The times are targets, not a measured personal
+rehearsal. Run the complete suite before the appointment; use only the focused runs during it.
 
-## Explain milestone 2
+### 0:00–0:30 — Scope and constraints
 
-- Account validates shared opening state once. Checking and savings override the floor and rate;
-  getAvailableBalance uses polymorphism through an Account reference.
-- Savings rejects 99.99 and accepts 100.00; checking accepts zero without an overdraft.
-- BankingInput rejects fractions of a cent with UNNECESSARY rather than silently rounding.
-- Transaction is immutable: type determines direction, amounts remain unsigned, and optional
-  transfer references distinguish ordinary entries from transfer legs.
-- Transaction creation is validation only; Account executes dated postings and Bank coordinates transfers (added in milestone 7).
-- All dates are supplied. Record validation cannot determine account chronology without account
-  state; that validation belongs in the posting workflow.
+Action: open the domain UML and keep the IDE ready.
 
-Run `mvn -Dtest=AccountTest,TransactionTest test`. Show
-`permitsOpeningExactlyAtTheAccountFloor`, `rejectsOpeningOneCentBelowTheAccountFloor`, and
-`rejectsTransferWithoutLinkReference`. Explain the rule before the expected assertion.
+> My project models a small bank with customers, checking and savings accounts, and immutable
+> transactions. It supports opening, deposits, withdrawals, transfers, history, monthly interest
+> and freezing. It contains classes and JUnit tests only. Dates are supplied explicitly, and
+> BigDecimal represents money in exact cents. There is no main program or system-clock access.
 
-## Explain and demonstrate milestone 3
+### 0:30–1:10 — Class structure and invariants
 
-Run `mvn -Dtest=AccountOperationsTest test`, then `mvn clean verify` for the full suite.
+Action: point to Bank, Account, the two products, Transaction and InterestPolicy in the UML.
 
-- `deposit` and `withdraw` are final entry points into Account's shared posting preparation template.
-  Show validation, date bound, calculation, minimum hook, immutable replacement ledger and guarded publication.
-- `permitsWithdrawalOfExactlyTheAvailableBalance` demonstrates different floors through Account.
-- `withdrawalOneCentOverAvailableBalancePreservesState` proves rejection leaves the ledger intact.
-- `chronologyTracksTheLatestWithdrawalAsWellAsDeposits` shows that either posting advances the bound.
-- `failedLaterDatedWithdrawalDoesNotAdvanceLedgerDateOrSequence` shows rejected operations do not
-  affect the next valid operation.
-- `previouslyRetrievedHistoryRemainsUnchangedAfterPosting` demonstrates snapshot encapsulation.
+> Bank registers customers and opens accounts for its own registered owners. Account controls
+> the ledger and posting rules. Checking retains zero and savings retains one hundred; their
+> default monthly rates are point one and point three percent. These numbers are my documented
+> choices. Available balance subtracts the floor. An immutable LedgerState holds balance and
+> history together; callers cannot edit that history. Freezing blocks all financial postings
+> while preserving readable state.
 
-Why include an opening entry? It establishes a complete starting balance and chronology bound.
-Why account-local IDs? The pair (accountId, transactionId) is unique within a registered bank;
-independent accounts need no static counter or Bank service to post. Transfer pairing uses
-another Bank-coordinated reference. This replaces an earlier plan, not a professor requirement.
-Why is this Template Method? One non-overridable algorithm uses a polymorphic minimum hook;
-subclasses vary the rule without duplicating or bypassing posting validation.
-What does atomic mean here? All domain validation/record preparation happens before state
-changes, under single-threaded in-memory use. This is not a database/concurrency guarantee.
-Why not reject future dates? The professor says dates must be supplied, not read from the clock;
-there is no supplied reference date, so only opening/latest-posting chronology is enforced.
+### 1:10–2:10 — Transfer success and rejection
 
-## Explain milestone 4 (9 November)
+Action: run Demo A, then show its recipient-date rejection and Bank.transfer.
 
-Run `mvn -Dtest=BankAccountTest test` for this scope, then `mvn clean verify` for everything.
+> These tests cover all four account-type pairs. A successful transfer moves ten point zero one
+> from two hundred fifty to one hundred fifty, leaving two hundred thirty-nine point ninety-nine
+> and one hundred sixty point zero one. The total remains four hundred. The paired facts share a
+> Bank-local reference; transaction IDs belong to each account. The rejection test uses a date
+> valid for the sender but before the recipient opened. Both ledgers stay unchanged. Bank
+> prepares both complete ledgers and the receipt, validates both plans, then publishes them.
+> That guarantee assumes single-threaded execution and distinct accounts; it is not database
+> or concurrent atomicity.
 
-- Bank.openCheckingAccount/openSavingsAccount validate a free ID, find the canonical Customer,
-  construct the complete account and only then publish it in the account map.
-- Show `constructorRejectionPreservesRegistriesAndLeavesIdReusable` and explain why putting
-  an incomplete account in the map before validation would break this contract.
-- `accountIdentifiersAreUniqueAcrossCheckingAndSavings` demonstrates one Bank-wide account
-  namespace. The PDF leaves ID rules open; these are documented implementation decisions.
-- `openingPublishesTheReturnedAccountWithTheCanonicalRegisteredOwner` and
-  `registrationAtAnotherBankDoesNotAuthorizeOpeningHere` demonstrate registered ownership.
-- `lookupRetainsTheRegisteredPostingStateAndSequence` connects earlier deposit/withdraw work
-  to Bank retrieval. No copying of accounts or ledger IDs is done by lookup.
-- `priorAccountSnapshotDoesNotGainLaterAccounts` protects registry membership. A snapshot's
-  account objects still mutate via their validated APIs; this is intentionally not a balance snapshot.
+### 2:10–2:55 — Monthly interest and the strategy
 
-Why named opening methods? Only two concrete types exist, so named creation/registration
-operations are clear without a separate factory framework. They return concrete types and
-use shared uniqueness validation plus the existing Customer lookup/Account constructors.
-Why not register an arbitrary Account? This scope does not need importing external histories;
-Bank creates accounts using its own registered owner and validated opening state.
-Why new exception types? DuplicateAccountException identifies a conflicting account ID,
-AccountNotFoundException identifies failed lookup; existing input/customer exceptions are reused.
+Action: run Demo B; show applyMonthlyInterest and InterestPolicy.calculate.
 
-## Explain milestone 5 (10 November)
+> Interest requires an explicit month-end, valid chronology and a month not already processed.
+> On a balance of one thousand, the defaults credit one for checking and three for savings.
+> Repeating that month throws InterestAlreadyAppliedException without changing the ledger or
+> consuming an ID. Account delegates arithmetic to an injected InterestPolicy. The fixed policy
+> multiplies exactly and rounds once with HALF_EVEN. Even zero interest creates an INTEREST
+> entry, which is also the processed-month marker.
 
-Run `mvn -Dtest=AccountFreezeTest test`, then `mvn clean verify` for the whole project.
+### 2:55–3:50 — Patterns and all five SOLID principles
 
-- `freeze()` and `isFrozen()` live in Account; final methods and a private flag prevent subtype
-  overrides/setters bypassing the lifecycle. `requireActive()` is shared by freeze and posting.
-- Show `frozenAccountRejectsValidPostingsWithoutChangingLedger` and
-  `frozenFailureTakesPrecedenceOverInvalidPostingInput`: frozen state is rejected before input checks.
-- Show `freezingPreservesFinancialStateAndExistingHistory` and
-  `frozenHistoryRemainsReadableAndRejectsExternalMutation`: freezing is not a financial posting.
-- `repeatedFreezeThrowsTypedFailureAndPreservesState` demonstrates the new unchecked subtype.
-- `freezingOneAccountDoesNotBlockAnotherAccountOfTheSameOwner` demonstrates account-level scope.
+Action: point to preparePosting, getMinimumBalance and the injected policy field/constructor.
 
-Why no date parameter on freeze? It neither compares dates nor records a timestamp; explicit
-dates remain required for financial postings and no system clock is read. Why no freeze ledger
-entry? The existing Transaction model holds financial facts; freezing only controls permission.
-Why not a State pattern? A private boolean and shared guard fit this two-state irreversible scope.
-Why does available balance remain visible? It is balance minus floor metadata; frozen permission
-is independent. Bank transfers check frozen status since milestone 7, and monthly interest does so
-since milestone 9; both have success/failure tests.
+> Template Method shares posting validation and preparation while the minimum-balance hook
+> varies the product rule. Strategy separates interest arithmetic from eligibility and posting.
+> For SOLID: single responsibility separates Bank coordination, Account state and policy math.
+> Open/closed lets an injected policy vary calculation without rewriting posting. Liskov means
+> both account types honor the same contract expressed through available balance, not raw
+> balance. Interface segregation keeps InterestPolicy to one calculation operation. Dependency
+> inversion makes Account depend on that interface; concrete constructors compose defaults.
+> These are specific extension points, not a claim that any future change needs no edits.
 
-## Explain milestone 6 (11 November)
+### 3:50–4:30 — Exceptions and evidence
 
-Run `mvn -Dtest=PreparedPostingTest test`, then `mvn clean verify` for all tests.
+Action: show the exception view and the completed full-build summary.
 
-- Public deposit/withdraw still execute fully; they prepare a plan and immediately commit it.
-  Package-private preparers expose a reusable validation/allocation boundary for later coordination.
-- `preparingAndValidatingDoesNotPublishFinancialState` shows a preview is not a ledger entry yet.
-- `committedPlanCannotBeValidatedOrCommittedAgain` shows the new StalePostingException.
-- `returningToTheSameBalanceDoesNotReviveAnOldPlan` explains why ledger identity matters rather
-  than comparing balances alone: sequence/history may differ while balance is numerically equal.
-- `freezingAfterPreparationPreventsValidationAndCommit` preserves frozen-state protection.
-- `failedSecondPreparationLeavesTheFirstAccountUncommitted` illustrates prevalidation before
-  publication; it is not an implemented Bank transfer.
+> BankingException is an abstract unchecked base with eleven specific domain exceptions.
+> Failures carry clear messages rather than returning null or printing errors. Unexpected
+> policy failures retain their cause in InterestCalculationException. The complete suite has
+> six hundred fifty-nine invocations, including success, rejection and boundary cases. Every
+> concrete custom exception is thrown by an operation test. Line coverage is one hundred
+> percent; the sole missed branch is the compiler-generated enum-switch fallback.
 
-Why a private LedgerState record? Balance and immutable history publish together through one
-reference assignment. All arithmetic/list allocation happens before the commit guard succeeds.
-Why an inner opaque plan? Its private fields/constructor and originating-account binding prevent
-forged/cross-account application. Why revalidate at commit? The account may have changed or frozen
-after preparation. Why no public preparation API? Preparation/commit is internal; clients use deposit/withdraw
-and, since milestone 7, Bank.transfer. What is the cost? O(n) ledger copy per preparation and retained
-history per plan, acceptable here. This is neither concurrency control nor distributed two-phase
-commit. Bank.transfer now enforces distinct accounts and validates both plans before publication.
+### 4:30–5:00 — Limits and a change you can explain
 
-## Explain milestone 7 (12 November)
+Action: finish on the policy constructor; invite questions when appropriate.
 
-Run `mvn -Dtest=BankTransferTest test`, then `mvn clean verify` for the full suite.
+> This is in-memory, single-threaded code. History copying costs linear time, and policies must
+> not mutate accounts. For a different rate on one standalone savings account, I can inject a
+> fixed policy through its existing constructor while preserving the default product metadata.
+> I would predict the cents, write focused success and rejection tests, then run the full suite.
 
-- Walk Bank.transfer through canonical lookup, distinctness, candidate reference, both transfer
-  plans, receipt allocation, both validations, both guarded commits and reference advancement.
-- `transferConservesMoneyAndPostsOneLinkedEntryPerAccount` checks all four concrete type pairs.
-- `dateValidForSourceButBeforeTargetOpeningCannotPartiallyDebit` and
-  `eitherFrozenAccountBlocksTransferWithoutChangingEitherLedger` explain recipient-side failure.
-- `transferReferencesAreIndependentOfLocalPostingSequenceNumbers` distinguishes the common
-  pairing key from each account's ledger ID. References are scoped to Bank, not globally unique.
-- `rejectedTransferAfterSuccessDoesNotLeaveAGapInTransferReferences` demonstrates no reservation.
+## Source navigation and important methods
 
-Why not withdraw then deposit? Recipient date/frozen validation could fail after debiting source.
-Why is the second guarded commit safe here? Both plans were prevalidated; registered accounts are
-distinct, execution is single-threaded, and publication runs no callbacks/arithmetic/allocation.
-There is no supported mutation between validations/commits. This is not concurrency/database
-atomicity. Why return List<Transaction>? Two immutable facts in documented out/in order are enough;
-a separate receipt framework adds no needed behavior. Are same-owner accounts allowed? Yes, as
-long as accounts differ. Does target frozen always beat bad source money? No global cross-account
-error priority is promised: lookups/distinctness run first, then outgoing and incoming preparation.
+Open these files in advance. Use method-name search rather than memorizing line numbers.
+The diagrams select members; [UML_GUIDE.md](UML_GUIDE.md) expands the exact signatures.
 
-## Explain milestone 8 (13 November)
+| File / methods | Explain the responsibility and the point where state changes |
+|---|---|
+| [Bank.java](../src/main/java/edu/banking/Bank.java): registerCustomer, openCheckingAccount, openSavingsAccount | Validate a complete model before inserting it. Account IDs are shared across products; opening resolves the Bank's canonical Customer. Failure does not reserve an ID. |
+| Bank.findCustomer / findAccount / getCustomers / getAccounts | Lookup throws typed failures. List copies protect membership and retrieval order. Accounts in a membership snapshot are still the actual mutable objects. |
+| [Account.java](../src/main/java/edu/banking/Account.java): deposit / withdraw / preparePosting | Final entry points use one preparation template: active guard, positive exact-cent input, supplied date/chronology, next balance, minimum hook, complete immutable entry/ledger. Public methods immediately commit. |
+| Account.prepareEntry / PreparedPosting.validate / commit | Allocate the entry/history/replacement before mutation. Plan validation checks active state then expected ledger identity. commit revalidates and assigns ledger once. Reuse or any intervening posting makes a plan stale. |
+| Bank.transfer | Lookup both, require distinct accounts, candidate reference, outgoing/incoming preparation, receipt allocation, both validations, both commits, reference advancement. A valid sender preview is not an early debit. |
+| Account.applyMonthlyInterest | Active, date, month-end, chronology, duplicate YearMonth, one policy call, validated result, immutable preparation/commit. INTEREST history is authoritative; no separate month set can get out of sync. |
+| [FixedRateInterestPolicy.java](../src/main/java/edu/banking/FixedRateInterestPolicy.java): calculate | Validate balance, multiply by the immutable nonnegative monthly rate exactly, round only the product to cents using HALF_EVEN. Calculation itself posts nothing. |
+| Account.freeze / getTransactionHistory / getAvailableBalance | Freeze changes only a private flag and is irreversible; repeat calls reject. History remains immutable/readable. Availability is balance minus floor, not permission to post while frozen. |
+| [Transaction.java](../src/main/java/edu/banking/Transaction.java): canonical constructor | Validate an immutable fact: positive local ID, money/date/type and transfer reference. It does not execute a posting, establish account chronology or prove the counterpart exists. |
+| [CheckingAccount.java](../src/main/java/edu/banking/CheckingAccount.java) / [SavingsAccount.java](../src/main/java/edu/banking/SavingsAccount.java) | Product floors/default rates, four-argument default constructors and five-argument policy overloads. Savings establishes its floor at opening; base construction calls no overridable product hook. |
 
-Run `mvn -Dtest=FixedRateInterestPolicyTest test`, then `mvn clean verify` for the entire project.
+## Likely questions and concise answers
 
-- InterestPolicy has one operation; FixedRateInterestPolicy validates an immutable monthly decimal
-  rate, validates a balance, multiplies exactly and rounds the final product HALF_EVEN.
-- Show `halfEvenRoundingHandlesBothTieDirectionsAndAdjacentValues`: 0.005 rounds to 0.00,
-  0.015 to 0.02, 0.025 to 0.02. Explain the parity before running the assertions.
-- `retainsRatePrecisionUntilTheFinalInterestRounding` guards against rounding the rate too early.
-- `actualCheckingAndSavingsRateMetadataProduceDifferentQuotes` demonstrates 0.001 versus 0.003
-  on the actual model metadata; the interface is used for calls rather than a concrete API dependency.
-- `calculationDoesNotPostInterestOrMutateEvenAFrozenAccountsLedger` distinguishes a quote from
-  dated posting permission. No eligible month, balance update or interest history is created.
+| Question | Answer grounded in this implementation |
+|---|---|
+| Why no main, menu or console output? | The professor requires classes/methods executed through JUnit only. Maven's test runner output is not application console I/O. |
+| Why BigDecimal, strings and compareTo? | Strings preserve the intended decimal value. compareTo checks numeric order independent of scale; normalization establishes exact cents. Binary floating point is inappropriate for these exact monetary contracts. |
+| Why reject 1.001 rather than round it? | External money must already be exact cents; trailing zeros are harmless. Rounding is an explicit interest-calculation rule, not a way to silently change an invalid request. |
+| Are the floor and rate values mandated by the PDF? | No. The PDF requires different rules/rates; 0/100.00 and 0.001/0.003 are explicit chosen rules. Rates are monthly decimal multipliers, not annual rates or percent-number inputs. |
+| Does savings violate LSP by keeping 100.00? | The base contract permits spending up to available balance. At raw balance 250, checking can spend 250 and savings 150. Both obey that same contract and shared tests. |
+| Can a subclass bypass posting guards? | Supplied products are final; inherited posting methods and internal entry points are final. The abstract minimum hook must be stable and pure. Tests do not prove arbitrary future subtypes correct. |
+| Why unchecked exceptions? | These are input/state rejections in a small in-memory API, without checked I/O. Callers can catch a specific subtype or BankingException. No failure is swallowed or converted to null. |
+| How do you prove each exception is tested? | API_EXCEPTION_AUDIT.md names an actual assertThrows witness for all eleven concrete subtypes. The abstract base is exercised through them; constructing an exception alone is not the evidence. |
+| What error wins when inputs are invalid in several ways? | The first reached guard. Bank transfer lookups/distinctness precede preparation; each account checks frozen state before its posting inputs. Chronology precedes funds and, for interest, duplicate-month checks. There is no global frozen-first rule across both accounts. |
+| Why not withdraw and then deposit for a transfer? | Recipient date or frozen validation could fail after the sender was debited. Preparation/prevalidation of both sides prevents that ordinary domain partial failure. |
+| Could the second commit fail after the first? | Under the stated contract both distinct plans are prevalidated, with no interleaving or callbacks/allocation/arithmetic on the successful publication path. Concurrency and VM failure are outside the guarantee; this is not durable rollback. |
+| Why ledger identity rather than equal balances? | The same balance can follow a deposit/withdrawal round trip with different history and sequence. Identity detects that changed ledger and rejects the old plan. |
+| Are transaction IDs globally unique? | No. (accountId, transactionId) identifies a fact within a Bank account namespace. A separate positive Bank-local transfer reference pairs legs, whose local IDs may differ. Neither scope persists across restarts. |
+| Is a list snapshot a deep account snapshot? | Customer/transaction values are immutable. An account-list snapshot fixes membership, while contained Accounts retain mutable identity/state. History snapshots remain stable after new postings. |
+| Why does freeze have no date? | It records no timestamp or financial entry and performs no date comparison. It changes permission only. All date-dependent opening/posting methods take LocalDate. |
+| Why permit supplied future dates? | There is no explicit reference date input and no clock read. Only opening/latest-entry chronology is enforced; an invented today-based check would violate the contract. |
+| What about zero interest or missed months? | Zero INTEREST still marks the month. Skipped months are not credited automatically; earlier months cannot be backfilled after a later posting. First-month interest is not prorated. |
+| Can a same-day deposit reopen interest? | No. Ordinary same-day posts are allowed, but the existing INTEREST entry still blocks a second application for that YearMonth. |
+| Does getMonthlyInterestRate reveal a custom policy's rate? | It describes the default product multiplier. Actual posting calls the injected algorithm, which need not even be a fixed-rate algorithm. |
+| What if an injected policy fails or mutates an account? | Invalid output and failures without side effects preserve the ledger/month/ID. Domain failures propagate; unexpected runtime failures are wrapped with cause. Mutation violates the pure-policy contract; arbitrary external effects are not rolled back. |
+| How do you know there are patterns? | Name their problem and actual participants: Account template plus minimum hook; Account context, InterestPolicy strategy and FixedRateInterestPolicy algorithm. Bank opening is not GoF Factory Method; freezing is not a State-pattern framework. |
+| Does several assertions in a test violate one behavior per test? | No. A rejected transfer's single postcondition includes both balances, both histories and unchanged sequence/reference behavior. The assertions establish that one complete rejection behavior. |
+| Why not claim 100% branch coverage? | JaCoCo is 70/71 branches (98.59%). The exhaustive enum switch has one unreachable compiler fallback. All legal values/null rejection are tested; no reflection or invented enum is used to chase a number. |
+| What do the tests not establish? | Persistence, concurrent atomicity, VM/resource failure, counter exhaustion and arbitrary impure callback rollback. Coverage also does not prove all future inputs/subtypes correct. |
+| What would you improve if the scope grew? | Define durability/concurrency requirements first; then design storage/transaction boundaries and measure the O(n) history-copy cost. Those systems are not required by this assignment. |
 
-Why no date parameter? Pure math uses only supplied balance/rate; month eligibility belongs in
-the monthly posting operation added in milestone 9. Why no rate cap? None is specified by the PDF; nonnegative
-input is the documented contract. Why allow zero? Rounded-zero interest is a valid financial
-result, unlike zero deposit/withdraw requests. Why not another exception subclass? Existing input
-failure covers invalid rate/balance and unsupported decimal precision. Is Account DIP finished?
-Milestone 8 had only strategy components. Milestone 9 now injects the abstraction into Account
-and invokes it from actual monthly posting, so the new context is concrete DIP/Strategy evidence.
+## Personal rehearsal and completion status
 
-## Explain milestone 9 (14 November)
+1. On your own laptop, confirm JDK 17+ and Maven 3.9.x; run `mvn clean verify` before the appointment
+   and prepare the dependencies for an offline demo. Follow DEFENSE_DEMO.md to verify that setup.
+2. Keep the domain, internal and exception UML views, four demo methods, Bank.transfer,
+   Account.preparePosting/applyMonthlyInterest and the policy constructor open in the IDE.
+3. Predict the demo balances/exceptions aloud before running. Explain the source and assertions,
+   then deliver the speaking draft with a stopwatch and adapt its length to your pace.
+4. Complete DEFENSE_EXERCISE.md without opening its answer checklist first. Explain which change
+   uses constructor injection and why changing a global default would be a different requirement.
+5. Attend your assigned individual slot with the laptop. Test output and prepared notes do not
+   substitute for your understanding, personal rehearsal or compulsory attendance.
 
-Run `mvn -Dtest=MonthlyInterestTest test`, then `mvn clean verify`.
-
-- Account receives a nonnull InterestPolicy; ordinary constructors compose default policies,
-  optional five-argument constructors accept an override. Account depends only on the interface.
-- Walk applyMonthlyInterest: frozen/date/month-end/chronology/duplicate checks, one calculation,
-  result validation, prepared immutable entry/ledger, then guarded commit. No system clock is read.
-- Show `defaultPolicyPostsTheCorrectRateAndOneCompleteInterestEntry` and
-  `ordinarySameDayPostingsDoNotPermitReapplicationOrRecallThePolicy`.
-- `zeroCreditIsRecordedAndStillProtectsTheProcessedMonth` explains the ledger-as-month-marker.
-- `invalidPolicyResultPreservesTheMonthAndSequenceForAValidRetry` and
-  `unexpectedPolicyFailureIsWrappedWithItsCauseAndAllowsRetry` demonstrate failure contracts.
-
-Why no separate processed-month set? The INTEREST entry is already an immutable authoritative
-record; publishing it with balance makes the marker atomic. What about same-day later deposits?
-They are allowed, but the earlier interest is not recomputed. What does getMonthlyInterestRate
-mean with a custom algorithm? The default product rate, not introspection of an arbitrary policy.
-What if a callback mutates an account itself? It violates InterestPolicy's pure contract; its
-external side effects are not rolled back. Frozen/stale guards still stop invalid prepared interest
-publication. State-preservation tests use controlled output/failure doubles, not arbitrary callbacks.
-
-## Explain milestone 10 (15 November)
-
-Run `mvn -Dtest=MonthlyInterestBoundaryTest test`. Explain why 100% line coverage did not establish
-posted rounding or recovery after a previously successful month. Show
-`postedCreditsAndBalancesRespectHalfEvenTiesAndTheirNeighbors`: checking 1005.00 credits 1.00,
-while 1015.00 credits 1.02; the ledger and actual balance must agree with the rounded quote.
-Show `failedLaterMonthKeepsPriorMarkersAndAllowsAnEarlierMonthThenRetry`: a failed March
-calculation must retain January's marker without preventing February or reserving March/IDs.
-No production fix was needed. The review strengthened evidence rather than inventing a feature.
-
-## Explain milestone 11 (16 November)
-
-Run `mvn -Dtest=BankScenarioTest test`. Show
-`twoMonthWorkflowReconcilesExternalFlowsInterestAndPairedTransfers` with the financial table in
-INTEGRATION_REVIEW.md. The total 1607.70 equals initial 1500 + deposits 200 - withdrawal 100 +
-interest 7.70. Explain why paired transfers change individual balances but conserve that total,
-and why their shared reference differs from each leg's local posting ID. The test helper rebuilds
-running balances from facts; explicit expected totals check the actual financial result too.
-Show `sameDayTransferAfterInterestCannotReopenEitherProcessedMonth`: an ordinary transfer entry
-cannot erase the INTEREST marker. No new production abstraction was needed to pass these cases.
-
-## Explain milestone 12 (17 November)
-
-Use DESIGN_REVIEW.md and Account's class Javadoc. For an active 250.00 balance, withdrawing
-availability leaves checking at 0.00 and savings at 100.00. The client uses Account and an eligible
-supplied date; it needs no instanceof branch. Point to
-`permitsWithdrawalOfExactlyTheAvailableBalance` and
-`withdrawalOneCentOverAvailableBalancePreservesState` for both success and rejection evidence.
-LSP does not promise that the raw balance is entirely spendable or prove future subclasses safe.
-
-Trace Template Method through final deposit/withdraw, preparePosting and the minimum hook;
-trace Strategy through Account's injected InterestPolicy and concrete default composition.
-Explain each SOLID row using a real member. A new policy changes calculation without changing
-eligibility, but a new Bank product still needs a creation API. Named opening methods are not
-GoF Factory Method and the frozen flag is not State. No additional pattern framework was needed.
-
-## Explain milestone 13 (18 November)
-
-Use API_EXCEPTION_AUDIT.md to locate a successful and rejected operation, then show its exact
-test selector. Explain why constructor line coverage alone does not prove an exception was thrown:
-each of the eleven concrete types has an operation/assertThrows witness. For example, run
-`mvn -Dtest=MonthlyInterestTest#unexpectedPolicyFailureIsWrappedWithItsCauseAndAllowsRetry test`
-to show the real wrapper path, retained cause, unchanged state and retry.
-
-The audit accounts for 60 public callables, including generated/basic/carrier declarations;
-24 are domain-operation/constructor declarations. A no-input snapshot getter cannot fail in valid
-state: its returned collection rejects mutation with a JDK exception. Do not invent a banking
-failure for that getter or miscount that JDK exception as a custom type. All 639 cases pass;
-the documented exhaustive-enum fallback is the only missed branch. Coverage is supporting
-evidence, not proof for all possible inputs. No new behavioral test was warranted by this audit.
-
-## Explain milestone 14 (19 November)
-
-Run `mvn -Dtest=InputContractTest test`. Show
-`insufficientTransferNamesTheRequestedOperationAndKeepsRetryState`: the old `cannot withdraw`
-message failed the new test; the corrected `cannot transfer` identifies the actual request.
-The withdrawal test preserves its old wording. Both use normalized money and verify rejection
-before a valid earlier-date retry with consecutive IDs/first transfer reference.
-
-Explain the phase boundary with `targetLookupPrecedesFrozenSourceAndInvalidPostingInputs`:
-Bank resolves both accounts before preparing any leg, so an absent recipient is reported before
-examining a frozen source or bad amount/date. Direct Account methods still check frozen state
-first. This is not a global frozen-first rule across two accounts. Use INPUT_MUTATION_REVIEW.md
-to distinguish guard order, full allocation/prevalidation and actual immutable-ledger publication.
-No financial mutation-order defect was found; the existing boundary remains justified.
-
-## Read the final UML (20 November)
-
-Start with UML_GUIDE.md and the domain SVG, then open the posting-internal and exception views.
-Explain that Account reads balance from private LedgerState; it has no direct balance field.
-LedgerState is a static nested record, while PreparedPosting captures one enclosing Account.
-The history starts with OPENING, so its multiplicity is 1..*. Registry membership is optional
-for a directly constructed Customer/Account, and the diagrams do not claim composition lifetimes.
-Italic product hooks are abstract; concrete products provide floor/rate constants. The guide
-expands elided parameters and identifies static/final members, both constructors per product,
-default rate metadata, injected policy calculation and the two actual patterns. The old proposal
-is archived and is not the implementation diagram. No new business feature is implied by a box.
-
-## Proposed final five-minute outline (to refine in the defense session)
-
-0:00–0:40: scope and constraints: classes/tests only, in-memory, two account types.
-0:40–1:35: show final UML: Bank coordinates, Account holds invariants, concrete types vary rules.
-1:35–2:25: show atomic transfer success/failure tests and explain why both sides validate first.
-2:25–3:15: show interest strategy, rounding, explicit date and duplicate-month test.
-3:15–4:10: explain Template Method and all five SOLID mappings using actual method names.
-4:10–5:00: show exception hierarchy, run tests, state limits and explain one modification.
-
-## Likely questions
-
-Why BigDecimal? Decimal financial values avoid binary floating-point rounding artifacts; create
-from strings and make rounding explicit for interest, not silent for invalid user input.
-Why no main? The professor requires JUnit to be the only way domain code executes.
-Why unchecked exceptions? This in-memory API has rejected operations, not checked I/O;
-callers may handle BankingException while retaining precise subtype information.
-Why immutable snapshots? Encapsulation includes collections; an unmodifiable live view still
-changes when the bank changes, while a snapshot preserves the retrieval result.
-Why no database/repository framework? It adds scope without a stated requirement.
-How can date tests be repeatable? Supply fixed LocalDate values; never use now() or system time.
-What does atomic transfer mean here? Validation completes for both accounts before either
-changes, within single-threaded in-memory execution; no concurrency/persistence guarantees.
-Does inheritance alone prove LSP? No: each subtype must satisfy the base contract and shared tests.
-What would you change to add a rate? Supply another validated InterestPolicy through a concrete account's policy constructor.
-
-Practice changing a real rule (for example, savings floor) and adjusting the boundary tests.
-Explain why each expected result changes before running the tests. Memorization is insufficient.
+The two focused commands and complete build were actually run on 22 November; their evidence
+and current coverage are in VERIFICATION.md. This session prepares the material and verifies
+its technical references, not the student's spoken delivery. The separate proposed 23 November
+independent review remains. No execution after the configured final session is implied.

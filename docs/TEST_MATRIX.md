@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 16
+# Test evidence and obligations — milestone 17
 
 API_EXCEPTION_AUDIT.md provides the complete public declaration accounting, named success/rejection
 witnesses and all eleven custom-exception throw witnesses. Its 67 unique test selectors were checked
@@ -148,3 +148,11 @@ sections, fourteen per-suite counts, coverage figures, named test selectors and 
 figures are checked against current source/generated evidence. The rendered 13-page PDF is reviewed
 for pagination, text/table bounds and diagram legibility. These artifact checks add no JUnit cases;
 Java source/test files and the UML model are unchanged. See REPORT_BUILD.md and VERIFICATION.md.
+
+Milestone 17 verifies the four existing methods selected in DEFENSE_DEMO.md: eight parameterized
+transfer invocations and four interest invocations. Their commands, fixtures, balances, references,
+rejection state and successful retries are checked against source and real Surefire results. These
+are subsets/reruns, not twelve added cases. A subsequent complete clean verify restores all 659
+passing cases and authoritative coverage. The independent exercise is a student task with checked
+predictions, not implemented tests or a claim of student completion. Production/tests/UML remain
+unchanged; the dated 21 November report retains its accurate edition. See VERIFICATION.md.

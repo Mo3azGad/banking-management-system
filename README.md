@@ -1,8 +1,9 @@
 # Banking Management System
 
-Advanced OOP, Project 2. **Milestone 16: final five-section technical report.**
+Advanced OOP, Project 2. **Milestone 17: individual defense preparation and verified JUnit demo.**
 All listed banking operations, final design views and the rendered/verified Word report now exist.
-Defense refinement, independent submission review and the genuine two-week history remain.
+The timed defense explanation, demo and independent exercise are ready. Personal rehearsal,
+compulsory defense attendance and the independent submission review remain.
 
 ## Run the tests
 
@@ -96,7 +97,7 @@ not numerical requirements specified by the professor. Single-threaded, in-memor
 - `docs/current-uml.svg` / `.dot`: domain view; `docs/uml/`: posting-internal and exception views.
 - `docs/history/`: clearly labelled superseded proposal, retained as historical material.
 - `docs/TEST_MATRIX.md` and `docs/VERIFICATION.md`: current test/coverage evidence and limitations.
-- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_15_VERIFICATION.md`: earlier evidence.
+- `docs/MILESTONE_1_VERIFICATION.md` through `docs/MILESTONE_16_VERIFICATION.md`: earlier evidence.
 - `docs/INTEREST_BOUNDARY_REVIEW.md`: 15 November findings, exact financial examples and 37 added cases; production code unchanged.
 - `docs/INTEGRATION_REVIEW.md`: 16 November two-month worked example, 21 cross-operation cases and design conclusions.
 - `docs/DESIGN_REVIEW.md`: 17 November shared contracts, source/test evidence for SOLID/patterns and limits of extension claims.
@@ -106,7 +107,9 @@ not numerical requirements specified by the professor. Single-threaded, in-memor
 - [PDF preview](docs/final-report-preview.pdf): the rendered 13-page Word report for layout review; submit the DOCX required by the PDF.
 - `docs/REPORT_BUILD.md` / `tools/build_report.py`: portable report regeneration, evidence and rendering checks.
 - `docs/history/milestone-report-through-nov20.docx`: unchanged archived interim report, superseded by the final technical report.
-- `docs/DEFENSE.md`: current walkthrough, demonstration commands and eventual defense outline.
+- [Defense preparation](docs/DEFENSE.md): approximately 520-word timed explanation, source navigation, all five SOLID principles and likely Q&A.
+- [Verified JUnit demo](docs/DEFENSE_DEMO.md): exact selected-method commands, expected balances/history/errors, setup and report-refresh instructions.
+- [Independent modification exercise](docs/DEFENSE_EXERCISE.md): account-specific policy override, predicted success/rejection outcomes and a separate answer checklist; student practice is still required.
 
 ## Git and GitHub
 
@@ -119,17 +122,20 @@ machine-specific tooling stay outside tracked source. On another computer use `g
 and `gh auth setup-git` before pushing.
 
 Milestones 1–3 were genuinely developed on 8 November 2026; milestone 4 was developed on
-9 November; milestone 5 freezing on 10 November; milestone 6 posting preparation on 11 November; milestone 7 transfers on 12 November; milestone 8 policy calculation on 13 November; milestone 9 monthly posting on 14 November; milestone 10 interest-boundary tests/review on 15 November; milestone 11 integration scenarios on 16 November; milestone 12 subtype/design review on 17 November; milestone 13 API/exception audit on 18 November; milestone 14 input/mutation review on 19 November; milestone 15 final UML/design presentation on 20 November. The professor's at-least-two-week
-history requirement is still outstanding.
+9 November; milestone 5 freezing on 10 November; milestone 6 posting preparation on 11 November; milestone 7 transfers on 12 November; milestone 8 policy calculation on 13 November; milestone 9 monthly posting on 14 November; milestone 10 interest-boundary tests/review on 15 November; milestone 11 integration scenarios on 16 November; milestone 12 subtype/design review on 17 November; milestone 13 API/exception audit on 18 November; milestone 14 input/mutation review on 19 November; milestone 15 final UML/design presentation on 20 November; milestone 16 final technical report on 21 November; milestone 17 defense preparation on 22 November.
+More than fourteen days have elapsed since the original 8 November commit. The current session's
+real commit/push and exact preserved timestamp span are verified separately; elapsed wall time or
+a saved schedule alone does not establish meaningful history or professor acceptance.
 Never change author/committer dates or invent activity. A work automation was saved and enabled
 on 8 November for 9–23 November evenings in Europe/Istanbul. Saved scheduling is not proof of
 future execution or pushes; verify each actual session and its result separately.
 
 ## Next milestone
 
-Refine the five-minute defense, JUnit demonstration and independent modification exercise using the actual
-implementation. The subsequent independent submission review remains a separate session. Do not manufacture
-edits solely to create activity. Keep documentation synchronized with verified work.
+Perform the independent clean-build and submission-artifact review in the proposed 23 November session,
+making only genuine corrections or recording substantive findings. The student still needs to rehearse,
+complete the independent exercise and attend the defense. Do not manufacture activity or assume automatic
+continuation after the configured final session.
 
 ## Internal preparation contract
 
