@@ -1,4 +1,4 @@
-# Test evidence and obligations — milestone 17
+# Test evidence and obligations — milestone 18
 
 API_EXCEPTION_AUDIT.md provides the complete public declaration accounting, named success/rejection
 witnesses and all eleven custom-exception throw witnesses. Its 67 unique test selectors were checked
@@ -42,12 +42,13 @@ base is exercised through its subclasses. Getter/derived values on valid state h
 failure input; do not invent failures. UnsupportedOperationException is the JDK immutable-list
 contract, not a custom banking exception. Generated record accessors are checked through facts.
 
-## Remaining test obligations
+## Final review status and limits
 
-- Final artifact/independent review must confirm that documentation matches actual behavior and
-  close genuine gaps found. Input/error and publication ordering are reviewed in
-  INPUT_MUTATION_REVIEW.md; API/exception, design, integration and interest-boundary evidence remain
-  separate. The remaining sessions are not permission to defer testing current changes.
+- The 23 November independent review confirms current source/test/UML/report consistency; no
+  additional financial behavior defect or justified new test is found. FINAL_REVIEW.md records
+  substantive findings and artifact corrections. Input/error/publication review and earlier API,
+  design, integration and interest-boundary evidence remain separate dated records. Future code
+  changes, if requested, require fresh affected tests and complete verification.
 
 Current totals/coverage are in VERIFICATION.md. Transfer history is now verified through Bank execution. Interest history is now verified through actual Account monthly application. No persistence, concurrency, UI,
 GitHub network integration or unattended scheduler is part of the Java test suite. Git pushes
@@ -156,3 +157,10 @@ are subsets/reruns, not twelve added cases. A subsequent complete clean verify r
 passing cases and authoritative coverage. The independent exercise is a student task with checked
 predictions, not implemented tests or a claim of student completion. Production/tests/UML remain
 unchanged; the dated 21 November report retains its accurate edition. See VERIFICATION.md.
+
+Milestone 18 rechecks all 60 compiled public declarations, 74 named source/passing-report witnesses,
+the eleven concrete exception witnesses, prohibited APIs and the 24-type UML against fresh metadata.
+The complete clean build passes all 659 cases with unchanged coverage; no source/test change is
+warranted. The final Word/PDF edition is refreshed to 23 November, with current evidence and reviewed
+technical completion status. The final committed source archive is checked/built separately, with
+actual package provenance reported in the session result. Artifact checks are not new JUnit cases.

@@ -129,10 +129,12 @@ def build(as_of, verified_at):
     h('Evidence and delivery status')
     p(f'The clean verification run completed at {verified_at.isoformat().replace("+00:00", "Z")}: '
       f'{totals["tests"]} JUnit invocations, no failures, errors or skipped cases. '
-      'The report describes existing code; planned defense refinement and independent submission review are not claimed complete.')
+      'The implementation, defense material and independent technical review are complete for this edition. '
+      'Student rehearsal, compulsory defense attendance and UZEM submission remain personal actions.')
     p('The official PDF is the requirements authority. Numeric floors, rates and detailed posting rules are explicit '
-      'implementation choices. The genuine Git history began on 8 November; the two-week span is still in progress '
-      'on this report date. A proposed 23 November review is beyond fourteen elapsed days, subject to actual execution.')
+      'implementation choices. The reviewed history from 8 November 16:23:30Z through 22 November 16:49:39Z '
+      'already spans 14 days and 26 minutes, on fifteen real development dates. Original commits are preserved. '
+      'The independent final review is dated 23 November; professor acceptance is not asserted.')
     p('Private repository: github.com/Mo3azGad/banking-management-system\n'
       'Submission: individual DOC/DOCX on UZEM by 7 December 2026. The separate five-minute individual defense is mandatory; '
       'the PDF specifies weeks 11–12 and requires a laptop, test demonstration and code walkthrough.', 'Caption')
@@ -415,7 +417,8 @@ def build(as_of, verified_at):
       'tests: src/test/java/edu/banking. Design and exact signatures: docs/UML_GUIDE.md and '
       'docs/ARCHITECTURE.md. Current verification: docs/VERIFICATION.md; dated predecessors preserve '
       'earlier results. Report regeneration and rendering checks: docs/REPORT_BUILD.md. Genuine history '
-      'and remaining defense/independent-review obligations: docs/DEVELOPMENT_PLAN.md.')
+      'and remaining student rehearsal/attendance/submission actions: docs/DEVELOPMENT_PLAN.md. '
+      'Independent review findings and delivery instructions: docs/FINAL_REVIEW.md and docs/SUBMISSION.md.')
 
     props = d.core_properties
     props.title = 'Banking Management System — Final Technical Report'

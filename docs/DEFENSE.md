@@ -8,8 +8,8 @@ have personally rehearsed, completed the exercise or attended the defense.
 
 Use the timed explanation below, [verified demo](DEFENSE_DEMO.md), and
 [independent exercise](DEFENSE_EXERCISE.md). The [technical report](final-report.docx) and
-[13-page preview](final-report-preview.pdf) retain their verified 21 November edition;
-no Java behavior/UML change is needed for today's preparation. Current test evidence is in
+[13-page preview](final-report-preview.pdf) are refreshed/verified on 23 November;
+no Java behavior/UML change is needed for defense preparation. Current test evidence is in
 [VERIFICATION.md](VERIFICATION.md).
 
 ## Five-minute explanation
@@ -159,6 +159,7 @@ The diagrams select members; [UML_GUIDE.md](UML_GUIDE.md) expands the exact sign
    substitute for your understanding, personal rehearsal or compulsory attendance.
 
 The two focused commands and complete build were actually run on 22 November; their evidence
-and current coverage are in VERIFICATION.md. This session prepares the material and verifies
-its technical references, not the student's spoken delivery. The separate proposed 23 November
-independent review remains. No execution after the configured final session is implied.
+is preserved in MILESTONE_17_VERIFICATION.md and current coverage is in VERIFICATION.md. This
+material prepares the student; it does not establish spoken delivery. The separate independent
+technical review is completed on 23 November in FINAL_REVIEW.md. No execution after the
+configured final session is implied.

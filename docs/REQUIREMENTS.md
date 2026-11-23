@@ -6,19 +6,19 @@ project uses the user's explicitly stated assignment; it does not infer identity
 
 ## Mandatory PDF requirements
 
-| Source | Requirement | Current status after 22 November defense preparation |
+| Source | Requirement | Current status after 23 November independent final review |
 |---|---|---|
 | Cover | Individual Java classes and JUnit tests; no running application, main, menu, UI, Scanner or System.out | Foundation follows this restriction |
-| Cover | Meaningful Git/GitHub commits spread over at least two weeks | Genuine work through 22 November; original first commit 8 November 16:23:30Z preserved. Session result independently verifies the actual commit/push span; professor assessment is not claimed |
+| Cover | Meaningful Git/GitHub commits spread over at least two weeks | Seventeen nonempty commits on fifteen dates, 8–22 November, already span 14 days 00:26:09 before final review. Originals preserved; final real-date push/ancestry independently verified in session result. Professor assessment is not claimed |
 | Cover | Own base and specialized exceptions; clear messages; no null/error printing on failure | Abstract unchecked base plus eleven concrete types; explicit operation-throw witnesses in API_EXCEPTION_AUDIT.md |
 | Cover | Every nontrivial public method tested for success and failure; every exception thrown in a test | Audited all 24 domain-operation/constructor declarations against named tests; valid-state queries with no failure input are explained rather than given invented failures |
 | Cover | Learned patterns and SOLID | Template Method, polymorphic rules and constructor-injected InterestPolicy Strategy and monthly posting implemented |
 | Cover | Dates passed as parameters; never read system clock | Model and posting dates supplied explicitly; chronology validated without reading clock |
 | Banking (2), p.1 | Bank, customer, checking/savings accounts, transaction | Bank customer/account registries, concrete models and transaction records implemented |
-| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | All listed banking operations implemented; current final technical report describes them. Independent submission review remains |
+| Banking (2), p.1 | Open, deposit, withdraw, transfer, history, monthly interest, freeze | All listed banking operations implemented and independently reviewed; final report and tests describe actual behavior |
 | Banking (2), p.1 | Different rules and monthly rates for checking and savings | Different floors/rate metadata and fixed-rate calculation and actual default monthly postings implemented |
 | Oral defense, p.1 | Individual five-minute defense with laptop, tests and code walkthrough; absence means failure | Timed script, source/Q&A, verified JUnit demo and independent exercise prepared 22 November. Student rehearsal/exercise completion and attendance in weeks 11/12 remain |
-| Final report, p.2 | DOC/DOCX: UML/class overview, patterns, exceptions/checked choice, all five SOLID, testing/limitations/redesign | Final technical DOCX assembled and rendered/verified on 21 November; final-report.docx and PDF preview retain that edition. Independent review remains |
+| Final report, p.2 | DOC/DOCX: UML/class overview, patterns, exceptions/checked choice, all five SOLID, testing/limitations/redesign | Final technical DOCX assembled 21 November, refreshed/re-rendered/verified 23 November with current evidence and completion status; final-report.docx plus 13-page preview |
 | Cover | Submit on UZEM by 07.12.2026 | Interpreted as 7 December 2026; PDF gives no time |
 
 Rubric: exceptions 10; tests 15; patterns/SOLID 25; Git 5; report 15; oral defense 30.

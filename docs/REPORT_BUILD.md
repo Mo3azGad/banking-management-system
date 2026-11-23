@@ -1,9 +1,10 @@
-# Final technical report — 21 November 2026
+# Final technical report — final review edition, 23 November 2026
 
 The deliverable is [final-report.docx](final-report.docx). The [PDF preview](final-report-preview.pdf)
 is its reviewed rendering, not a replacement for the PDF's required DOC/DOCX submission format.
 The final technical report is organized by the five required topics rather than the daily history.
-It describes implemented behavior and the remaining genuine-history/defense/review obligations.
+Originally assembled on 21 November, it is refreshed on 23 November with current build evidence,
+verified history/preparation/review status and the remaining personal defense/submission actions.
 The earlier interim draft is preserved byte-for-byte in history/milestone-report-through-nov20.docx.
 
 ## Content and evidence
@@ -39,7 +40,7 @@ Then use the **actual** successful build completion timestamp and current report
 The checked-in edition was produced with:
 
 ```sh
-python tools/build_report.py --as-of 2026-11-21 --verified-at 2026-11-21T16:10:03Z
+python tools/build_report.py --as-of 2026-11-23 --verified-at 2026-11-23T16:25:00Z
 soffice -env:UserInstallation=file:///tmp/banking-report-lo --headless --convert-to pdf --outdir /tmp docs/final-report.docx
 cp /tmp/final-report.pdf docs/final-report-preview.pdf
 ```
@@ -47,7 +48,9 @@ cp /tmp/final-report.pdf docs/final-report-preview.pdf
 The builder reads current Surefire counts and JaCoCo counters, rejects missing/nonpassing/skipped
 suite evidence, and embeds freshly rendered images from the three editable DOT sources. Dates are
 explicit. Rebuilding does not certify that narrative, versions, dates, selector references or
-pagination remain accurate: review them whenever code, toolchain or report content changes.
+pagination remain accurate: review them whenever code, toolchain or report content changes. The
+narrative records the actual 23 November review and the already verified 8–22 November history;
+passing a later date to the builder does not establish another review or future completion.
 Use a fresh clean verify; old target/ output is not fresh evidence. The timestamp above records
 this edition only and must not be reused as a claim about a later run.
 
@@ -64,9 +67,9 @@ this edition only and must not be reused as a claim about a later run.
   actual source and passing Surefire testcase names, including parameterized invocations.
 - LibreOfficeDev 26.8.0.0.alpha0 converts the actual DOCX to the committed preview. All thirteen
   rendered pages are visually reviewed via page images/contact sheets; each UML figure is also
-  inspected at full-page size. The test-count header width is corrected after rendering. Text/table
+  inspected at full-page size. The test-count header correction from 21 November is retained. Text/table
   layout and image bounds are checked; captions remain with their figures, with no blank/overflow page.
-- The original interim DOCX and milestone-15 verification are preserved byte-for-byte. Java source,
+- The original interim DOCX and prior dated verifications are preserved byte-for-byte. Java source,
   JUnit source and the three UML sources/exports are unchanged. Tools/credentials remain untracked.
 
 The renderer reports a nonfatal font-cache warning under the restricted environment; it exits
@@ -74,6 +77,7 @@ successfully and its actual output was inspected. Layout may reflow in another W
 environment; reopen the DOCX before submission. The PDF preview records the inspected layout.
 These artifact checks are separate from the 659 JUnit invocations and do not inflate that count.
 
-Defense refinement and the independent submission review remain proposed later sessions. At this
-edition date, fewer than fourteen full days have elapsed from the first commit; no report or saved
-automation proves future execution, the required span or professor acceptance.
+Defense material and the independent technical review are complete; student rehearsal, exercise,
+compulsory attendance and UZEM upload remain personal actions. The preserved reviewed history already
+spans more than fourteen days on multiple real dates; see FINAL_REVIEW.md. The technical roadmap ends
+on 23 November. No report or saved automation proves future execution or professor acceptance.

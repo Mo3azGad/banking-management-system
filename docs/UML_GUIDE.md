@@ -2,8 +2,9 @@
 
 These diagrams describe the existing Java implementation in `src/main/java/edu/banking`.
 They introduce no proposed classes or public operations. The final five-section technical report
-was assembled and its rendered pagination/figures reviewed on 21 November; see final-report.docx
-and REPORT_BUILD.md. The UML model itself remains the verified 20 November design.
+was assembled on 21 November and refreshed/re-rendered during the independent final review on
+23 November; see final-report.docx and REPORT_BUILD.md. The UML model itself remains the verified
+20 November design, rechecked against compiled metadata on 23 November.
 
 ## Three complementary UML views
 
@@ -193,5 +194,6 @@ getMinimumBalance, optional Bank membership, immutable nonempty history and inje
 Earlier complete diagrams remain available in Git history. No Java API/behavior change or new
 test was needed for that documentation milestone. Final report assembly is complete as of
 21 November. Defense preparation is completed on 22 November in DEFENSE.md, with a verified demo
-and independent exercise; personal rehearsal/attendance and the independent review remain. Current
-verification records the genuine session timing without implying professor acceptance.
+and independent exercise. The independent technical review is completed on 23 November in
+FINAL_REVIEW.md; personal rehearsal, attendance and submission remain. Current verification
+records the genuine session timing without implying professor acceptance.
